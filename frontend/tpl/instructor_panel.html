@@ -1,0 +1,80 @@
+<section class="instructor-panel">
+    <div class="container">
+
+        <div class="instructor-header">
+            <img src="assets/img/team/Vedad.jpg" alt="Instructor Photo" class="profile-pic">
+            <div>
+                <h2>Welcome, Vedad Šarić</h2>
+                <p>U1 Certified Ski Instructor</p>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card">
+                <h4>Total Hours This Week</h4>
+                <p>12</p>
+            </div>
+            <div class="card">
+                <h4>Upcoming Bookings</h4>
+                <p>2</p>
+            </div>
+        </div>
+
+        <h3>Upcoming Bookings</h3>
+        <table class="table table-striped booking-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Emily Johnson</td>
+                    <td>2025-03-25</td>
+                    <td>10:00 AM</td>
+                    <td>Group</td>
+                    <td>1h</td>
+                    <td><span class="status confirmed">Confirmed</span></td>
+                    <td>
+                        <button class="btn btn-success btn-sm">Mark Complete</button>
+                        <button class="btn btn-outline-danger btn-sm">Cancel</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mark Thompson</td>
+                    <td>2025-03-26</td>
+                    <td>1:00 PM</td>
+                    <td>Private</td>
+                    <td>2h</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td>
+                        <button class="btn btn-success btn-sm">Mark Complete</button>
+                        <button class="btn btn-outline-danger btn-sm">Cancel</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Availability Calendar Section -->
+        <div class="availability-calendar">
+            <h3>Set Your Availability</h3>
+            <div class="week-days">
+                <button type="button" class="day-toggle" data-day="monday">Monday</button>
+                <button type="button" class="day-toggle" data-day="tuesday">Tuesday</button>
+                <button type="button" class="day-toggle" data-day="wednesday">Wednesday</button>
+                <button type="button" class="day-toggle" data-day="thursday">Thursday</button>
+                <button type="button" class="day-toggle" data-day="friday">Friday</button>
+                <button type="button" class="day-toggle" data-day="saturday">Saturday</button>
+                <button type="button" class="day-toggle" data-day="sunday">Sunday</button>
+            </div>
+            <button type="button" class="save-availability">Save Availability</button>
+        </div>
+
+    </div>
+</section>
