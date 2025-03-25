@@ -1,0 +1,8 @@
+main#spapp > section {
+    display: none; 
+}
+
+main#spapp > section:target {
+    display: block; 
+    animation: appear 0.1s linear;
+}

@@ -1,0 +1,168 @@
+<section class="booking-section">
+    <div class="container">
+        <h1>Book Your Ski Session</h1>
+        <form id="bookingForm" onsubmit="return validateBookingForm();">
+            <!-- Session Type -->
+            <div class="form-group">
+                <label for="sessionType">Choose a session type:</label>
+                <select id="sessionType" name="sessionType" onchange="toggleBookingOptions()" required>
+                    <option value="" disabled selected>Select a session type</option>
+                    <option value="skiSchool">Ski School</option>
+                    <option value="privateInstruction">Private Instruction</option>
+                </select>
+            </div>
+
+            <!-- Ski School Options -->
+            <div id="skiSchoolOptions" style="display: none;">
+                <div class="form-group">
+                    <label for="spots">Number of Spots:</label>
+                    <input type="number" id="spots" name="spots" min="1" max="20"
+                        onchange="resetLevels(); resetVegetarian(); resetAgeGroups();"
+                        placeholder="Enter number of spots">
+                </div>
+                <div class="form-group">
+                    <label for="week">Select Week:</label>
+                    <select id="week" name="week">
+                        <option value="" disabled selected>Select a week</option>
+                        <option value="week1">Jan 1-7</option>
+                        <option value="week2">Jan 8-14</option>
+                        <option value="week3">Jan 15-21</option>
+                        <option value="week4">Jan 22-28</option>
+                    </select>
+                </div>
+                <!-- Age Groups for Participants -->
+                <div class="form-group">
+                    <label>Age Groups for Participants:</label>
+                    <div class="level-selector">
+                        <div class="level-option">
+                            <span>Child (0-12)</span>
+                            <button type="button" class="minus" onclick="updateAgeGroup('child', -1)">-</button>
+                            <input type="number" id="age-child" name="age-child" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateAgeGroup('child', 1)">+</button>
+                        </div>
+                        <div class="level-option">
+                            <span>Teen (13-17)</span>
+                            <button type="button" class="minus" onclick="updateAgeGroup('teen', -1)">-</button>
+                            <input type="number" id="age-teen" name="age-teen" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateAgeGroup('teen', 1)">+</button>
+                        </div>
+                        <div class="level-option">
+                            <span>Adult (18+)</span>
+                            <button type="button" class="minus" onclick="updateAgeGroup('adult', -1)">-</button>
+                            <input type="number" id="age-adult" name="age-adult" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateAgeGroup('adult', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Skiing Levels for Participants -->
+                <div class="form-group">
+                    <label>Skiing Levels for Participants:</label>
+                    <div class="level-selector">
+                        <div class="level-option">
+                            <span>Beginner</span>
+                            <button type="button" class="minus" onclick="updateLevel('beginner', -1)">-</button>
+                            <input type="number" id="level-beginner" name="level-beginner" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateLevel('beginner', 1)">+</button>
+                        </div>
+                        <div class="level-option">
+                            <span>Intermediate</span>
+                            <button type="button" class="minus" onclick="updateLevel('intermediate', -1)">-</button>
+                            <input type="number" id="level-intermediate" name="level-intermediate" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateLevel('intermediate', 1)">+</button>
+                        </div>
+                        <div class="level-option">
+                            <span>Advanced</span>
+                            <button type="button" class="minus" onclick="updateLevel('advanced', -1)">-</button>
+                            <input type="number" id="level-advanced" name="level-advanced" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateLevel('advanced', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Vegetarian Counter -->
+                <div class="form-group">
+                    <label>Vegetarian Count:</label>
+                    <div class="level-selector">
+                        <div class="level-option">
+                            <span>Vegetarians</span>
+                            <button type="button" class="minus" onclick="updateVegetarian(-1)">-</button>
+                            <input type="number" id="vegetarian-count" name="vegetarian-count" value="0" readonly>
+                            <button type="button" class="plus" onclick="updateVegetarian(1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Other Concerns (Optional) -->
+                <div class="form-group">
+                    <label for="concerns">Other Concerns (allergies, etc.):</label>
+                    <textarea id="concerns" name="concerns" placeholder="(Optional)"></textarea>
+                </div>
+            </div>
+
+            <!-- Private Instruction Options -->
+            <div id="privateInstructionOptions" style="display: none;">
+                <div class="form-group">
+                    <label for="groupSize">Group Size:</label>
+                    <select id="groupSize" name="groupSize" required>
+                        <option value="" disabled selected>Select a group size</option>
+                        <option value="1">1 on 1</option>
+                        <option value="2">1 on 2</option>
+                        <option value="3">1 on 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="instructor">Select Instructor:</label>
+                    <select id="instructor" name="instructor" required>
+                        <option value="" disabled selected>Select an instructor</option>
+                        <option value="instructor1">Vedad Šarić</option>
+                        <option value="instructor2">Haris Šarić</option>
+                        <option value="instructor3">Iman Sijerčić</option>
+                        <option value="instructor4">Ilma Čatović</option>
+                        <option value="instructor5">Tin Marinčić</option>
+                        <option value="instructor6">Muhamed Šarić</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skiLevelPI">Skiing Level: <small>(recommended: all participants should be the same
+                            level)</small></label>
+                    <select id="skiLevelPI" name="skiLevelPI" required>
+                        <option value="" disabled selected>Select a level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sessionDate">Select a Date:</label>
+                    <input type="date" id="sessionDate" name="sessionDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="startTime">Start Time:</label>
+                    <select id="startTime" name="startTime" onchange="updateHoursOptions()" required>
+                        <option value="" disabled selected>Select a start time</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="12:00">12:00 PM</option>
+                        <option value="13:00">1:00 PM</option>
+                        <option value="14:00">2:00 PM</option>
+                        <option value="15:00">3:00 PM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="hours">Number of Hours:</label>
+                    <select id="hours" name="hours" required>
+                        <option value="" disabled selected>Select number of hours</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit">Book Now</button>
+        </form>
+    </div>
+</section>
+<div class="decorative-elements">
+    <div class="circle red"></div>
+    <div class="circle black"></div>
+    <div class="circle black small"></div>
+    <div class="circle black small2"></div>
+    <div class="circle red small"></div>
+    <img src="assets/img/booking/skier.png" alt="Ski Figure" class="ski-figure">
+</div>
