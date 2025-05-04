@@ -6,54 +6,37 @@ class AvailabilityCalendarDao extends BaseDao {
         parent::__construct("availabilityCalendar");
     }
 
-    private function isDateInNextMonth($date) {
-        $currentDate = new DateTime(); 
-        $endOfMonthDate = clone $currentDate;
-        $endOfMonthDate->modify('+1 month'); 
-
-        $targetDate = new DateTime($date);
-        return $targetDate >= $currentDate && $targetDate <= $endOfMonthDate;
-    }
-
-    // Add availability for an instructor
-    public function addAvailability($instructorId, $date, $status) {
-        if (!$this->isDateInNextMonth($date)) {
-            return false; 
-        }
-
-        $stmt = $this->connection->prepare("INSERT INTO availabilityCalendar (instructor_id, date, status) VALUES (:instructor_id, :date, :status)");
+    // Check if availability already exists for instructor/date/status
+    public function exists($instructorId, $date, $status) {
+        $stmt = $this->connection->prepare(
+            "SELECT COUNT(*) FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date = :date AND status = :status"
+        );
         $stmt->bindParam(':instructor_id', $instructorId);
         $stmt->bindParam(':date', $date);
         $stmt->bindParam(':status', $status);
-        return $stmt->execute();
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 
-    // Update availability for an instructor
-    public function updateAvailability($availabilityId, $date, $status) {
-        if (!$this->isDateInNextMonth($date)) {
-            return false; 
-        }
-
-        $stmt = $this->connection->prepare("UPDATE availabilityCalendar SET date = :date, status = :status WHERE id = :id");
-        $stmt->bindParam(':id', $availabilityId);
+    // Check if there's already availability for instructor/date 
+    public function hasConflict($instructorId, $date) {
+        $stmt = $this->connection->prepare(
+            "SELECT COUNT(*) FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date = :date"
+        );
+        $stmt->bindParam(':instructor_id', $instructorId);
         $stmt->bindParam(':date', $date);
-        $stmt->bindParam(':status', $status);
-        return $stmt->execute();
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 
-    // Delete an availability entry
-    public function deleteAvailability($availabilityId) {
-        $stmt = $this->connection->prepare("DELETE FROM availabilityCalendar WHERE id = :id");
-        $stmt->bindParam(':id', $availabilityId);
-        return $stmt->execute();
-    }
-
+    // Get availability by instructor (custom query)
     public function getAvailabilityByInstructor($instructorId) {
-        $stmt = $this->connection->prepare("SELECT * FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date >= CURDATE()");
+        $stmt = $this->connection->prepare(
+            "SELECT * FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date >= CURDATE()"
+        );
         $stmt->bindParam(':instructor_id', $instructorId);
         $stmt->execute();
         return $stmt->fetchAll();
     }
-    
+
 }
-?>
