@@ -62,50 +62,68 @@ class BookingDao extends BaseDao {
         return $formattedResults;
     }
     
-// Calculate total hours worked by an instructor this month FOR INSTRUCTOR
-public function getTotalHoursThisMonth($instructorId) {
-    $stmt = $this->connection->prepare(
-        "SELECT SUM(num_of_hours) AS total_hours
-         FROM bookings
-         WHERE instructor_id = :instructor_id AND 
-               YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())"
-    );
-    $stmt->bindParam(':instructor_id', $instructorId);
-    $stmt->execute();
-    $result = $stmt->fetch();
-    return $result ? $result['total_hours'] : 0;
-}
+    // Calculate total hours worked by an instructor this month FOR INSTRUCTOR
+    public function getTotalHoursThisMonth($instructorId) {
+        $stmt = $this->connection->prepare(
+            "SELECT SUM(num_of_hours) AS total_hours
+            FROM bookings
+            WHERE instructor_id = :instructor_id AND 
+                YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())"
+        );
+        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->execute();
+        $result = $stmt->fetch();
+        return $result ? $result['total_hours'] : 0;
+    }
 
-// Get the count of upcoming bookings for this month for that instructor INSTRUCTOR PANEL
-public function getUpcomingBookingsCount($instructorId) {
-    $stmt = $this->connection->prepare(
-        "SELECT COUNT(*) AS bookings_count
-         FROM bookings
-         WHERE instructor_id = :instructor_id AND
-               date >= CURDATE() AND 
-               YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())"
-    );
-    $stmt->bindParam(':instructor_id', $instructorId);
-    $stmt->execute();
-    $result = $stmt->fetch();
-    return $result ? $result['bookings_count'] : 0;
-}
+    // Get the count of upcoming bookings for this month for that instructor INSTRUCTOR PANEL
+    public function getUpcomingBookingsCount($instructorId) {
+        $stmt = $this->connection->prepare(
+            "SELECT COUNT(*) AS bookings_count
+            FROM bookings
+            WHERE instructor_id = :instructor_id AND
+                date >= CURDATE() AND 
+                YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())"
+        );
+        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->execute();
+        $result = $stmt->fetch();
+        return $result ? $result['bookings_count'] : 0;
+    }
 
-// Get detailed upcoming bookings for an instructor for the current month INSTRUCTOR PANEL
-public function getDetailedUpcomingBookings($instructorId) {
-    $stmt = $this->connection->prepare(
-        "SELECT c.name AS client_name, b.date, b.start_time, b.session_type, b.num_of_hours, b.status
-         FROM bookings b
-         JOIN users c ON b.user_id = c.id
-         WHERE b.instructor_id = :instructor_id AND 
-               b.date >= CURDATE() AND 
-               YEAR(b.date) = YEAR(CURDATE()) AND MONTH(b.date) = MONTH(CURDATE())
-         ORDER BY b.date, b.start_time"
-    );
-    $stmt->bindParam(':instructor_id', $instructorId);
-    $stmt->execute();
-    return $stmt->fetchAll();
-}
+    // Get detailed upcoming bookings for an instructor for the current month INSTRUCTOR PANEL
+    public function getDetailedUpcomingBookings($instructorId) {
+        $stmt = $this->connection->prepare(
+            "SELECT c.name AS client_name, b.date, b.start_time, b.session_type, b.num_of_hours, b.status
+            FROM bookings b
+            JOIN users c ON b.user_id = c.id
+            WHERE b.instructor_id = :instructor_id AND 
+                b.date >= CURDATE() AND 
+                YEAR(b.date) = YEAR(CURDATE()) AND MONTH(b.date) = MONTH(CURDATE())
+            ORDER BY b.date, b.start_time"
+        );
+        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    public function hasTimeConflict($instructorId, $date, $startTime, $numOfHours) {
+        $stmt = $this->connection->prepare(
+            "SELECT COUNT(*) FROM bookings 
+            WHERE instructor_id = :instructor_id 
+            AND date = :date 
+            AND (
+                    TIME(start_time) < ADDTIME(:start_time, SEC_TO_TIME(:duration * 3600)) AND 
+                    ADDTIME(TIME(start_time), SEC_TO_TIME(num_of_hours * 3600)) > :start_time
+            )"
+        );
+        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->bindParam(':date', $date);
+        $stmt->bindParam(':start_time', $startTime);
+        $stmt->bindParam(':duration', $numOfHours);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
 
 }
 ?>
