@@ -1,10 +1,10 @@
 $(document).ready(function() {
   var app = $.spapp({
-      pageNotFound: 'error_404',
-      templateDir: 'tpl/',
-      defaultView: 'home'
+    pageNotFound: 'error_404',
+    templateDir: 'tpl/',
+    defaultView: 'home'
   });
-  
+
   app.route({ view: 'home', load: 'home.html' });
   app.route({ view: 'about', load: 'about.html' });
   app.route({ view: 'team', load: 'team.html' });
@@ -13,285 +13,182 @@ $(document).ready(function() {
   app.route({ view: 'contact', load: 'contact.html' });
   app.route({ view: 'sign_in', load: 'sign_in.html' });
   app.route({ view: 'register', load: 'register.html' });
-  app.route({ view: 'admin_panel', load: 'admin_panel.html' });
+
+  app.route({
+  view: 'admin_panel',
+  load: 'admin_panel.html',
+  onReady: function () {
+    AdminPanelService.loadServices();
+    AdminPanelService.loadInstructors();
+    AdminPanelService.loadInstructorBookings();
+    AdminPanelService.loadSkiSchoolAvailability();
+
+    $("#edit-service-form").on("submit", function (e) {
+      e.preventDefault();
+
+      const id = $("#edit-service-id").val();
+      const data = {
+        name: $("#edit-service-name").val(),
+        description: $("#edit-service-description").val(),
+        price: parseFloat($("#edit-service-price").val())
+      };
+
+      RestClient.put(`api/services/${id}`, data, function () {
+        toastr.success("Service updated!");
+        const modal = bootstrap.Modal.getInstance(document.getElementById("editServiceModal"));
+        if (modal) modal.hide();
+        AdminPanelService.loadServices();
+      }, function (err) {
+        console.error("Update failed", err);
+        toastr.error("Failed to update service.");
+      });
+    });
+
+    $("#create-service-form").on("submit", function (e) {
+  e.preventDefault();
+
+  const data = {
+    name: $("#create-service-name").val(),
+    description: $("#create-service-description").val(),
+    price: parseFloat($("#create-service-price").val())
+  };
+
+  RestClient.post("api/services", data, function () {
+    toastr.success("Service created!");
+    const modal = bootstrap.Modal.getInstance(document.getElementById("createServiceModal"));
+    if (modal) modal.hide();
+    $("#create-service-form")[0].reset();
+    location.reload();
+
+  }, function (err) {
+    console.error("Create failed", err);
+    toastr.error("Failed to create service.");
+  });
+});
+
+$("#add-instructor-form").on("submit", function (e) {
+  e.preventDefault();
+
+  const data = {
+    name: $("#add-instructor-name").val(),
+    surname: $("#add-instructor-surname").val(),
+    licence: $("#add-instructor-licence").val(),
+    username: $("#add-instructor-username").val(),
+    password: $("#add-instructor-password").val(),
+    role: "instructor"
+  };
+
+  RestClient.post("instructors", data, function () {
+    toastr.success("Instructor added!");
+    const modal = bootstrap.Modal.getInstance(document.getElementById("addInstructorModal"));
+    if (modal) modal.hide();
+    $("#add-instructor-form")[0].reset();
+    AdminPanelService.loadInstructors();
+  }, function (err) {
+    toastr.error("Failed to add instructor.");
+    console.error("Add instructor error:", err);
+  });
+});
+
+
+$("#edit-instructor-form").on("submit", function (e) {
+  e.preventDefault();
+  const id = $("#edit-instructor-id").val();
+  const data = {
+    licence: $("#edit-instructor-licence").val()
+  };
+
+  RestClient.put(`instructors/${id}`, data, function () {
+    toastr.success("Instructor licence updated!");
+    bootstrap.Modal.getInstance(document.getElementById("editInstructorModal")).hide();
+    AdminPanelService.loadInstructors();
+  }, function (err) {
+    toastr.error("Failed to update instructor.");
+    console.error(err);
+  });
+});
+
+
+
+
+  }
+});
+
+
+
+  app.route({
+    view: 'booking',
+    load: 'booking.html',
+    onReady: function () {
+      console.log("Booking page loaded, initializing form...");
+      BookingService.init();
+      initFlatpickr(); 
+      loadUserBookings();
+    }
+  });
+
   app.route({
     view: 'instructor_panel',
     load: 'instructor_panel.html',
-    onReady: function() {
-      document.querySelectorAll('.day-toggle').forEach(function(button) {
-        button.addEventListener('click', function() {
-          button.classList.toggle('available');
-        });
-      });
+    onReady: function () {
+      InstructorPanelService.loadHeader();
+      InstructorPanelService.loadBookings();
+      InstructorPanelService.initAvailability();
     }
   });
+
   app.route({
-      view: 'booking',
-      load: 'booking.html',
-      onReady: function() {
-          console.log("Booking page loaded, initializing form...");
-          window.initBookingForm();
-          window.initDateSelector();
-      }
-  });
-  
-  window.initBookingForm = function () {
-      console.log("Initializing booking form...");
-  
-      var sessionTypeEl = document.getElementById("sessionType");
-      var spotsEl = document.getElementById("spots");
-  
-      if (sessionTypeEl) {
-          sessionTypeEl.addEventListener("change", window.toggleBookingOptions);
-      } else {
-          console.error("sessionType element not found");
-      }
-  
-      if (spotsEl) {
-          spotsEl.addEventListener("change", window.updateVegetarianOptions);
-      } else {
-          console.error("spots element not found");
-      }
-  };
-  
-  window.initDateSelector = function() {
-      var sessionDateInput = document.getElementById('sessionDate');
-      if (!sessionDateInput) {
-          console.error("sessionDate element not found");
-          return;
-      }
-      var today = new Date();
-      today.setHours(0, 0, 0, 0);
-      var dd = String(today.getDate()).padStart(2, '0');
-      var mm = String(today.getMonth() + 1).padStart(2, '0');
-      var yyyy = today.getFullYear();
-      var formattedToday = yyyy + '-' + mm + '-' + dd;
-  
-      var dayOfWeek = today.getDay(); 
-      var daysUntilSunday = (7 - dayOfWeek) % 7;
-      var sunday = new Date(today);
-      sunday.setDate(today.getDate() + daysUntilSunday);
-      var sunday_dd = String(sunday.getDate()).padStart(2, '0');
-      var sunday_mm = String(sunday.getMonth() + 1).padStart(2, '0');
-      var sunday_yyyy = sunday.getFullYear();
-      var formattedSunday = sunday_yyyy + '-' + sunday_mm + '-' + sunday_dd;
-  
-      sessionDateInput.setAttribute('min', formattedToday);
-      sessionDateInput.setAttribute('max', formattedSunday);
-  };
-  
-  window.updateVegetarianOptions = function() {
-      window.resetVegetarian();
-  };
-  
-  window.toggleBookingOptions = function () {
-      var sessionTypeEl = document.getElementById("sessionType");
-      var skiSchoolOptions = document.getElementById("skiSchoolOptions");
-      var privateInstructionOptions = document.getElementById("privateInstructionOptions");
-    
-      var disableFields = function(section) {
-        var fields = section.querySelectorAll("input, select, textarea");
-        fields.forEach(function(el) {
-          el.disabled = true;
-        });
-      };
-    
-      var enableFields = function(section) {
-        var fields = section.querySelectorAll("input, select, textarea");
-        fields.forEach(function(el) {
-          el.disabled = false;
-        });
-      };
-    
-      if (skiSchoolOptions) {
-          skiSchoolOptions.style.display = "none";
-          disableFields(skiSchoolOptions);
-      }
-      if (privateInstructionOptions) {
-          privateInstructionOptions.style.display = "none";
-          disableFields(privateInstructionOptions);
-      }
-    
-      var sessionType = sessionTypeEl.value;
-      if (sessionType === "skiSchool") {
-        if (skiSchoolOptions) {
-          skiSchoolOptions.style.display = "block";
-          enableFields(skiSchoolOptions);
-        }
-      } else if (sessionType === "privateInstruction") {
-        if (privateInstructionOptions) {
-          privateInstructionOptions.style.display = "block";
-          enableFields(privateInstructionOptions);
+  view: 'register',
+  load: 'register.html',
+  onReady: function () {
+
+    $("#register-form").validate({
+      rules: {
+        name: { required: true, minlength: 2 },
+        surname: { required: true, minlength: 2 },
+        username: { required: true, email: true },
+        password: { required: true, minlength: 3, maxlength: 16 },
+        "confirm-password": { equalTo: "#password" }
+      },
+      messages: {
+        name: { required: 'Please enter your first name' },
+        surname: { required: 'Please enter your last name' },
+        username: {
+          required: 'Please enter your email',
+          email: 'Please enter a valid email address'
+        },
+        password: {
+          required: 'Please enter your password',
+          minlength: 'Password must be at least 3 characters long',
+          maxlength: 'Password cannot be longer than 16 characters'
+        },
+        "confirm-password": {
+          equalTo: 'Passwords do not match'
         }
       }
-  };
-  
-  window.updateLevel = function(level, change) {
-      var input = document.getElementById('level-' + level);
-      var current = parseInt(input.value, 10) || 0;
-      var spots = parseInt(document.getElementById('spots').value, 10) || Infinity;
-      var total = (parseInt(document.getElementById('level-beginner').value, 10) || 0) +
-                  (parseInt(document.getElementById('level-intermediate').value, 10) || 0) +
-                  (parseInt(document.getElementById('level-advanced').value, 10) || 0);
-      
-      if (change > 0 && total >= spots) {
-        return;
-      }
-      
-      var newValue = current + change;
-      if (newValue < 0) newValue = 0;
-      
-      input.value = newValue;
-  };
-  
-  window.updateVegetarian = function(change) {
-      var vegInput = document.getElementById("vegetarian-count");
-      var spotsInput = document.getElementById("spots");
-      var spots = parseInt(spotsInput.value, 10) || 0;
-      var current = parseInt(vegInput.value, 10) || 0;
-      var newValue = current + change;
-  
-      if (newValue < 0) {
-          newValue = 0;
-      }
-      if (newValue > spots) {
-          newValue = spots;
-      }
-      
-      vegInput.value = newValue;
-  };
-  
-  window.resetLevels = function () {
-      document.getElementById('level-beginner').value = 0;
-      document.getElementById('level-intermediate').value = 0;
-      document.getElementById('level-advanced').value = 0;
-  };
-  
-  window.resetVegetarian = function () {
-      var spots = parseInt(document.getElementById("spots").value, 10) || 0;
-      var vegInput = document.getElementById("vegetarian-count");
-      if (parseInt(vegInput.value, 10) > spots) {
-          vegInput.value = spots;
-      } else {
-          vegInput.value = 0;
-      }
-  };
-  
-  window.updateAgeGroup = function(group, change) {
-      var input = document.getElementById('age-' + group);
-      var current = parseInt(input.value, 10) || 0;
-      var spots = parseInt(document.getElementById('spots').value, 10) || Infinity;
-      var total = (parseInt(document.getElementById('age-child').value, 10) || 0) +
-                  (parseInt(document.getElementById('age-teen').value, 10) || 0) +
-                  (parseInt(document.getElementById('age-adult').value, 10) || 0);
-      if (change > 0 && total >= spots) {
-        return;
-      }
-      var newValue = current + change;
-      if (newValue < 0) newValue = 0;
-      input.value = newValue;
-  };
-
-  window.resetAgeGroups = function() {
-      document.getElementById('age-child').value = 0;
-      document.getElementById('age-teen').value = 0;
-      document.getElementById('age-adult').value = 0;
-  };
-
-  window.updateHoursOptions = function() {
-      var startTimeEl = document.getElementById("startTime");
-      var hoursSelect = document.getElementById("hours");
-    
-      hoursSelect.innerHTML = '<option value="" disabled selected>Select number of hours</option>';
-    
-      if (!startTimeEl.value) {
-        return;
-      }
-    
-      var timeParts = startTimeEl.value.split(':');
-      var startHour = parseInt(timeParts[0], 10);
-      var maxHours = 16 - startHour;
-      if (maxHours < 1) {
-        maxHours = 1; 
-      }
-    
-      for (var i = 1; i <= maxHours; i++) {
-        var option = document.createElement("option");
-        option.value = i;
-        option.text = i + (i === 1 ? " hour" : " hours");
-        hoursSelect.appendChild(option);
-      }
-  };
-
-  window.validateBookingForm = function() {
-      var sessionDateInput = document.getElementById("sessionDate");
-      var sessionDateValue = sessionDateInput ? sessionDateInput.value : "";
-      if (!sessionDateValue) {
-          alert("Please select a date for your session.");
-          return false;
-      }
-      var selectedDate = new Date(sessionDateValue);
-      var today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate < today) {
-          alert("You cannot select a date in the past.");
-          return false;
-      }
-      var dayOfWeek = today.getDay();
-      var daysUntilSunday = (7 - dayOfWeek) % 7;
-      var sunday = new Date(today);
-      sunday.setDate(today.getDate() + daysUntilSunday);
-      if (selectedDate > sunday) {
-          alert("Please select a date within the current week (Monday to Sunday).");
-          return false;
-      }
-  
-      var sessionType = document.getElementById("sessionType").value;
-      if (!sessionType) {
-          alert("Please select a session type.");
-          return false;
-      }
-      
-      if (sessionType === "skiSchool") {
-          var spots = document.getElementById("spots").value;
-          var week = document.getElementById("week").value;
-          var totalAgeGroups = (parseInt(document.getElementById('age-child').value, 10) || 0) +
-                               (parseInt(document.getElementById('age-teen').value, 10) || 0) +
-                               (parseInt(document.getElementById('age-adult').value, 10) || 0);
-          var totalLevels = (parseInt(document.getElementById('level-beginner').value, 10) || 0) +
-                            (parseInt(document.getElementById('level-intermediate').value, 10) || 0) +
-                            (parseInt(document.getElementById('level-advanced').value, 10) || 0);
-          if (!spots || !week) {
-              alert("Please fill out all required fields for Ski School.");
-              return false;
-          }
-          if (totalAgeGroups != spots) {
-              alert("Please allocate the correct number of participants into age groups.");
-              return false;
-          }
-          if (totalLevels != spots) {
-              alert("Please allocate the correct number of participants into skiing levels.");
-              return false;
-          }
-      } else if (sessionType === "privateInstruction") {
-          var groupSize = document.getElementById("groupSize").value;
-          var instructor = document.getElementById("instructor").value;
-          var skiLevelPI = document.getElementById("skiLevelPI").value;
-          var startTime = document.getElementById("startTime").value;
-          var hours = document.getElementById("hours").value;
-          if (!groupSize || !instructor || !skiLevelPI || !startTime || !hours) {
-              alert("Please fill out all required fields for Private Instruction.");
-              return false;
-          }
-      }
-      return true;
-  };
-
-  document.querySelectorAll('.day-toggle').forEach(function(button) {
-    button.addEventListener('click', function() {
-      button.classList.toggle('available');
     });
-  });
-    
+
+    $("#register-form").on("submit", function (e) {
+      e.preventDefault();
+      console.log("[UserService] Register form submitted");
+
+      if (!$("#register-form").valid()) {
+        console.warn("[UserService] Register form validation failed");
+        return;
+      }
+
+      const entity = Object.fromEntries(new FormData(this).entries());
+      console.log("Raw registration form data:", entity);
+
+      delete entity["confirm-password"];
+      console.log("Cleaned registration entity:", entity);
+
+      UserService.register(entity);
+    });
+  }
+});
+
+
+
   app.run();
 });

@@ -1514,6 +1514,12 @@ section,
   color: var(--contrast-color);
 }
 
+.add-review-container {
+  margin-top: 40px;
+  text-align: center;
+}
+
+
 @media (max-width: 426px) {
   #reviews {
     padding: 15px;
@@ -1772,7 +1778,7 @@ section,
   font-weight: bold;
 }
 
-.sign-in-form input[type="email"],
+.sign-in-form input[type="username"],
 .sign-in-form input[type="password"] {
   margin-bottom: 15px;
   border-radius: 4px;

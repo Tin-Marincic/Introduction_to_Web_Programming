@@ -39,4 +39,16 @@ class AvailabilityCalendarDao extends BaseDao {
         return $stmt->fetchAll();
     }
 
+    public function getAvailableInstructorsByDate($date) {
+    $stmt = $this->connection->prepare("
+        SELECT DISTINCT instructor_id 
+        FROM availabilityCalendar 
+        WHERE date = :date AND status = 'active'
+    ");
+    $stmt->bindParam(':date', $date);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+
 }
