@@ -1,19 +1,21 @@
 <?php
+require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../data/roles.php';
 
 /**
  * @OA\Get(
  *     path="/api/services",
  *     tags={"Services"},
  *     summary="Get all services",
- *     @OA\Response(response=200, description="List of services")
+ *     security={{"ApiKey": {}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Array of all available services"
+ *     )
  * )
  */
 Flight::route('GET /api/services', function () {
-    try {
-        Flight::json(Flight::servicesService()->getAll());
-    } catch (Exception $e) {
-        Flight::halt(400, $e->getMessage());
-    }
+    Flight::json(Flight::servicesService()->getAll());
 });
 
 /**
@@ -21,6 +23,7 @@ Flight::route('GET /api/services', function () {
  *     path="/api/services",
  *     tags={"Services"},
  *     summary="Add a new service",
+ *     security={{"ApiKey": {}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -36,9 +39,10 @@ Flight::route('GET /api/services', function () {
  * )
  */
 Flight::route('POST /api/services', function () {
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
     try {
         $data = Flight::request()->data->getData();
-        Flight::json(Flight::servicesService()->insert($data));
+        Flight::json(Flight::servicesService()->create($data));
     } catch (Exception $e) {
         Flight::halt(400, $e->getMessage());
     }
@@ -49,6 +53,7 @@ Flight::route('POST /api/services', function () {
  *     path="/api/services/{id}",
  *     tags={"Services"},
  *     summary="Update an existing service",
+ *     security={{"ApiKey": {}}}, 
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -60,6 +65,7 @@ Flight::route('POST /api/services', function () {
  *         required=true,
  *         @OA\JsonContent(
  *             @OA\Property(property="name", type="string", example="Updated Lesson"),
+ *             @OA\Property(property="description", type="string", example="Updated description for the lesson"),
  *             @OA\Property(property="price", type="number", example=140.00)
  *         )
  *     ),
@@ -67,6 +73,7 @@ Flight::route('POST /api/services', function () {
  * )
  */
 Flight::route('PUT /api/services/@id', function ($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
     try {
         $data = Flight::request()->data->getData();
         Flight::json(Flight::servicesService()->update($id, $data));
@@ -80,6 +87,7 @@ Flight::route('PUT /api/services/@id', function ($id) {
  *     path="/api/services/{id}",
  *     tags={"Services"},
  *     summary="Delete a service",
+ *     security={{"ApiKey": {}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -91,6 +99,7 @@ Flight::route('PUT /api/services/@id', function ($id) {
  * )
  */
 Flight::route('DELETE /api/services/@id', function ($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
     try {
         Flight::json(Flight::servicesService()->delete($id));
     } catch (Exception $e) {

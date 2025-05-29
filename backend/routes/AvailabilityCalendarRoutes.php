@@ -1,10 +1,13 @@
 <?php
+require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../data/roles.php';
 
 /**
  * @OA\Get(
  *     path="/availability/instructor/{id}",
  *     tags={"Availability"},
  *     summary="Get availability for a specific instructor",
+ *     security={{"ApiKey": {}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -24,6 +27,7 @@ Flight::route('GET /availability/instructor/@id', function($id) {
  *     path="/availability",
  *     tags={"Availability"},
  *     summary="Add a new availability slot",
+ *     security={{"ApiKey": {}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -37,6 +41,7 @@ Flight::route('GET /availability/instructor/@id', function($id) {
  * )
  */
 Flight::route('POST /availability', function() {
+    Flight::auth_middleware()->authorizeRole(Roles::INSTRUCTOR);
     try {
         $data = Flight::request()->data->getData();
         Flight::json(Flight::availabilityService()->addAvailability($data['instructor_id'], $data['date'], $data['status']));
@@ -50,6 +55,7 @@ Flight::route('POST /availability', function() {
  *     path="/availability/{id}",
  *     tags={"Availability"},
  *     summary="Update an availability slot",
+ *     security={{"ApiKey": {}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -69,6 +75,7 @@ Flight::route('POST /availability', function() {
  * )
  */
 Flight::route('PUT /availability/@id', function($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::INSTRUCTOR);
     try {
         $data = Flight::request()->data->getData();
         Flight::json(Flight::availabilityService()->updateAvailability($id, $data['date'], $data['status']));
@@ -82,6 +89,7 @@ Flight::route('PUT /availability/@id', function($id) {
  *     path="/availability/{id}",
  *     tags={"Availability"},
  *     summary="Delete an availability slot",
+ *     security={{"ApiKey": {}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -93,9 +101,42 @@ Flight::route('PUT /availability/@id', function($id) {
  * )
  */
 Flight::route('DELETE /availability/@id', function($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::INSTRUCTOR);
     try {
-        Flight::json(Flight::availabilityService()->delete($id)); // uses BaseService->delete
+        Flight::json(Flight::availabilityService()->delete($id));
     } catch (Exception $e) {
         Flight::json(["error" => $e->getMessage()], 400);
+    }
+});
+
+/**
+ * @OA\Get(
+ *     path="/availability/active",
+ *     tags={"Availability"},
+ *     summary="Get all instructors available on a specific date",
+ *     security={{"ApiKey": {}}}, 
+ *     @OA\Parameter(
+ *         name="date",
+ *         in="query",
+ *         required=true,
+ *         description="Date to check availability (format YYYY-MM-DD)",
+ *         @OA\Schema(type="string", format="date", example="2025-05-28")
+ *     ),
+ *     @OA\Response(response=200, description="List of available instructors")
+ * )
+ */
+Flight::route('GET /availability/active', function () {
+    Flight::auth_middleware()->authorizeRoles([Roles::USER, Roles::ADMIN]);
+
+    $date = Flight::request()->query['date'];
+    if (!$date) {
+        Flight::halt(400, "Missing required 'date' parameter.");
+    }
+
+    try {
+        $instructors = Flight::availabilityService()->getAvailableInstructorsByDate($date);
+        Flight::json($instructors);
+    } catch (Exception $e) {
+        Flight::halt(500, $e->getMessage());
     }
 });

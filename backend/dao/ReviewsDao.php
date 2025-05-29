@@ -12,4 +12,15 @@ class ReviewsDao extends BaseDao {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getAllWithUserNames() {
+    $stmt = $this->connection->prepare("
+        SELECT r.*, CONCAT(u.name, ' ', u.surname) AS user_full_name
+        FROM reviews r
+        JOIN users u ON r.user_id = u.id
+    ");
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
 }

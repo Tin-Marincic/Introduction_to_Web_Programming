@@ -107,22 +107,70 @@ class BookingDao extends BaseDao {
         return $stmt->fetchAll();
     }
     public function hasTimeConflict($instructorId, $date, $startTime, $numOfHours) {
-        $stmt = $this->connection->prepare(
-            "SELECT COUNT(*) FROM bookings 
-            WHERE instructor_id = :instructor_id 
-            AND date = :date 
-            AND (
-                    TIME(start_time) < ADDTIME(:start_time, SEC_TO_TIME(:duration * 3600)) AND 
-                    ADDTIME(TIME(start_time), SEC_TO_TIME(num_of_hours * 3600)) > :start_time
-            )"
-        );
-        $stmt->bindParam(':instructor_id', $instructorId);
-        $stmt->bindParam(':date', $date);
-        $stmt->bindParam(':start_time', $startTime);
-        $stmt->bindParam(':duration', $numOfHours);
-        $stmt->execute();
-        return $stmt->fetchColumn() > 0;
-    }
+    $stmt = $this->connection->prepare(
+        "SELECT COUNT(*) FROM bookings 
+         WHERE instructor_id = :instructor_id 
+         AND date = :date 
+         AND (
+             TIME_TO_SEC(start_time) < TIME_TO_SEC(:start_time) + (:duration * 3600)
+             AND 
+             TIME_TO_SEC(start_time) + (num_of_hours * 3600) > TIME_TO_SEC(:start_time)
+         )"
+    );
+    $stmt->bindParam(':instructor_id', $instructorId);
+    $stmt->bindParam(':date', $date);
+    $stmt->bindParam(':start_time', $startTime);
+    $stmt->bindParam(':duration', $numOfHours);
+    $stmt->execute();
+    return $stmt->fetchColumn() > 0;
+}
+
+
+    public function getBookingsForInstructorOnDate($instructorId, $date) {
+    $stmt = $this->connection->prepare(
+        "SELECT start_time, num_of_hours 
+         FROM bookings 
+         WHERE instructor_id = :instructor_id AND date = :date"
+    );
+    $stmt->execute([
+        ':instructor_id' => $instructorId,
+        ':date' => $date
+    ]);
+    return $stmt->fetchAll();
+}
+
+
+public function userHasBooking($userId) {
+    $query = "SELECT COUNT(*) as total FROM bookings WHERE user_id = :user_id";
+    $stmt = $this->connection->prepare($query); 
+    $stmt->execute(['user_id' => $userId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $result && $result['total'] > 0;
+}
+
+public function getBookingsByUserId($userId) {
+    $stmt = $this->connection->prepare("
+        SELECT 
+            b.id,
+            b.session_type,
+            b.date,
+            b.start_time,
+            b.num_of_hours,
+            b.status,
+            s.name AS service_name,
+            u.name AS instructor_name,
+            u.surname AS instructor_surname
+        FROM bookings b
+        LEFT JOIN services s ON b.service_id = s.id
+        LEFT JOIN users u ON b.instructor_id = u.id
+        WHERE b.user_id = ?
+        ORDER BY b.date DESC, b.start_time ASC
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 
 }

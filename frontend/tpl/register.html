@@ -1,17 +1,21 @@
-<section id="register-form" class="register-form section">
+<section id="register-section" class="register-form section">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 offset-lg-3">
                 <div class="form-box" data-aos="fade-up">
                     <h3 class="text-center">Register with Unisport</h3>
-                    <form action="/submit-registration" method="POST">
+                    <form id="register-form">
                         <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <label for="name">First Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="surname">Last Name</label>
+                            <input type="text" class="form-control" id="surname" name="surname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Email Address</label>
+                            <input type="email" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>

@@ -1,13 +1,13 @@
-<section id="sign-in-form" class="sign-in-form section">
+<section class="sign-in-form section">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 offset-lg-3">
                 <div class="form-box" data-aos="fade-up">
                     <h3 class="text-center">Sign In to Unisport</h3>
-                    <form action="/submit-login" method="POST">
+                    <form id="login-form" onsubmit="console.log('Form submitted');">
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="username">Email Address</label>
+                            <input type="email" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -24,4 +24,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function () {
+            console.log('Sign in page loaded');
+            $('#login-form').on('submit', function (e) {
+                e.preventDefault();
+                console.log('Form submitted via jQuery');
+                const formData = {
+                    username: $('#username').val(),
+                    password: $('#password').val()
+                };
+                console.log('Form data:', formData);
+                UserService.login(formData);
+            });
+        });
+    </script>
 </section>

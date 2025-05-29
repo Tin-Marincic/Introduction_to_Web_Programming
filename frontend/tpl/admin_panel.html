@@ -9,47 +9,20 @@
                 <thead>
                     <tr>
                         <th>Service</th>
+                        <th>Description</th>
                         <th>Price</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>One on One</td>
-                        <td>KM 60 / hour</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>One on Two</td>
-                        <td>KM 100 / hour</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>One on Three</td>
-                        <td>KM 150 / hour</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Ski School</td>
-                        <td>KM 500</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
+                <tbody id="services-body">
                 </tbody>
             </table>
-            <button>Add New Service</button>
+            <!-- Create New Service Button -->
+            <button class="btn btn-success my-2" data-bs-toggle="modal" data-bs-target="#createServiceModal">
+                + Create New Service
+            </button>
         </section>
+
 
         <section class="section">
             <h2>Team Members</h2>
@@ -61,276 +34,17 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Vedad Šarić</td>
-                        <td>U1</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Haris Šarić</td>
-                        <td>U2</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Ilma Čatović</td>
-                        <td>U1</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Iman Sijerčić</td>
-                        <td>U1</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Tin Marinčić</td>
-                        <td>U1</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Muhamed Šarić</td>
-                        <td>U2</td>
-                        <td>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
+                <tbody id="team-body"></tbody>
+
             </table>
-            <button>Add New Member</button>
+            <button class="btn btn-primary" onclick="AdminPanelService.openAddInstructorModal()">+ Add New
+                Member</button>
         </section>
 
 
         <section class="section">
             <h2>Instructor Bookings</h2>
-            <div id="booking-tables">
-
-                <!-- Vedad Šarić -->
-                <div class="instructor-booking">
-                    <h3>Vedad Šarić</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Lesson Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Emily Johnson</td>
-                                <td>2025-03-25</td>
-                                <td>10:00 AM</td>
-                                <td>Group</td>
-                                <td>1h</td>
-                                <td>Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td>Mark Thompson</td>
-                                <td>2025-03-26</td>
-                                <td>1:00 PM</td>
-                                <td>Private</td>
-                                <td>2h</td>
-                                <td>Pending</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Haris Šarić -->
-                <div class="instructor-booking">
-                    <h3>Haris Šarić</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Lesson Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Sophie Miller</td>
-                                <td>2025-03-24</td>
-                                <td>9:00 AM</td>
-                                <td>Group</td>
-                                <td>1h</td>
-                                <td>Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td>David Lee</td>
-                                <td>2025-03-27</td>
-                                <td>11:00 AM</td>
-                                <td>Private</td>
-                                <td>2h</td>
-                                <td>Cancelled</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Ilma Čatović -->
-                <div class="instructor-booking">
-                    <h3>Ilma Čatović</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Lesson Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Tom Harris</td>
-                                <td>2025-03-23</td>
-                                <td>2:00 PM</td>
-                                <td>Group</td>
-                                <td>1h</td>
-                                <td>Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td>Anna Petrović</td>
-                                <td>2025-03-28</td>
-                                <td>12:00 PM</td>
-                                <td>Private</td>
-                                <td>2h</td>
-                                <td>Pending</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Iman Sijerčić -->
-                <div class="instructor-booking">
-                    <h3>Iman Sijerčić</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Lesson Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Nina Kovač</td>
-                                <td>2025-03-22</td>
-                                <td>3:00 PM</td>
-                                <td>Private</td>
-                                <td>2h</td>
-                                <td>Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td>Lucas Smith</td>
-                                <td>2025-03-26</td>
-                                <td>4:00 PM</td>
-                                <td>Group</td>
-                                <td>1h</td>
-                                <td>Pending</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Tin Marinčić -->
-                <div class="instructor-booking">
-                    <h3>Tin Marinčić</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Lesson Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Laura Novak</td>
-                                <td>2025-03-24</td>
-                                <td>10:00 AM</td>
-                                <td>Private</td>
-                                <td>2h</td>
-                                <td>Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td>Ivan Marković</td>
-                                <td>2025-03-27</td>
-                                <td>1:30 PM</td>
-                                <td>Group</td>
-                                <td>1h</td>
-                                <td>Cancelled</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Muhamed Šarić -->
-                <div class="instructor-booking">
-                    <h3>Muhamed Šarić</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Lesson Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Amina Selman</td>
-                                <td>2025-03-25</td>
-                                <td>11:30 AM</td>
-                                <td>Group</td>
-                                <td>1h</td>
-                                <td>Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td>James Carter</td>
-                                <td>2025-03-29</td>
-                                <td>2:30 PM</td>
-                                <td>Private</td>
-                                <td>2h</td>
-                                <td>Pending</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
+            <div id="booking-tables"></div>
         </section>
 
 
@@ -345,24 +59,153 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Jan 1-7</td>
-                        <td>7 spots available</td>
-                    </tr>
-                    <tr>
-                        <td>Jan 7-14</td>
-                        <td>20 spots available</td>
-                    </tr>
-                    <tr>
-                        <td>Jan 14-21</td>
-                        <td>25 spots available</td>
-                    </tr>
-                    <tr>
-                        <td>Jan 21-28</td>
-                        <td>28 spots available</td>
-                    </tr>
                 </tbody>
             </table>
         </section>
+
     </main>
 </section>
+
+<!-- Edit Service Modal -->
+<div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="edit-service-form" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editServiceLabel">Edit Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-service-id">
+
+                <div class="mb-3">
+                    <label for="edit-service-name" class="form-label">Service Name</label>
+                    <input type="text" class="form-control" id="edit-service-name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edit-service-description" class="form-label">Description</label>
+                    <textarea class="form-control" id="edit-service-description" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edit-service-price" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="edit-service-price" step="0.01" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Update</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Create Service Modal -->
+<div class="modal fade" id="createServiceModal" tabindex="-1" aria-labelledby="createServiceLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="create-service-form" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createServiceLabel">Create New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="create-service-name" class="form-label">Service Name</label>
+                    <input type="text" class="form-control" id="create-service-name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="create-service-description" class="form-label">Description</label>
+                    <textarea class="form-control" id="create-service-description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="create-service-price" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="create-service-price" step="0.01" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Add Instructor Modal -->
+<div class="modal fade" id="addInstructorModal" tabindex="-1" aria-labelledby="addInstructorModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="add-instructor-form" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addInstructorModalLabel">Add Instructor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="add-instructor-name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Surname</label>
+                    <input type="text" class="form-control" id="add-instructor-surname" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Licence</label>
+                    <select class="form-select" id="add-instructor-licence" required>
+                        <option value="" disabled selected>Select a licence</option>
+                        <option value="U1">U1</option>
+                        <option value="U2">U2</option>
+                        <option value="U3">U3</option>
+                    </select>
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="text" class="form-control" id="add-instructor-username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="add-instructor-password" required>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Add</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Edit Instructor Modal -->
+<div class="modal fade" id="editInstructorModal" tabindex="-1" aria-labelledby="editInstructorModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="edit-instructor-form" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editInstructorModalLabel">Edit Instructor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-instructor-id">
+                <div class="mb-3">
+                    <label class="form-label">Licence</label>
+                    <select class="form-select" id="edit-instructor-licence" required>
+                        <option value="" disabled selected>Select a licence</option>
+                        <option value="U1">U1</option>
+                        <option value="U2">U2</option>
+                        <option value="U3">U3</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

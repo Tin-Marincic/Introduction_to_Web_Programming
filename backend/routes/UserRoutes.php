@@ -1,18 +1,27 @@
 <?php
+require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../data/roles.php';
 
 /**
  * @OA\Get(
  *     path="/users",
  *     tags={"Users"},
  *     summary="Get all users",
- *     @OA\Response(response=200, description="List of users")
+ *     security={{"ApiKey": {}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of users"
+ *     )
  * )
  */
 Flight::route('GET /users', function () {
-    try {
-        Flight::json(Flight::userService()->getAll());
-    } catch (Exception $e) {
-        Flight::halt(400, $e->getMessage());
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
+    $result = Flight::userService()->getAll();
+
+    if (empty($result)) {
+        Flight::json(["message" => "No users found"], 200);
+    } else {
+        Flight::json($result);
     }
 });
 
@@ -21,6 +30,7 @@ Flight::route('GET /users', function () {
  *     path="/users",
  *     tags={"Users"},
  *     summary="Register a new user",
+ *     security={{"ApiKey": {}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -67,13 +77,12 @@ Flight::route('GET /users/@role', function($role) {
     }
 });
 
-
-
 /**
  * @OA\Post(
  *     path="/instructors",
  *     tags={"Users"},
  *     summary="Add a new instructor (admin only)",
+ *     security={{"ApiKey": {}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -81,7 +90,7 @@ Flight::route('GET /users/@role', function($role) {
  *             @OA\Property(property="name", type="string", example="Malik"),
  *             @OA\Property(property="surname", type="string", example="Sabotic"),
  *             @OA\Property(property="licence", type="string", example="U1"),
- *             @OA\Property(property="username", type="string", example="Malik"),
+ *             @OA\Property(property="username", type="string", example="malik"),
  *             @OA\Property(property="password", type="string", example="secure123"),
  *             @OA\Property(property="role", type="string", example="instructor")
  *         )
@@ -90,6 +99,7 @@ Flight::route('GET /users/@role', function($role) {
  * )
  */
 Flight::route('POST /instructors', function () {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
     try {
         $data = Flight::request()->data->getData();
         Flight::json(Flight::userService()->addInstructor($data));
@@ -103,6 +113,7 @@ Flight::route('POST /instructors', function () {
  *     path="/instructors/{id}",
  *     tags={"Users"},
  *     summary="Update instructor by ID (admin only)",
+ *     security={{"ApiKey": {}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -121,6 +132,7 @@ Flight::route('POST /instructors', function () {
  * )
  */
 Flight::route('PUT /instructors/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
     try {
         $data = Flight::request()->data->getData();
         Flight::json(Flight::userService()->updateInstructor($id, $data));
@@ -134,6 +146,7 @@ Flight::route('PUT /instructors/@id', function($id) {
  *     path="/instructors/{id}",
  *     tags={"Users"},
  *     summary="Delete instructor by ID (admin only)",
+ *     security={{"ApiKey": {}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -145,8 +158,51 @@ Flight::route('PUT /instructors/@id', function($id) {
  * )
  */
 Flight::route('DELETE /instructors/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
     try {
         Flight::json(Flight::userService()->deleteInstructor($id));
+    } catch (Exception $e) {
+        Flight::halt(400, $e->getMessage());
+    }
+});
+
+
+/**
+ * @OA\Get(
+ *     path="/users/{id}/has-bookings",
+ *     tags={"Users"},
+ *     summary="Check if a user has made any bookings",
+ *     security={{"ApiKey": {}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="User ID",
+ *         @OA\Schema(type="integer", example=5)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Returns true or false",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="has_booking", type="boolean", example=true)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized access"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid request"
+ *     )
+ * )
+ */
+Flight::route('GET /users/@id/has-bookings', function($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::USER);
+
+    try {
+        $hasBooking = Flight::bookingService()->userHasBooking($id);
+        Flight::json(['has_booking' => $hasBooking]);
     } catch (Exception $e) {
         Flight::halt(400, $e->getMessage());
     }
