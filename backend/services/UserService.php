@@ -20,15 +20,20 @@ class UserService extends BaseService {
     // Admin: Add new instructor
     public function addInstructor($data) {
         $this->validateRole($data['role']);
+
+        // ✅ Hash the password before passing it to the DAO
+        $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+
         return $this->dao->addInstructor(
             $data['name'],
             $data['surname'],
             $data['licence'],
             $data['username'],
-            $data['password'],
+            $hashedPassword,
             $data['role']
         );
     }
+
 
     // Admin: Update instructor
     public function updateInstructor($id, $data) {

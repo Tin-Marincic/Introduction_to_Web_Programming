@@ -24,7 +24,8 @@ public function register($data) {
         empty($data['username']) ||
         empty($data['password']) ||
         empty($data['name']) ||
-        empty($data['surname'])
+        empty($data['surname']) ||
+        empty($data['phone']) 
     ) {
         return ['success' => false, 'error' => 'First name, last name, email, and password are required.'];
     }

@@ -19,17 +19,18 @@ class UserDao extends BaseDao {
         ]);
     }
 
-    // Register normal user (reuses insert)
-    public function registerUser($name, $surname, $username, $password, $role = 'user') {
+    public function registerUser($name, $surname, $username, $password, $phone, $role = 'user') {
         return $this->insert([
             'name' => $name,
             'surname' => $surname,
             'username' => $username,
             'password' => $password,
+            'phone' => $phone,
             'role' => $role,
             'created_at' => date('Y-m-d H:i:s')
         ]);
     }
+
 
     // Update instructor (only allows if role is instructor)
     public function updateInstructor($userId, $data) {

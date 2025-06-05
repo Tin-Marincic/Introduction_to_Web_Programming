@@ -99,32 +99,35 @@ let AdminPanelService = {
         const bookings = data[instructorName];
         let rows = "";
 
-        bookings.forEach(booking => {
-          rows += `
-            <tr>
-              <td>${booking.client_name}</td>
-              <td>${booking.date}</td>
-              <td>${booking.start_time}</td>
-              <td>${booking.session_type}</td>
-              <td>${booking.num_of_hours}h</td>
-              <td>${booking.status}</td>
-            </tr>`;
-        });
+      bookings.forEach(booking => {
+        rows += `
+          <tr>
+            <td>${booking.client_name}</td>
+            <td>${booking.client_phone || '-'}</td> 
+            <td>${booking.date}</td>
+            <td>${booking.start_time}</td>
+            <td>${booking.session_type}</td>
+            <td>${booking.num_of_hours}h</td>
+            <td>${booking.status}</td>
+          </tr>`;
+      });
+
 
         html += `
           <div class="instructor-booking">
             <h3>${instructorName}</h3>
             <table class="table table-striped">
               <thead>
-                <tr>
-                  <th>Client Name</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Lesson Type</th>
-                  <th>Duration</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
+              <tr>
+                <th>Client Name</th>
+                <th>Phone</th> 
+                <th>Date</th>
+                <th>Time</th>
+                <th>Lesson Type</th>
+                <th>Duration</th>
+                <th>Status</th>
+              </tr>
+            </thead>
               <tbody>${rows}</tbody>
             </table>
           </div>`;

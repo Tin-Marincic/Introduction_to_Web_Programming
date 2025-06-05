@@ -81,14 +81,30 @@ var BookingService = {
       });
     });
 
+    $.validator.setDefaults({ ignore: [] }); //had to add this so the hidden fields dont get ignored by jquery
 
     form.onsubmit = function (e) {
       e.preventDefault();
+
+      $("[name='ageValidationTrigger']").val("trigger").valid();
+      $("[name='levelValidationTrigger']").val("trigger").valid();
+
+
+      if (!$("#bookingForm").valid()) {
+        return; 
+  }
+
+      const userId = parseInt(localStorage.getItem("user_id"));
+      if (!userId || isNaN(userId)) {
+        toastr.error(" You must be logged in to make a booking.");
+        return;
+      }
+
       const sessionType = document.getElementById("sessionType").value;
 
       if (sessionType === "skiSchool") {
         const data = {
-          user_id: parseInt(localStorage.getItem("user_id")),
+          user_id: userId,
           service_id: 4,
           session_type: "Ski_school",
           num_of_spots: parseInt(document.getElementById("spots").value),
@@ -104,17 +120,17 @@ var BookingService = {
         };
 
         RestClient.request("bookings/ski-school", "POST", data, function () {
-          alert("Ski School booking successful!");
+          toastr.succes("Ski School booking successful!");
           BookingService.init();
         }, function (error) {
           console.error("Ski School booking failed", error);
-          alert("Error creating Ski School booking.");
+          toastr.success("Error creating Ski School booking.");
         });
       }
 
       if (sessionType === "privateInstruction") {
         const booking = {
-          user_id: parseInt(localStorage.getItem("user_id")),
+          user_id: userId,
           instructor_id: parseInt(document.getElementById("instructor").value),
           service_id: parseInt(document.getElementById("service").value),
           session_type: "Private_instruction",
@@ -125,11 +141,12 @@ var BookingService = {
         };
 
         RestClient.request("bookings", "POST", booking, function () {
-          alert("Private instruction booking successful!");
+          toastr.success("Private instruction booking successful!");
+
           BookingService.init();
         }, function (error) {
           console.error("Private instruction booking failed", error);
-          alert("Error creating private instruction booking.");
+          toastr.error("Error creating private instruction booking.");
         });
       }
     };
@@ -170,7 +187,14 @@ function updateAvailableTimes() {
     const allSlots = [10, 11, 12, 13, 14, 15];
     let hasAvailableSlot = false;
 
+    const selectedDateObj = new Date(date);
+    const today = new Date();
+    const isToday = selectedDateObj.toDateString() === today.toDateString();
+    const currentHour = today.getHours();
+
+
     allSlots.forEach(hour => {
+      if (isToday && hour <= currentHour) return;
       const hourStr = hour < 10 ? `0${hour}` : `${hour}`;
       const value = `${hourStr}:00`;
       const label = hour < 12 ? `${hour}:00 AM` : `${hour === 12 ? 12 : hour - 12}:00 PM`;
@@ -190,11 +214,11 @@ function updateAvailableTimes() {
       startTimeSelect.appendChild(opt);
     });
 
-    // If no available slot, show message
+    
     if (!hasAvailableSlot) {
       const alert = document.createElement("div");
       alert.id = "no-available-times";
-      alert.textContent = "⚠️ No available time slots for this instructor on the selected date.";
+      alert.textContent = " No available time slots for this instructor on the selected date.";
       alert.style.color = "#c00";
       alert.style.fontSize = "0.9em";
       alert.style.marginTop = "0.5em";
@@ -202,7 +226,7 @@ function updateAvailableTimes() {
       return;
     }
 
-    // Adjust hours dropdown based on start time
+    
     startTimeSelect.onchange = function () {
       const selectedHour = parseInt(this.value.split(":")[0], 10);
       hoursSelect.innerHTML = '<option value="" disabled selected>Select number of hours</option>';
@@ -211,10 +235,10 @@ function updateAvailableTimes() {
         const endHour = selectedHour + duration;
         let fits = true;
 
-        // Can't exceed 4 PM (16:00)
+        
         if (endHour > 16) break;
 
-        // Check if any hour in the range is booked
+        
         for (let i = 0; i < duration; i++) {
           if (bookedSlots.includes(selectedHour + i)) {
             fits = false;
@@ -267,7 +291,7 @@ function updateAgeGroup(type, delta) {
     parseInt(document.getElementById("age-teen").value) +
     parseInt(document.getElementById("age-adult").value);
 
-  if (delta > 0 && total >= spots) return; // Prevent overfilling
+  if (delta > 0 && total >= spots) return; g
 
   const newValue = Math.max(0, current + delta);
   input.value = newValue;
@@ -284,7 +308,7 @@ function updateLevel(level, delta) {
     parseInt(document.getElementById("level-intermediate").value) +
     parseInt(document.getElementById("level-advanced").value);
 
-  if (delta > 0 && total >= spots) return; // Prevent overfilling
+  if (delta > 0 && total >= spots) return; 
 
   const newValue = Math.max(0, current + delta);
   input.value = newValue;
@@ -293,13 +317,15 @@ function updateLevel(level, delta) {
 
 function updateVegetarian(delta) {
   const input = document.getElementById("vegetarian-count");
+  const spots = parseInt(document.getElementById("spots").value) || 0;
   let value = parseInt(input.value, 10) || 0;
 
-  if (delta > 0 && value >= 4) return;  // Currently capped at 4 not good 
-  value = Math.max(0, value + delta);   
+  if (delta > 0 && value >= spots) return;  
+  value = Math.max(0, value + delta);       
 
   input.value = value;
 }
+
 
 function initFlatpickr() {
   const sessionDate = document.getElementById("sessionDate");
@@ -317,7 +343,7 @@ function initFlatpickr() {
     dateFormat: "Y-m-d",
     minDate: today,
     maxDate: nextSunday,
-    defaultDate: today,
+    defaultDate: null,
     disableMobile: true,
     allowInput: false
   });
@@ -334,32 +360,150 @@ function loadUserBookings() {
   }
 
   RestClient.get(`bookings/user/${userId}`, function (bookings) {
-    if (!Array.isArray(bookings) || bookings.length === 0) {
-      section.style.display = "none"; // Hide if no bookings
-      return;
+  if (!Array.isArray(bookings) || bookings.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const upcomingOnly = bookings.filter(b => {
+    if (b.session_type === "Private_instruction") {
+      return b.date >= today;
     }
+    return true; 
+  });
 
-    section.style.display = "block"; // Show if there are bookings
-    container.innerHTML = "";
+  if (upcomingOnly.length === 0) {
+    section.style.display = "none";
+    return;
+  }
 
-    bookings.forEach(booking => {
-      const div = document.createElement("div");
-      div.className = "booking-card";
+  section.style.display = "block";
+  container.innerHTML = "";
+
+  upcomingOnly.forEach(booking => {
+    const div = document.createElement("div");
+    div.className = "booking-card";
+
+    if (booking.session_type === "Ski_school") {
       div.innerHTML = `
         <div class="card mb-3 p-3 border">
-          <h5>${booking.session_type === "Ski_school" ? `Ski School - ${booking.week}` : "Private Instruction"}</h5>
-          <p><strong>Date:</strong> ${booking.date || "-"}</p>
-          <p><strong>Start Time:</strong> ${booking.start_time || "-"}</p>
-          <p><strong>Duration:</strong> ${booking.num_of_hours || booking.num_of_spots} ${booking.num_of_hours ? "hours" : "spots"}</p>
-          <p><strong>Status:</strong> ${booking.status}</p>
+          <h5>Ski School - ${booking.week ?? "N/A"}</h5>
+          <p><strong>Spots:</strong> ${booking.num_of_spots ?? "N/A"}</p>
+          <p><strong>Ages:</strong> 
+            Child: ${booking.age_group_child ?? 0}, 
+            Teen: ${booking.age_group_teen ?? 0}, 
+            Adult: ${booking.age_group_adult ?? 0}
+          </p>
+          <p><strong>Ski Levels:</strong> 
+            Beginner: ${booking.ski_level_b ?? 0}, 
+            Intermediate: ${booking.ski_level_i ?? 0}, 
+            Advanced: ${booking.ski_level_a ?? 0}
+          </p>
+          <p><strong>Vegetarians:</strong> ${booking.veg_count ?? 0}</p>
+          <p><strong>Other:</strong> ${booking.other ?? "-"}</p>
         </div>
       `;
-      container.appendChild(div);
-    });
-  }, function (err) {
-    console.error("Failed to fetch bookings:", err);
-    section.style.display = "none";
+    } else {
+      div.innerHTML = `
+        <div class="card mb-3 p-3 border">
+          <h5>Private Instruction with ${booking.instructor_name ?? "-"} ${booking.instructor_surname ?? ""}</h5>
+          <p><strong>Session Type:</strong> ${booking.service_name ?? "-"}</p>
+          <p><strong>Date:</strong> ${booking.date ?? "-"}</p>
+          <p><strong>Start Time:</strong> ${booking.start_time ?? "-"}</p>
+          <p><strong>Duration:</strong> ${booking.num_of_hours ?? "N/A"} hour(s)</p>
+        </div>
+      `;
+    }
+
+    container.appendChild(div);
   });
+}, function (err) {
+  console.error("Failed to fetch bookings:", err);
+  section.style.display = "none";
+});
+
+$.validator.addMethod("ageGroupTotalMatch", function (_, element) {
+  const isSkiSchool = $("#sessionType").val() === "skiSchool";
+  const spots = parseInt($("#spots").val(), 10) || 0;
+  const totalAge =
+    parseInt($("#age-child").val(), 10) +
+    parseInt($("#age-teen").val(), 10) +
+    parseInt($("#age-adult").val(), 10);
+
+  return !isSkiSchool || totalAge === spots;
+}, "Total age group count must equal number of spots.");
+
+$.validator.addMethod("levelTotalMatch", function (_, element) {
+  const isSkiSchool = $("#sessionType").val() === "skiSchool";
+  const spots = parseInt($("#spots").val(), 10) || 0;
+  const totalLevel =
+    parseInt($("#level-beginner").val(), 10) +
+    parseInt($("#level-intermediate").val(), 10) +
+    parseInt($("#level-advanced").val(), 10);
+
+  return !isSkiSchool || totalLevel === spots;
+}, "Total skill level count must equal number of spots.");
+
+
+
+$("#bookingForm").validate({
+  rules: {
+    sessionType: { required: true },
+    spots: {
+      required: function () { return $("#sessionType").val() === "skiSchool"; },
+      min: 1,
+      max: 20
+    },
+    week: {
+      required: function () { return $("#sessionType").val() === "skiSchool"; }
+    },
+    ageValidationTrigger: {
+      ageGroupTotalMatch: true
+    },
+    levelValidationTrigger: {
+      levelTotalMatch: true
+    },
+    service: {
+      required: function () { return $("#sessionType").val() === "privateInstruction"; }
+    },
+    sessionDate: {
+      required: function () { return $("#sessionType").val() === "privateInstruction"; }
+    },
+    instructor: {
+      required: function () { return $("#sessionType").val() === "privateInstruction"; }
+    },
+    startTime: {
+      required: function () { return $("#sessionType").val() === "privateInstruction"; }
+    },
+    hours: {
+      required: function () { return $("#sessionType").val() === "privateInstruction"; }
+    }
+  },
+  messages: {
+    sessionType: "Please choose a service type.",
+    spots: {
+      required: "Please enter number of spots.",
+      min: "Minimum 1 spot is required.",
+      max: "Maximum 20 spots allowed."
+    },
+    week: "Please select a week for Ski School.",
+    service: "Please choose session type (1 on 1, etc).",
+    sessionDate: "Please select a date for private instruction.",
+    instructor: "Please choose an instructor.",
+    startTime: "Please select a start time.",
+    hours: "Please choose session duration."
+  },
+  errorPlacement: function (error, element) {
+    if (element.attr("name") === "sessionType") {
+      error.insertAfter(element.closest(".form-group"));
+    } else {
+      error.insertAfter(element);
+    }
+  }
+});
+
 }
 
 

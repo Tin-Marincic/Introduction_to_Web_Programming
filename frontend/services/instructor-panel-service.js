@@ -25,15 +25,12 @@ let InstructorPanelService = {
         rows += `
           <tr>
             <td>${b.client_name}</td>
+            <td>${b.phone || '-'}</td> <!-- NEW -->
             <td>${b.date}</td>
             <td>${b.start_time}</td>
             <td>${b.session_type}</td>
             <td>${b.num_of_hours}h</td>
             <td><span class="status ${b.status.toLowerCase()}">${b.status}</span></td>
-            <td>
-              <button class="btn btn-success btn-sm" onclick="InstructorPanelService.markComplete(${b.id})">Mark Complete</button>
-              <button class="btn btn-outline-danger btn-sm" onclick="InstructorPanelService.cancel(${b.id})">Cancel</button>
-            </td>
           </tr>`;
       });
 
@@ -169,18 +166,22 @@ getNextDateFor: function (weekday) {
   const dayIndex = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].indexOf(weekday);
   const today = new Date();
 
-  const endOfNextWeek = new Date(today);
-  const daysUntilNextSunday = 7 - today.getDay() + 7;
-  endOfNextWeek.setDate(today.getDate() + daysUntilNextSunday);
+  // Get the next Monday
+  const nextMonday = new Date(today);
+  const todayIndex = today.getDay();
+  const daysUntilNextMonday = ((8 - todayIndex) % 7) || 7;
+  nextMonday.setDate(today.getDate() + daysUntilNextMonday);
 
-  for (let d = new Date(today); d <= endOfNextWeek; d.setDate(d.getDate() + 1)) {
-    if (d.getDay() === dayIndex) {
-      return d.toISOString().split("T")[0];
-    }
-  }
+  // Calculate the desired day from next Monday
+  const targetDate = new Date(nextMonday);
+  const offset = (dayIndex + 7 - 1) % 7; // dayIndex aligned from next Monday (Monday is 0)
+  targetDate.setDate(nextMonday.getDate() + offset);
 
-  return null; 
+  return targetDate.toISOString().split("T")[0];
 }
+
+
+
 
 
 };

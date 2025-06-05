@@ -1,4 +1,4 @@
-<section class="booking-section">
+<section class="booking-section" id="bookingSection">
     <div class="container">
         <h1>Book Your Ski Session</h1>
         <form id="bookingForm">
@@ -56,6 +56,7 @@
                                 <button type="button" class="plus" onclick="updateAgeGroup('adult', 1)">+</button>
                             </div>
                         </div>
+                        <input type="hidden" name="ageValidationTrigger" value="trigger" />
                     </div>
 
                     <!-- Ski Levels -->
@@ -82,6 +83,7 @@
                                 <button type="button" class="plus" onclick="updateLevel('advanced', 1)">+</button>
                             </div>
                         </div>
+                        <input type="hidden" name="levelValidationTrigger" value="trigger" />
                     </div>
 
                     <!-- Vegetarian -->
@@ -162,9 +164,15 @@
     </div>
 </section>
 
+<section id="loginReminder" class="container" style="display: none; text-align: center; margin-top: 3rem;">
+    <h2>You must be logged in to book a ski session.</h2>
+    <p>Please <a href="#sign_in">sign in</a> or <a href="#register">register</a> first.</p>
+</section>
+
+
 <!-- User Bookings Section -->
 <div class="container mt-5" style="display: none;">
-    <h2>Your Bookings</h2>
+    <h2 id="userBookingsHeading">Your Upcoming Bookings</h2>
     <div id="userBookingsContainer"></div>
 </div>
 

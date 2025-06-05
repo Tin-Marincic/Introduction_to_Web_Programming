@@ -13,6 +13,7 @@ class BookingDao extends BaseDao {
                 u.name AS instructor_name, 
                 u.surname AS instructor_surname, 
                 c.name AS client_name, 
+                c.phone AS client_phone,        -- ✅ ADD THIS LINE
                 b.date, 
                 b.start_time, 
                 b.session_type, 
@@ -27,6 +28,7 @@ class BookingDao extends BaseDao {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
     }
+
 
     // Get available spots for ski school bookings for each week in January FOR ADMIN
     public function getSkiSchoolAvailability() {
@@ -91,21 +93,20 @@ class BookingDao extends BaseDao {
         return $result ? $result['bookings_count'] : 0;
     }
 
-    // Get detailed upcoming bookings for an instructor for the current month INSTRUCTOR PANEL
     public function getDetailedUpcomingBookings($instructorId) {
         $stmt = $this->connection->prepare(
-            "SELECT c.name AS client_name, b.date, b.start_time, b.session_type, b.num_of_hours, b.status
+            "SELECT c.name AS client_name, c.phone, b.date, b.start_time, b.session_type, b.num_of_hours, b.status
             FROM bookings b
             JOIN users c ON b.user_id = c.id
-            WHERE b.instructor_id = :instructor_id AND 
-                b.date >= CURDATE() AND 
-                YEAR(b.date) = YEAR(CURDATE()) AND MONTH(b.date) = MONTH(CURDATE())
+            WHERE b.instructor_id = :instructor_id
+            AND b.date >= CURDATE()
             ORDER BY b.date, b.start_time"
         );
         $stmt->bindParam(':instructor_id', $instructorId);
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
     public function hasTimeConflict($instructorId, $date, $startTime, $numOfHours) {
     $stmt = $this->connection->prepare(
         "SELECT COUNT(*) FROM bookings 
@@ -157,6 +158,16 @@ public function getBookingsByUserId($userId) {
             b.date,
             b.start_time,
             b.num_of_hours,
+            b.num_of_spots,
+            b.week,
+            b.age_group_child,
+            b.age_group_teen,
+            b.age_group_adult,
+            b.ski_level_b,
+            b.ski_level_i,
+            b.ski_level_a,
+            b.veg_count,
+            b.other,
             b.status,
             s.name AS service_name,
             u.name AS instructor_name,
@@ -170,6 +181,7 @@ public function getBookingsByUserId($userId) {
     $stmt->execute([$userId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 
 

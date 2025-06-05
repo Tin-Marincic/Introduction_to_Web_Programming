@@ -2152,6 +2152,83 @@ section,
   }
 }
 
+#userBookingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 10;
+  position: relative;
+}
+
+.booking-card {
+  background: white;
+  border: 2px solid #da3722;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+  font-family: 'Arial', sans-serif;
+  transition: transform 0.2s ease-in-out;
+}
+
+.booking-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.booking-card h5 {
+  font-size: 20px;
+  color: #b31e00;
+  margin-bottom: 10px;
+}
+
+.booking-card p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+
+.booking-card p strong {
+  color: #222;
+}
+
+
+@media (max-width: 768px) {
+  #userBookingsHeading {
+    background-color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    display: block;
+    width: fit-content;
+    margin: 0 auto 20px auto;
+  }
+
+}
+
+  .container.mt-5 {
+    max-width: 70%;
+    margin: 0 auto;
+  }
+
+#userBookingsHeading {
+  text-align: center;
+  display: block;
+  width: fit-content;
+  margin: 0 auto 20px auto;
+}
+
+#loginReminder {
+  min-height: 500px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+
+
 /*--------------------------------------------------------------
 # Admin panel
 --------------------------------------------------------------*/

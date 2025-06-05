@@ -10,7 +10,53 @@ $(document).ready(function() {
   app.route({ view: 'team', load: 'team.html' });
   app.route({ view: 'reviews', load: 'reviews.html' });
   app.route({ view: 'services', load: 'services.html' });
-  app.route({ view: 'contact', load: 'contact.html' });
+  app.route({
+  view: 'contact',
+  load: 'contact.html',
+  onReady: function () {
+    $(".php-email-form").on("submit", function (e) {
+      e.preventDefault();
+
+      const subject = $("input[name='subject']").val();
+      const message = $("textarea[name='message']").val();
+      const token = localStorage.getItem("user_token");
+
+      // If user is not logged in
+      if (!token) {
+        $(".error-message").text("You must be logged in to send a message.").show();
+        $(".sent-message").hide();
+        $(".loading").hide();
+        return;
+      }
+
+      // Show loading, hide messages
+      $(".loading").show();
+      $(".error-message").hide();
+      $(".sent-message").hide();
+
+      $.ajax({
+        url: "../backend/forms/send_email.php",
+        method: "POST",
+        data: { subject, message },
+        headers: { Authorization: `Bearer ${token}` },
+        success: function () {
+          $(".loading").hide();
+          $(".sent-message").show();
+          $(".php-email-form")[0].reset();
+        },
+        error: function (xhr) {
+          $(".loading").hide();
+          const res = xhr.responseJSON;
+          $(".error-message")
+            .text(res && res.error ? res.error : "Sending failed.")
+            .show();
+        }
+      });
+    });
+  }
+});
+
+
   app.route({ view: 'sign_in', load: 'sign_in.html' });
   app.route({ view: 'register', load: 'register.html' });
 
@@ -116,16 +162,22 @@ $("#edit-instructor-form").on("submit", function (e) {
 
 
 
-  app.route({
-    view: 'booking',
-    load: 'booking.html',
-    onReady: function () {
-      console.log("Booking page loaded, initializing form...");
-      BookingService.init();
-      initFlatpickr(); 
-      loadUserBookings();
+app.route({
+  view: 'booking',
+  load: 'booking.html',
+  onReady: function () {
+    if (!localStorage.getItem("user_token")) {
+      $("#bookingSection").hide();
+      $("#loginReminder").show();
+      return;
     }
-  });
+
+    BookingService.init();
+    initFlatpickr();
+    loadUserBookings();
+  }
+});
+
 
   app.route({
     view: 'instructor_panel',
@@ -142,31 +194,44 @@ $("#edit-instructor-form").on("submit", function (e) {
   load: 'register.html',
   onReady: function () {
 
-    $("#register-form").validate({
-      rules: {
-        name: { required: true, minlength: 2 },
-        surname: { required: true, minlength: 2 },
-        username: { required: true, email: true },
-        password: { required: true, minlength: 3, maxlength: 16 },
-        "confirm-password": { equalTo: "#password" }
-      },
-      messages: {
-        name: { required: 'Please enter your first name' },
-        surname: { required: 'Please enter your last name' },
-        username: {
-          required: 'Please enter your email',
-          email: 'Please enter a valid email address'
-        },
-        password: {
-          required: 'Please enter your password',
-          minlength: 'Password must be at least 3 characters long',
-          maxlength: 'Password cannot be longer than 16 characters'
-        },
-        "confirm-password": {
-          equalTo: 'Passwords do not match'
-        }
-      }
-    });
+$("#register-form").validate({
+  rules: {
+    name: { required: true, minlength: 2 },
+    surname: { required: true, minlength: 2 },
+    username: { required: true, email: true },
+    phone: {
+      required: true,
+      digits: true,
+      minlength: 8,
+      maxlength: 15
+    },
+    password: { required: true, minlength: 3, maxlength: 16 },
+    "confirm-password": { equalTo: "#password" }
+  },
+  messages: {
+    name: { required: 'Please enter your first name' },
+    surname: { required: 'Please enter your last name' },
+    username: {
+      required: 'Please enter your email',
+      email: 'Please enter a valid email address'
+    },
+    phone: {
+      required: 'Please enter your phone number',
+      digits: 'Only digits are allowed',
+      minlength: 'Phone number must be at least 8 digits',
+      maxlength: 'Phone number cannot exceed 15 digits'
+    },
+    password: {
+      required: 'Please enter your password',
+      minlength: 'Password must be at least 3 characters long',
+      maxlength: 'Password cannot be longer than 16 characters'
+    },
+    "confirm-password": {
+      equalTo: 'Passwords do not match'
+    }
+  }
+});
+
 
     $("#register-form").on("submit", function (e) {
       e.preventDefault();
