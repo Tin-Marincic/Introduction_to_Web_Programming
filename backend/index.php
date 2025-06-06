@@ -62,12 +62,14 @@ Flight::route('/*', function () {
         $url === '/auth/login' ||
         $url === '/auth/register' ||
         $url === '/test-connection' ||
+        $url === '/check-env' ||
         ($url === '/reviews' && $method === 'GET') ||
         ($url === '/api/services' && $method === 'GET') ||
         (strpos($url, '/users/instructor') === 0)
     ) {
         return true;
     }
+
 
     try {
         $headers = getallheaders();
