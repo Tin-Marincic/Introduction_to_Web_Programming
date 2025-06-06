@@ -37,10 +37,16 @@ class Config
         return self::get_env("JWT_SECRET", "e9f8a4b2c6d71e13f3RANDOMa9ba08c4d5e7b9f8c2a1e6");
     }
 
-    private static function get_env($name, $default)
+   private static function get_env($name, $default)
     {
-        $value = getenv($name);
-        return ($value !== false && trim($value) !== "") ? $value : $default;
+        if (isset($_ENV[$name]) && trim($_ENV[$name]) !== "") {
+            return $_ENV[$name];
+        } elseif (isset($_SERVER[$name]) && trim($_SERVER[$name]) !== "") {
+            return $_SERVER[$name];
+        } else {
+            return $default;
+        }
     }
+
 
 }
