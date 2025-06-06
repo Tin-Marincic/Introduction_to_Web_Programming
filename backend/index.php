@@ -71,10 +71,14 @@ Flight::route('/*', function () {
 
     try {
         $headers = getallheaders();
-        $token = $headers['Authorization'] ?? $headers['authorization'] ?? null;
+        $token = $headers['Authorization']
+            ?? $headers['authorization']
+            ?? $headers['Authentication']
+            ?? $headers['authentication']
+            ?? null;
 
         if (!$token) {
-            throw new Exception("Missing Authorization header");
+            throw new Exception("Missing Authorization or Authentication header");
         }
 
         Flight::auth_middleware()->verifyToken($token);
