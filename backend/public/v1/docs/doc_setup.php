@@ -17,7 +17,7 @@
  * )
  *
  * @OA\Server(
- *     url="https://unisport-9kjwi.ondigitalocean.app",
+ *     url="https://unisport-9kjwi.ondigitalocean.app/index.php",
  *     description="Production API server"
  * )
  *
