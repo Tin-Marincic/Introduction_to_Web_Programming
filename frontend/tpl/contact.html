@@ -41,19 +41,19 @@
           </div>
 
           <div class="col-lg-8">
-            <form action="../backend/forms/send_email.php" method="post" class="php-email-form" data-aos="fade-up"
-              data-aos-delay="200">
+            <form class="php-email-form" data-aos="fade-up" data-aos-delay="200">
               <div class="row gy-4">
-                <!-- Name and Email inputs removed -->
-
+                <!-- Subject input -->
                 <div class="col-md-12">
                   <input type="text" class="form-control" name="subject" placeholder="Subject" required>
                 </div>
 
+                <!-- Message input -->
                 <div class="col-md-12">
                   <textarea class="form-control" name="message" rows="6" placeholder="Message" required></textarea>
                 </div>
 
+                <!-- Status messages and button -->
                 <div class="col-md-12 text-center">
                   <div class="loading">Loading</div>
                   <div class="error-message"></div>
@@ -64,7 +64,7 @@
               </div>
             </form>
           </div>
-        </div>
+
 
     </section>
 

@@ -5,6 +5,12 @@ $(document).ready(function() {
     defaultView: 'home'
   });
 
+  const backendBaseURL =
+  location.hostname === "localhost" || location.hostname === "127.0.0.1"
+    ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/backend/"
+    : "https://unisport-9kjwi.ondigitalocean.app/";
+
+
   app.route({ view: 'home', load: 'home.html' });
   app.route({ view: 'about', load: 'about.html' });
   app.route({ view: 'team', load: 'team.html' });
@@ -35,7 +41,7 @@ $(document).ready(function() {
       $(".sent-message").hide();
 
       $.ajax({
-        url: "../backend/forms/send_email.php",
+        url: backendBaseURL + "forms/send_email.php",
         method: "POST",
         data: { subject, message },
         headers: { Authorization: `Bearer ${token}` },
