@@ -39,6 +39,8 @@ class Config
 
     private static function get_env($name, $default)
     {
-        return isset($_ENV[$name]) && trim($_ENV[$name]) !== "" ? $_ENV[$name] : $default;
+        $value = getenv($name);
+        return ($value !== false && trim($value) !== "") ? $value : $default;
     }
+
 }
