@@ -11,15 +11,21 @@ class Database {
                        ";port=" . Config::DB_PORT() .
                        ";dbname=" . Config::DB_NAME();
 
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ];
+
+                // ✅ Only enable SSL in production (set via App Platform env)
+                if (getenv('APP_ENV') === 'production') {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+                }
+
                 self::$connection = new PDO(
                     $dsn,
                     Config::DB_USER(),
                     Config::DB_PASSWORD(),
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/ca-certificates.crt' // ssl certificate
-                    ]
+                    $options
                 );
             } catch (PDOException $e) {
                 die("Connection failed: " . $e->getMessage());
