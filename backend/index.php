@@ -106,4 +106,15 @@ Flight::route('GET /test-connection', function () {
     }
 });
 
+Flight::route('GET /check-env', function () {
+    Flight::json([
+        "DB_HOST" => Config::DB_HOST(),
+        "DB_PORT" => Config::DB_PORT(),
+        "DB_USER" => Config::DB_USER(),
+        "DB_NAME" => Config::DB_NAME(),
+        "DB_PASSWORD" => Config::DB_PASSWORD()
+    ]);
+});
+
+
 Flight::start();
