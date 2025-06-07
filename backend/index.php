@@ -8,7 +8,10 @@ use Firebase\JWT\Key;
 
 // === CORS SETUP ===
 $allowedOrigins = [
-    "https://unisport-frontend-rg53w.ondigitalocean.app"
+    "https://unisport-frontend-rg53w.ondigitalocean.app",
+    "http://127.0.0.1",
+    "http://localhost"
+
 ];
 
 Flight::before('start', function () use ($allowedOrigins) {
