@@ -345,9 +345,33 @@ function initFlatpickr() {
     maxDate: nextSunday,
     defaultDate: null,
     disableMobile: true,
-    allowInput: false
+    allowInput: false,
+    onChange: function (selectedDates, dateStr) {
+      if (!dateStr) return;
+
+      const instructorSelect = document.getElementById("instructor");
+      instructorSelect.innerHTML = '<option value="" disabled selected>Loading instructors...</option>';
+
+      RestClient.get(`availability/active?date=${dateStr}`, function (ids) {
+        RestClient.get("users/instructor", function (allInstructors) {
+          instructorSelect.innerHTML = '<option value="" disabled selected>Select an instructor</option>';
+          allInstructors.forEach(instructor => {
+            if (ids.includes(instructor.id)) {
+              const opt = document.createElement("option");
+              opt.value = instructor.id;
+              opt.text = `${instructor.name} ${instructor.surname}`;
+              instructorSelect.appendChild(opt);
+            }
+          });
+
+          
+          updateAvailableTimes();
+        });
+      });
+    }
   });
 }
+
 
 function loadUserBookings() {
   const userId = localStorage.getItem("user_id");
