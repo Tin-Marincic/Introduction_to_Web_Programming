@@ -8,47 +8,55 @@ class AvailabilityCalendarDao extends BaseDao {
 
     // Check if availability already exists for instructor/date/status
     public function exists($instructorId, $date, $status) {
+        $instructorId = (int)$instructorId;
+
         $stmt = $this->connection->prepare(
             "SELECT COUNT(*) FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date = :date AND status = :status"
         );
-        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->bindParam(':instructor_id', $instructorId, PDO::PARAM_INT);
         $stmt->bindParam(':date', $date);
         $stmt->bindParam(':status', $status);
         $stmt->execute();
+
         return $stmt->fetchColumn() > 0;
     }
 
     // Check if there's already availability for instructor/date 
     public function hasConflict($instructorId, $date) {
+        $instructorId = (int)$instructorId;
+
         $stmt = $this->connection->prepare(
             "SELECT COUNT(*) FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date = :date"
         );
-        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->bindParam(':instructor_id', $instructorId, PDO::PARAM_INT);
         $stmt->bindParam(':date', $date);
         $stmt->execute();
+
         return $stmt->fetchColumn() > 0;
     }
 
     // Get availability by instructor (custom query)
     public function getAvailabilityByInstructor($instructorId) {
+        $instructorId = (int)$instructorId;
+
         $stmt = $this->connection->prepare(
             "SELECT * FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date >= CURDATE()"
         );
-        $stmt->bindParam(':instructor_id', $instructorId);
+        $stmt->bindParam(':instructor_id', $instructorId, PDO::PARAM_INT);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
     public function getAvailableInstructorsByDate($date) {
-    $stmt = $this->connection->prepare("
-        SELECT DISTINCT instructor_id 
-        FROM availabilityCalendar 
-        WHERE date = :date AND status = 'active'
-    ");
-    $stmt->bindParam(':date', $date);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
+        $stmt = $this->connection->prepare("
+            SELECT DISTINCT instructor_id 
+            FROM availabilityCalendar 
+            WHERE date = :date AND status = 'active'
+        ");
+        $stmt->bindParam(':date', $date);
+        $stmt->execute();
 
-
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }

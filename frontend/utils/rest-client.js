@@ -7,7 +7,7 @@ let RestClient = {
       beforeSend: function (xhr) {
         const token = localStorage.getItem("user_token");
         if (token) {
-          xhr.setRequestHeader("Authorization", "Bearer " + token); // ✅ USE STANDARD HEADER
+          xhr.setRequestHeader("Authorization", "Bearer " + token); 
         }
       },
       success: function (response) {
@@ -37,7 +37,7 @@ let RestClient = {
       beforeSend: function (xhr) {
         const token = localStorage.getItem("user_token");
         if (token) {
-          xhr.setRequestHeader("Authorization", "Bearer " + token); // ✅ FIXED
+          xhr.setRequestHeader("Authorization", "Bearer " + token); 
         }
       },
       success: function (response) {
