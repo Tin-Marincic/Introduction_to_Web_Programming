@@ -267,6 +267,7 @@ function toggleBookingOptions() {
     container.style.display = "block";
     skiSchoolSection.style.display = "block";
     privateInstructionSection.style.display = "none";
+    skiSchoolSection.querySelectorAll("input, button").forEach(el => el.disabled = false);  //the + doesnt work for phones
   } else if (sessionType === "privateInstruction") {
     container.style.display = "block";
     skiSchoolSection.style.display = "none";
