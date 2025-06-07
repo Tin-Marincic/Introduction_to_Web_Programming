@@ -3,7 +3,7 @@ require_once 'BaseDao.php';
 
 class AvailabilityCalendarDao extends BaseDao {
     public function __construct() {
-        parent::__construct("availabilityCalendar");
+        parent::__construct("availabilitycalendar");
     }
 
     // Check if availability already exists for instructor/date/status
@@ -11,7 +11,7 @@ class AvailabilityCalendarDao extends BaseDao {
         $instructorId = (int)$instructorId;
 
         $stmt = $this->connection->prepare(
-            "SELECT COUNT(*) FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date = :date AND status = :status"
+            "SELECT COUNT(*) FROM availabilitycalendar WHERE instructor_id = :instructor_id AND date = :date AND status = :status"
         );
         $stmt->bindParam(':instructor_id', $instructorId, PDO::PARAM_INT);
         $stmt->bindParam(':date', $date);
@@ -26,7 +26,7 @@ class AvailabilityCalendarDao extends BaseDao {
         $instructorId = (int)$instructorId;
 
         $stmt = $this->connection->prepare(
-            "SELECT COUNT(*) FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date = :date"
+            "SELECT COUNT(*) FROM availabilitycalendar WHERE instructor_id = :instructor_id AND date = :date"
         );
         $stmt->bindParam(':instructor_id', $instructorId, PDO::PARAM_INT);
         $stmt->bindParam(':date', $date);
@@ -40,7 +40,7 @@ class AvailabilityCalendarDao extends BaseDao {
         $instructorId = (int)$instructorId;
 
         $stmt = $this->connection->prepare(
-            "SELECT * FROM availabilityCalendar WHERE instructor_id = :instructor_id AND date >= CURDATE()"
+            "SELECT * FROM availabilitycalendar WHERE instructor_id = :instructor_id AND date >= CURDATE()"
         );
         $stmt->bindParam(':instructor_id', $instructorId, PDO::PARAM_INT);
         $stmt->execute();
@@ -51,7 +51,7 @@ class AvailabilityCalendarDao extends BaseDao {
     public function getAvailableInstructorsByDate($date) {
         $stmt = $this->connection->prepare("
             SELECT DISTINCT instructor_id 
-            FROM availabilityCalendar 
+            FROM availabilitycalendar 
             WHERE date = :date AND status = 'active'
         ");
         $stmt->bindParam(':date', $date);
