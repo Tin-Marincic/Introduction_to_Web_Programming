@@ -116,8 +116,9 @@ initReviewModal: function () {
     $("#addReviewModal").modal("show");
   });
 
-  // Submit review
-  $("#review-form").on("submit", function (e) {
+
+    // Submit review
+  $("#review-form").off("submit").on("submit", function (e) {
     e.preventDefault();
 
     const formData = Object.fromEntries(new FormData(this).entries());
@@ -128,7 +129,6 @@ initReviewModal: function () {
       note: formData.note
     };
 
-    // Include booking_id if valid
     const parsedBookingId = parseInt(formData.booking_id);
     if (!isNaN(parsedBookingId)) {
       payload.booking_id = parsedBookingId;
@@ -136,7 +136,7 @@ initReviewModal: function () {
 
     RestClient.post("reviews", payload, function () {
       toastr.success("Review submitted successfully!");
-      location.reload(); // ✅ Reload page after success
+      location.reload();
     }, function (err) {
       console.error("Review submission failed:", err);
       toastr.error(err.responseJSON?.error || "Failed to submit review.");
