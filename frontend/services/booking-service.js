@@ -120,7 +120,7 @@ var BookingService = {
         };
 
         RestClient.request("bookings/ski-school", "POST", data, function () {
-          toastr.succes("Ski School booking successful!");
+          toastr.success("Ski School booking successful!");
           BookingService.init();
         }, function (error) {
           console.error("Ski School booking failed", error);
