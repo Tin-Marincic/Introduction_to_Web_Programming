@@ -267,7 +267,6 @@ function toggleBookingOptions() {
     container.style.display = "block";
     skiSchoolSection.style.display = "block";
     privateInstructionSection.style.display = "none";
-    skiSchoolSection.querySelectorAll("input, button").forEach(el => el.disabled = false);  //the + doesnt work for phones
   } else if (sessionType === "privateInstruction") {
     container.style.display = "block";
     skiSchoolSection.style.display = "none";
@@ -292,7 +291,7 @@ function updateAgeGroup(type, delta) {
     parseInt(document.getElementById("age-teen").value) +
     parseInt(document.getElementById("age-adult").value);
 
-  if (delta > 0 && total >= spots) return; g
+  if (delta > 0 && total >= spots) return; 
 
   const newValue = Math.max(0, current + delta);
   input.value = newValue;
