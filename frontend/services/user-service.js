@@ -97,19 +97,25 @@ $("#register-form").validate({
     });
   },
 
-  login: function (entity) {
+login: function (entity) {
   console.log("[UserService] Sending login request...");
   RestClient.post("auth/login", entity, function (result) {
     console.log("[UserService] Login successful:", result);
 
+    
     localStorage.setItem("user_token", result.data.token);
     localStorage.setItem("userRole", result.data.role);
     localStorage.setItem("user_id", result.data.id);
 
+    
+    $(document).trigger("loginSuccess");
+
+    
     toastr.success("Welcome " + result.data.name + "!");
     $("#login-form")[0].reset();
     UserService.updateAuthButton();
 
+    
     switch (result.data.role) {
       case Constants.ADMIN_ROLE:
         window.location.hash = "#admin_panel";
@@ -128,7 +134,7 @@ $("#register-form").validate({
       toastr.error("Login failed. Please try again.");
     }
   });
-  },
+},
 
   register: function (entity) {
     console.log("[UserService] Sending registration request...");

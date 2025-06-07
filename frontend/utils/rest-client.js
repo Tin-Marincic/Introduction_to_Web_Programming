@@ -6,8 +6,9 @@ let RestClient = {
       type: "GET",
       beforeSend: function (xhr) {
         const token = localStorage.getItem("user_token");
-        console.log("Auth Token:", token);
-        xhr.setRequestHeader("Authentication", token);
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token); // ✅ USE STANDARD HEADER
+        }
       },
       success: function (response) {
         if (callback) callback(response);
@@ -35,8 +36,9 @@ let RestClient = {
       data: JSON.stringify(data),
       beforeSend: function (xhr) {
         const token = localStorage.getItem("user_token");
-        console.log(" Auth Token:", token);
-        xhr.setRequestHeader("Authentication", token);
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token); // ✅ FIXED
+        }
       },
       success: function (response) {
         console.log(" Success Response:", response);
@@ -59,22 +61,18 @@ let RestClient = {
   },
 
   post: function (url, data, callback, error_callback) {
-    console.log(" POST →", Constants.PROJECT_BASE_URL + url);
     RestClient.request(url, "POST", data, callback, error_callback);
   },
 
   delete: function (url, data, callback, error_callback) {
-    console.log(" DELETE →", Constants.PROJECT_BASE_URL + url);
     RestClient.request(url, "DELETE", data, callback, error_callback);
   },
 
   patch: function (url, data, callback, error_callback) {
-    console.log(" PATCH →", Constants.PROJECT_BASE_URL + url);
     RestClient.request(url, "PATCH", data, callback, error_callback);
   },
 
   put: function (url, data, callback, error_callback) {
-    console.log(" PUT →", Constants.PROJECT_BASE_URL + url);
     RestClient.request(url, "PUT", data, callback, error_callback);
   }
 };

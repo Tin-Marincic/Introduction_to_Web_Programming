@@ -11,14 +11,13 @@ $allowedOrigins = [
     "https://unisport-frontend-rg53w.ondigitalocean.app",
     "http://127.0.0.1",
     "http://localhost"
-
 ];
 
 Flight::before('start', function () use ($allowedOrigins) {
     if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
         header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
         header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Authentication");
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization"); // ✅ removed Authentication
         header("Access-Control-Allow-Credentials: true");
     }
 
@@ -73,20 +72,20 @@ Flight::route('/*', function () {
         return true;
     }
 
-
     try {
         $headers = getallheaders();
-        $token = $headers['Authorization']
-            ?? $headers['authorization']
-            ?? $headers['Authentication']
-            ?? $headers['authentication']
-            ?? null;
+        $tokenHeader = $headers['Authorization'] ?? $headers['authorization'] ?? null;
 
-        if (!$token) {
-            throw new Exception("Missing Authorization or Authentication header");
+        if (!$tokenHeader) {
+            throw new Exception("Missing Authorization header");
         }
 
-        Flight::auth_middleware()->verifyToken($token);
+        // Support "Bearer <token>" format
+        if (strpos($tokenHeader, 'Bearer ') === 0) {
+            $tokenHeader = substr($tokenHeader, 7); // strip "Bearer "
+        }
+
+        Flight::auth_middleware()->verifyToken($tokenHeader);
         return true;
     } catch (\Exception $e) {
         Flight::halt(401, "Unauthorized: " . $e->getMessage());
@@ -120,6 +119,5 @@ Flight::route('GET /check-env', function () {
         "DB_PASSWORD" => Config::DB_PASSWORD()
     ]);
 });
-
 
 Flight::start();

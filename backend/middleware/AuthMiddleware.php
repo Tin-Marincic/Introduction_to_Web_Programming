@@ -5,7 +5,7 @@ use Firebase\JWT\Key;
 
 class AuthMiddleware {
     public function verifyToken($token){
-        if(!$token) Flight::halt(401, "Missing authentication header");
+        if(!$token) Flight::halt(401, "Missing authorization header");
 
         $decoded_token = JWT::decode($token, new Key(Config::JWT_SECRET(), 'HS256'));
 

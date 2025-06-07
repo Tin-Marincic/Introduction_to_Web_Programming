@@ -10,11 +10,49 @@ $(document).ready(function() {
     ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/backend/"
     : "https://unisport-9kjwi.ondigitalocean.app/";
 
+  
+function updateBookingView() {
+  if (!localStorage.getItem("user_token")) {
+    $("#bookingSection").hide();
+    $("#loginReminder").show();
+
+    
+    $("#userBookingsContainer").html("");
+    $("#userBookingsHeading").hide(); 
+
+    return;
+  }
+
+  $("#loginReminder").hide();
+  $("#bookingSection").show();
+  $("#userBookingsHeading").show(); 
+  BookingService.init();
+  initFlatpickr();
+  loadUserBookings();
+}
+
 
   app.route({ view: 'home', load: 'home.html' });
   app.route({ view: 'about', load: 'about.html' });
   app.route({ view: 'team', load: 'team.html' });
-  app.route({ view: 'reviews', load: 'reviews.html' });
+  app.route({
+  view: 'reviews',
+  load: 'reviews.html',
+  onReady: function () {
+    // 1) load reviews on initial render
+    ClientLoader.loadReviews();
+    ClientLoader.initReviewModal();
+
+    // 2) re-load them if user logs in while still on this page
+    $(document)
+      .off('loginSuccess.reviews')
+      .on('loginSuccess.reviews', function () {
+        ClientLoader.loadReviews();
+        ClientLoader.initReviewModal();
+      });
+  }
+});
+
   app.route({ view: 'services', load: 'services.html' });
   app.route({
   view: 'contact',
@@ -172,15 +210,13 @@ app.route({
   view: 'booking',
   load: 'booking.html',
   onReady: function () {
-    if (!localStorage.getItem("user_token")) {
-      $("#bookingSection").hide();
-      $("#loginReminder").show();
-      return;
-    }
+    
+    updateBookingView();
 
-    BookingService.init();
-    initFlatpickr();
-    loadUserBookings();
+    
+    $(document)
+      .off('loginSuccess.booking')
+      .on('loginSuccess.booking', updateBookingView);
   }
 });
 
