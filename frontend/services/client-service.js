@@ -62,7 +62,7 @@ const ClientLoader = {
       const staticImages = {
         "Vedad Saric": "Vedad.jpg",
         "Haris Saric": "Haris.jpg",
-        "Ilma Catic": "Ilma.jpg",
+        "Ilma Catovic": "Ilma.jpg",
         "Iman Sijercic": "Iman.jpg",
         "Tin Marincic": "Tin.jpg",
         "Muhamed Saric": "Saka.jpg"
