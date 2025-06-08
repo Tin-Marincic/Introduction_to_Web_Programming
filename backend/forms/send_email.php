@@ -1,4 +1,5 @@
 <?php
+//Cors setup 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowedOrigins = [
     "https://unisport-frontend-rg53w.ondigitalocean.app",

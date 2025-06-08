@@ -16,4 +16,11 @@ class AuthDao extends BaseDao {
        $query = "SELECT * FROM " . $this->table_name . " WHERE username = :username";
        return $this->query_unique($query, ['username' => $username]);
    }
+
+    public function get_user_by_phone($phone) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE phone = :phone";
+        return $this->query_unique($query, ['phone' => $phone]);
+    }
+
+
 }

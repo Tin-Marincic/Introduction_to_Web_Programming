@@ -13,7 +13,7 @@ class BookingDao extends BaseDao {
                 u.name AS instructor_name, 
                 u.surname AS instructor_surname, 
                 c.name AS client_name, 
-                c.phone AS client_phone,        -- ✅ ADD THIS LINE
+                c.phone AS client_phone,        
                 b.date, 
                 b.start_time, 
                 b.session_type, 
@@ -93,6 +93,7 @@ class BookingDao extends BaseDao {
         return $result ? $result['bookings_count'] : 0;
     }
 
+    //get all upcoming bookings for instructor panel
     public function getDetailedUpcomingBookings($instructorId) {
         $stmt = $this->connection->prepare(
             "SELECT c.name AS client_name, c.phone, b.date, b.start_time, b.session_type, b.num_of_hours, b.status
@@ -107,6 +108,7 @@ class BookingDao extends BaseDao {
         return $stmt->fetchAll();
     }
 
+    //to check if there is already a booking for that date time and for that instructor
     public function hasTimeConflict($instructorId, $date, $startTime, $numOfHours) {
     $stmt = $this->connection->prepare(
         "SELECT COUNT(*) FROM bookings 
@@ -126,7 +128,7 @@ class BookingDao extends BaseDao {
     return $stmt->fetchColumn() > 0;
 }
 
-
+//get start times and hours for time slot checking free/occupied 
     public function getBookingsForInstructorOnDate($instructorId, $date) {
     $stmt = $this->connection->prepare(
         "SELECT start_time, num_of_hours 
@@ -140,7 +142,7 @@ class BookingDao extends BaseDao {
     return $stmt->fetchAll();
 }
 
-
+//to check if user has bookings and then to show the add review button if true
 public function userHasBooking($userId) {
     $query = "SELECT COUNT(*) as total FROM bookings WHERE user_id = :user_id";
     $stmt = $this->connection->prepare($query); 
@@ -150,6 +152,8 @@ public function userHasBooking($userId) {
     return $result && $result['total'] > 0;
 }
 
+
+//to show every user their own bookings
 public function getBookingsByUserId($userId) {
     $stmt = $this->connection->prepare("
         SELECT 

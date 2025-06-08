@@ -19,7 +19,6 @@ class AuthService extends BaseService {
 
 
 public function register($data) {
-    // Validate required fields
     if (
         empty($data['username']) ||
         empty($data['password']) ||
@@ -30,24 +29,27 @@ public function register($data) {
         return ['success' => false, 'error' => 'First name, last name, email, and password are required.'];
     }
 
-    // Only normal users can self-register
     $data['role'] = 'user';
 
-    // Check if the email is already taken
+
     if ($this->auth_dao->get_user_by_email($data['username'])) {
         return ['success' => false, 'error' => 'Email is already in use.'];
     }
 
-    // Hash the password before storing
+    if ($this->auth_dao->get_user_by_phone($data['phone'])) {
+        return ['success' => false, 'error' => 'Phone number is already in use.'];
+    }
+
+
     $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
 
-    // Insert the new user into the database
+
     $created = $this->auth_dao->insert($data);
     if (!$created) {
         return ['success' => false, 'error' => 'Failed to register user.'];
     }
 
-    // Retrieve the newly created user (without password)
+
     $user = $this->auth_dao->get_user_by_email($data['username']);
     unset($user['password']);
 

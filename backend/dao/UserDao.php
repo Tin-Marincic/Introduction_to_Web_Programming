@@ -19,20 +19,9 @@ class UserDao extends BaseDao {
         ]);
     }
 
-    public function registerUser($name, $surname, $username, $password, $phone, $role = 'user') {
-        return $this->insert([
-            'name' => $name,
-            'surname' => $surname,
-            'username' => $username,
-            'password' => $password,
-            'phone' => $phone,
-            'role' => $role,
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
-    }
 
 
-    // Update instructor (only allows if role is instructor)
+    // Update instructor (only allows if role is instructor) uses dynamic set clause 
     public function updateInstructor($userId, $data) {
         $stmt = $this->connection->prepare(
             "UPDATE users SET " . implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data))) . 

@@ -335,14 +335,23 @@ function initFlatpickr() {
   }
 
   const today = new Date();
-  const nextSunday = new Date(today);
-  const daysUntilNextSunday = 7 - today.getDay() + 7;
-  nextSunday.setDate(today.getDate() + daysUntilNextSunday);
+  const dayOfWeek = today.getDay(); // 0 = Sunday
+
+  let minDate = today;
+  let maxDate = new Date(today);
+
+  if (dayOfWeek === 0) {
+    // If today is Sunday, allow today + next full week
+    maxDate.setDate(today.getDate() + 7); // Next Sunday
+  } else {
+    // Not Sunday: allow from today through next Sunday
+    maxDate.setDate(today.getDate() + (7 - dayOfWeek) + 6);
+  }
 
   flatpickr("#sessionDate", {
     dateFormat: "Y-m-d",
-    minDate: today,
-    maxDate: nextSunday,
+    minDate: minDate,
+    maxDate: maxDate,
     defaultDate: null,
     disableMobile: true,
     allowInput: false,
@@ -364,13 +373,13 @@ function initFlatpickr() {
             }
           });
 
-          
           updateAvailableTimes();
         });
       });
     }
   });
 }
+
 
 
 function loadUserBookings() {

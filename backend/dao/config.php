@@ -1,10 +1,11 @@
 <?php
 
-// Enable error reporting (optional for prod)
+//displays errors
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL ^ (E_NOTICE | E_DEPRECATED));
 
+//modified for prod and local
 class Config
 {
     public static function DB_NAME()

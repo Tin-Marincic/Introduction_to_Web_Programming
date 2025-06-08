@@ -6,7 +6,7 @@ class AvailabilityCalendarDao extends BaseDao {
         parent::__construct("availabilitycalendar");
     }
 
-    // Check if availability already exists for instructor/date/status
+    // Check if availability already exists for instructor/date/status so it cant overlap
     public function exists($instructorId, $date, $status) {
         $instructorId = (int)$instructorId;
 
@@ -35,7 +35,7 @@ class AvailabilityCalendarDao extends BaseDao {
         return $stmt->fetchColumn() > 0;
     }
 
-    // Get availability by instructor (custom query)
+    // Get availability by instructor 
     public function getAvailabilityByInstructor($instructorId) {
         $instructorId = (int)$instructorId;
 
@@ -48,6 +48,7 @@ class AvailabilityCalendarDao extends BaseDao {
         return $stmt->fetchAll();
     }
 
+    //for the dropdown in booking
     public function getAvailableInstructorsByDate($date) {
         $stmt = $this->connection->prepare("
             SELECT DISTINCT instructor_id 

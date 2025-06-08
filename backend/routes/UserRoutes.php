@@ -25,34 +25,6 @@ Flight::route('GET /users', function () {
     }
 });
 
-/**
- * @OA\Post(
- *     path="/users",
- *     tags={"Users"},
- *     summary="Register a new user",
- *     security={{"ApiKey": {}}},
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *             required={"name", "surname", "username", "password", "role"},
- *             @OA\Property(property="name", type="string", example="Ana"),
- *             @OA\Property(property="surname", type="string", example="Petrovic"),
- *             @OA\Property(property="username", type="string", example="ana123"),
- *             @OA\Property(property="password", type="string", example="pass123"),
- *             @OA\Property(property="role", type="string", example="user")
- *         )
- *     ),
- *     @OA\Response(response=200, description="User registered")
- * )
- */
-Flight::route('POST /users', function () {
-    try {
-        $data = Flight::request()->data->getData();
-        Flight::json(Flight::userService()->registerUser($data));
-    } catch (Exception $e) {
-        Flight::halt(400, $e->getMessage());
-    }
-});
 
 /**
  * @OA\Get(

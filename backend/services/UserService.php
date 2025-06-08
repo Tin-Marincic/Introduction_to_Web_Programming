@@ -19,11 +19,29 @@ class UserService extends BaseService {
 
     // Admin: Add new instructor
     public function addInstructor($data) {
+        
         $this->validateRole($data['role']);
 
-        // ✅ Hash the password before passing it to the DAO
+        
+        if (
+            empty($data['name']) ||
+            empty($data['surname']) ||
+            empty($data['username']) ||
+            empty($data['password']) ||
+            empty($data['licence'])
+        ) {
+            throw new Exception("Missing required fields: name, surname, licence, email, or password.");
+        }
+
+       
+        if ($this->dao->get_user_by_email($data['username'])) {
+            throw new Exception("Username/email is already in use.");
+        }
+
+        
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
+        
         return $this->dao->addInstructor(
             $data['name'],
             $data['surname'],
@@ -50,17 +68,6 @@ class UserService extends BaseService {
         return $this->dao->getAllInstructors();
     }
 
-    // Public: Register normal user
-    public function registerUser($data) {
-        $this->validateRole($data['role']);
-        return $this->dao->registerUser(
-            $data['name'],
-            $data['surname'],
-            $data['username'],
-            $data['password'],
-            $data['role']
-        );
-    }
 
     // Role-based screen rendering
     public function getUsersByRole($role) {
