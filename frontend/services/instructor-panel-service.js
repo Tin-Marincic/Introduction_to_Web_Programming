@@ -25,7 +25,7 @@ let InstructorPanelService = {
         rows += `
           <tr>
             <td>${b.client_name}</td>
-            <td>${b.phone || '-'}</td> <!-- NEW -->
+            <td>${b.phone || '-'}</td>
             <td>${b.date}</td>
             <td>${b.start_time}</td>
             <td>${b.session_type}</td>
@@ -40,148 +40,133 @@ let InstructorPanelService = {
     });
   },
 
-loadTotalHours: function () {
-  const user = Utils.parseJwt(localStorage.getItem("user_token"))?.user;
-  if (!user) return;
+  loadTotalHours: function () {
+    const user = Utils.parseJwt(localStorage.getItem("user_token"))?.user;
+    if (!user) return;
 
-  RestClient.get(`bookings/instructor/${user.id}/hours`,
-    function (data) {
-      $("#total-hours").text(data.total_hours || 0);
-    },
-    function (error) {
-      console.error("Failed to load total hours:", error);
-      $("#total-hours").text("0");
-    });
+    RestClient.get(`bookings/instructor/${user.id}/hours`,
+      function (data) {
+        $("#total-hours").text(data.total_hours || 0);
+      },
+      function (error) {
+        console.error("Failed to load total hours:", error);
+        $("#total-hours").text("0");
+      });
   },
 
-  markComplete: function (id) {
-    RestClient.patch(`bookings/${id}`, { status: "completed" }, function () {
-      toastr.success("Booking marked as complete");
-      InstructorPanelService.loadBookings();
-      InstructorPanelService.loadSummaryStats();
-    });
-  },
+  initAvailability: function () {
+    const user = Utils.parseJwt(localStorage.getItem("user_token"))?.user;
+    if (!user) return;
 
-  cancel: function (id) {
-    RestClient.patch(`bookings/${id}`, { status: "cancelled" }, function () {
-      toastr.success("Booking cancelled");
-      InstructorPanelService.loadBookings();
-      InstructorPanelService.loadSummaryStats();
-    });
-  },
+    const selectedDays = new Set();
+    const existingAvailabilities = {};
+    const bookedDates = new Set();
 
-initAvailability: function () {
-  const user = Utils.parseJwt(localStorage.getItem("user_token"))?.user;
-  if (!user) return;
+    const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
-  const selectedDays = new Set();
-  const existingAvailabilities = {};
-  const bookedDates = new Set();
-
-  RestClient.get(`availability/instructor/${user.id}`, function (availabilities) {
-    availabilities.forEach(av => {
-      existingAvailabilities[av.date] = av;
-      if (av.status === "active") {
-        const day = new Date(av.date).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-        $(`.day-toggle[data-day="${day}"]`).addClass("available");
-        selectedDays.add(day);
-      }
+    
+    const nextWeekDates = {};
+    days.forEach(day => {
+      const date = InstructorPanelService.getNextDateFor(day);
+      nextWeekDates[date] = day;
     });
 
+    RestClient.get(`availability/instructor/${user.id}`, function (availabilities) {
+      availabilities.forEach(av => {
+        if (!nextWeekDates[av.date]) return;
 
-    RestClient.get(`bookings/instructor/${user.id}/upcoming`, function (bookings) {
-      bookings.forEach(b => bookedDates.add(b.date));
+        existingAvailabilities[av.date] = av;
 
-      $(".day-toggle").off("click").on("click", function () {
-        const day = $(this).data("day");
-        const date = InstructorPanelService.getNextDateFor(day);
-
-        if ($(this).hasClass("available")) {
-          if (bookedDates.has(date)) {
-            toastr.error(`Can't remove ${day}: a booking exists.`);
-            return;
-          }
-          $(this).removeClass("available");
-          selectedDays.delete(day);
-        } else {
-          $(this).addClass("available");
+        if (av.status === "active") {
+          const day = nextWeekDates[av.date];
+          $(`.day-toggle[data-day="${day}"]`).addClass("available");
           selectedDays.add(day);
         }
       });
 
-      $(".save-availability").off("click").on("click", function () {
-        const button = $(this);
-        button.prop("disabled", true).text("Saving...");
-        const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-        let completed = 0;
+      RestClient.get(`bookings/instructor/${user.id}/upcoming`, function (bookings) {
+        bookings.forEach(b => bookedDates.add(b.date));
 
-        const finish = () => {
-          completed++;
-          if (completed === days.length) {
-            toastr.success("Availability updated");
-            button.prop("disabled", false).text("Save Availability");
-
-            $(".day-toggle").removeClass("available");
-            InstructorPanelService.initAvailability();
-          }
-        };
-
-        days.forEach(day => {
+        $(".day-toggle").off("click").on("click", function () {
+          const day = $(this).data("day");
           const date = InstructorPanelService.getNextDateFor(day);
-          const isSelected = selectedDays.has(day);
-          const availability = existingAvailabilities[date];
 
-          if (isSelected && !availability) {
-            RestClient.post("availability", {
-              instructor_id: user.id,
-              date: date,
-              status: "active"
-            }, finish, finish);
-          } else if (isSelected && availability && availability.status === "not_active") {
-            RestClient.put(`availability/${availability.id}`, {
-              date: date,
-              status: "active"
-            }, finish, finish);
-          } else if (!isSelected && availability && availability.status === "active") {
+          if ($(this).hasClass("available")) {
             if (bookedDates.has(date)) {
-              console.warn(`Cannot deactivate ${day}: already booked`);
-              finish();
-            } else {
+              toastr.error(`Can't remove ${day}: a booking exists.`);
+              return;
+            }
+            $(this).removeClass("available");
+            selectedDays.delete(day);
+          } else {
+            $(this).addClass("available");
+            selectedDays.add(day);
+          }
+        });
+
+        $(".save-availability").off("click").on("click", function () {
+          const button = $(this);
+          button.prop("disabled", true).text("Saving...");
+          let completed = 0;
+
+          const finish = () => {
+            completed++;
+            if (completed === days.length) {
+              toastr.success("Availability updated");
+              button.prop("disabled", false).text("Save Availability");
+              $(".day-toggle").removeClass("available");
+              InstructorPanelService.initAvailability();
+            }
+          };
+
+          days.forEach(day => {
+            const date = InstructorPanelService.getNextDateFor(day);
+            const isSelected = selectedDays.has(day);
+            const availability = existingAvailabilities[date];
+
+            if (isSelected && !availability) {
+              RestClient.post("availability", {
+                instructor_id: user.id,
+                date: date,
+                status: "active"
+              }, finish, finish);
+            } else if (isSelected && availability && availability.status === "not_active") {
               RestClient.put(`availability/${availability.id}`, {
                 date: date,
-                status: "not_active"
+                status: "active"
               }, finish, finish);
+            } else if (!isSelected && availability && availability.status === "active") {
+              if (bookedDates.has(date)) {
+                console.warn(`Cannot deactivate ${day}: already booked`);
+                finish();
+              } else {
+                RestClient.put(`availability/${availability.id}`, {
+                  date: date,
+                  status: "not_active"
+                }, finish, finish);
+              }
+            } else {
+              finish();
             }
-          } else {
-            finish(); 
-          }
+          });
         });
       });
     });
-  });
-},
+  },
+
+  getNextDateFor: function (weekday) {
+    const dayIndex = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].indexOf(weekday);
+    const today = new Date();
 
 
-getNextDateFor: function (weekday) {
-  const dayIndex = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].indexOf(weekday);
-  const today = new Date();
+    const baseMonday = new Date(today);
+    const todayIndex = today.getDay(); 
+    const daysUntilNextMonday = (8 - todayIndex) % 7 || 7;
+    baseMonday.setDate(today.getDate() + daysUntilNextMonday);
 
-  // Get the next Monday
-  const nextMonday = new Date(today);
-  const todayIndex = today.getDay();
-  const daysUntilNextMonday = ((8 - todayIndex) % 7) || 7;
-  nextMonday.setDate(today.getDate() + daysUntilNextMonday);
+    const targetDate = new Date(baseMonday);
+    targetDate.setDate(baseMonday.getDate() + dayIndex + 1); 
 
-  // Calculate the desired day from next Monday
-  const targetDate = new Date(nextMonday);
-  const offset = (dayIndex + 7 - 1) % 7; // dayIndex aligned from next Monday (Monday is 0)
-  targetDate.setDate(nextMonday.getDate() + offset);
-
-  return targetDate.toISOString().split("T")[0];
-}
-
-
-
-
-
+    return targetDate.toISOString().split("T")[0];
+  }
 };

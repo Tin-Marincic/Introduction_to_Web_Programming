@@ -15,7 +15,7 @@ function resetVegetarian() {
   document.getElementById("vegetarian-count").value = 0;
 }
 
-// Disable hidden fields to avoid "not focusable" errors
+// Disable hidden fields because of error
 function disableHiddenFields() {
   const skiSchool = document.getElementById("skiSchoolOptions");
   const privateInstruction = document.getElementById("privateInstructionOptions");
@@ -335,18 +335,12 @@ function initFlatpickr() {
   }
 
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday
+  const minDate = today;
 
-  let minDate = today;
-  let maxDate = new Date(today);
-
-  if (dayOfWeek === 0) {
-    // If today is Sunday, allow today + next full week
-    maxDate.setDate(today.getDate() + 7); // Next Sunday
-  } else {
-    // Not Sunday: allow from today through next Sunday
-    maxDate.setDate(today.getDate() + (7 - dayOfWeek) + 6);
-  }
+  const maxDate = new Date(today);
+  const dayOfWeek = today.getDay(); 
+  const daysLeftThisWeek = (7 - dayOfWeek) % 7; 
+  maxDate.setDate(today.getDate() + daysLeftThisWeek + 7); 
 
   flatpickr("#sessionDate", {
     dateFormat: "Y-m-d",
@@ -379,6 +373,7 @@ function initFlatpickr() {
     }
   });
 }
+
 
 
 

@@ -37,7 +37,7 @@ $("#register-form").validate({
         },
         phone: {
             required: true,
-            digits: true, // Only allow 0-9
+            digits: true, 
             minlength: 8,
             maxlength: 15
         },
@@ -167,7 +167,7 @@ login: function (entity) {
   // Remove old role-based links
   navLinks.find(".role-nav").remove();
 
-  // Hide nav items based on role
+  
   $("#nav-team, #nav-booking, #footer-team, #footer-booking").show(); // reset visibility
 
   if (token) {

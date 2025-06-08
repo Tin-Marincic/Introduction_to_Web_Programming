@@ -93,15 +93,15 @@ const ClientLoader = {
 initReviewModal: function () {
   const userId = localStorage.getItem("user_id");
 
-  // Hide the Add Review button by default
+  
   $(".add-review-container").hide();
 
-  // Check login
+  
   if (!userId) {
     return;
   }
 
-  // Check if user has bookings
+  
   RestClient.get(`users/${userId}/has-bookings`, function (response) {
     if (response.has_booking) {
       $(".add-review-container").show();
@@ -110,14 +110,14 @@ initReviewModal: function () {
     console.error("Failed to check user booking status:", err);
   });
 
-  // Show modal on button click
+  
   $(".review-button").on("click", function (e) {
     e.preventDefault();
     $("#addReviewModal").modal("show");
   });
 
 
-    // Submit review
+    
   $("#review-form").off("submit").on("submit", function (e) {
     e.preventDefault();
 
