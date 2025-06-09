@@ -165,7 +165,7 @@ let InstructorPanelService = {
     baseMonday.setDate(today.getDate() + daysUntilNextMonday);
 
     const targetDate = new Date(baseMonday);
-    targetDate.setDate(baseMonday.getDate() + dayIndex + 1); 
+    targetDate.setDate(baseMonday.getDate() + dayIndex); 
 
     return targetDate.toISOString().split("T")[0];
   }
