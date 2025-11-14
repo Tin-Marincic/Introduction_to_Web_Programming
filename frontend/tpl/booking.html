@@ -1,7 +1,7 @@
 <section class="booking-section" id="bookingSection">
     <div class="container">
         <h1>Book Your Ski Session</h1>
-        <form id="bookingForm">
+        <form id="bookingForm" novalidate>
             <!-- Session Type -->
             <div class="form-group">
                 <label for="sessionType">Izaberite tip usluge:</label>
@@ -24,22 +24,22 @@
 
                     <div class="form-group">
                         <label for="firstName">Ime:</label>
-                        <input type="text" id="firstName" name="firstName" required>
+                        <input type="text" id="firstName" name="firstName">
                     </div>
 
                     <div class="form-group">
                         <label for="lastName">Prezime:</label>
-                        <input type="text" id="lastName" name="lastName" required>
+                        <input type="text" id="lastName" name="lastName">
                     </div>
 
                     <div class="form-group">
                         <label for="phoneNumber">Broj telefona (za Whatsapp grupu):</label>
-                        <input type="tel" id="phoneNumber" name="phoneNumber" required>
+                        <input type="tel" id="phoneNumber" name="phoneNumber">
                     </div>
 
                     <div class="form-group">
                         <label for="week">Izaberi sedmicu:</label>
-                        <select id="week" name="week" required>
+                        <select id="week" name="week">
                             <option value="" disabled selected>Izaberi sedmicu</option>
                             <option value="week1">Jan 5–9 (week1)</option>
                             <option value="week2">Jan 12–16 (week2)</option>
@@ -50,7 +50,7 @@
 
                     <div class="form-group">
                         <label for="ageGroup">Dobna skupina:</label>
-                        <select id="ageGroup" name="ageGroup" required>
+                        <select id="ageGroup" name="ageGroup">
                             <option value="" disabled selected>Izaberite dobnu skupinu</option>
                             <option value="child">Dijete (0–12)</option>
                             <option value="teen">Tinejdzer (13–17)</option>
@@ -60,7 +60,7 @@
 
                     <div class="form-group">
                         <label for="skiLevel">Nivo Skijanja:</label>
-                        <select id="skiLevel" name="skiLevel" required>
+                        <select id="skiLevel" name="skiLevel">
                             <option value="" disabled selected>Izaberite Nivo</option>
                             <option value="beginner">Pocetnik</option>
                             <option value="advanced">Napredni</option>
@@ -70,7 +70,7 @@
                     <div class="form-group">
                         <label>Da li je učesnik vegetarijanac?</label>
                         <div>
-                            <label><input type="radio" name="isVegetarian" value="1" required> Da</label>
+                            <label><input type="radio" name="isVegetarian" value="1"> Da</label>
                             <label><input type="radio" name="isVegetarian" value="0"> Ne</label>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                 <div id="privateInstructionOptions" style="display: none;">
                     <div class="form-group">
                         <label for="groupSize">Vrsta sesije:</label>
-                        <select id="service" name="service" required>
+                        <select id="service" name="service">
                             <option value="" disabled selected>Izaberite Vrstu Sesije</option>
                             <option value="82">1 na 1</option>
                             <option value="83">1 na 2</option>
@@ -96,13 +96,13 @@
 
                     <div class="form-group">
                         <label for="sessionDate">Izaberite Datum:</label>
-                        <input type="text" id="sessionDate" name="sessionDate" class="form-control flatpickr" required
+                        <input type="text" id="sessionDate" name="sessionDate" class="form-control flatpickr"
                             placeholder="Izaberite Datum">
                     </div>
 
                     <div class="form-group">
                         <label for="instructor">Izaberite Instruktora:</label>
-                        <select id="instructor" name="instructor" required>
+                        <select id="instructor" name="instructor">
                             <option value="" disabled selected>Izaberite Instruktora</option>
                             <option value="instructor1">Vedad Šarić</option>
                             <option value="instructor2">Haris Šarić</option>
@@ -115,7 +115,7 @@
 
                     <div class="form-group">
                         <label for="startTime">Pocetno Vrijeme:</label>
-                        <select id="startTime" name="startTime" onchange="updateHoursOptions()" required>
+                        <select id="startTime" name="startTime" onchange="updateHoursOptions()">
                             <option value="" disabled selected>Izaberite Pocetno Vrijeme</option>
                             <option value="10:00">10:00 AM</option>
                             <option value="11:00">11:00 AM</option>
@@ -128,7 +128,7 @@
 
                     <div class="form-group">
                         <label for="hours">Broj Sati:</label>
-                        <select id="hours" name="hours" required>
+                        <select id="hours" name="hours">
                             <option value="" disabled selected>Izaberite Broj Sati</option>
                         </select>
                     </div>
@@ -142,7 +142,7 @@
 
 <section id="loginReminder" class="container" style="display: none; text-align: center; margin-top: 3rem;">
     <h2>Morate biti prijavljeni da biste rezervisali ski sesiju.</h2>
-    <p>Molim Vas <a href="#sign_in">prijavite se</a> ili <a href="#register">registrujte se</a> first.</p>
+    <p>Molim Vas <a href="#sign_in">prijavite se</a> ili <a href="#register">registrujte se</a></p>
 </section>
 
 

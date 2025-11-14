@@ -22,9 +22,10 @@ function disableHiddenFields() {
   const privateInstruction = document.getElementById("privateInstructionOptions");
   const sessionType = document.getElementById("sessionType").value;
 
-  const disableElements = (container, shouldDisable) => {
+  const disableElements = (container, disable) => {
     container.querySelectorAll("input, select, textarea").forEach(el => {
-      el.disabled = shouldDisable;
+      el.disabled = disable;
+      if (disable) el.classList.remove("error"); // remove validate error class
     });
   };
 
@@ -493,68 +494,6 @@ function deleteBooking(id) {
     );
   }
 }
-
-
-
-
-
-
-
-  // ✅ Updated validation messages for Ski School
-  $("#bookingForm").validate({
-    rules: {
-      sessionType: { required: true },
-      week: {
-        required: function () { return $("#sessionType").val() === "skiSchool"; }
-      },
-      ageGroup: {
-        required: function () { return $("#sessionType").val() === "skiSchool"; }
-      },
-      skiLevel: {
-        required: function () { return $("#sessionType").val() === "skiSchool"; }
-      },
-      isVegetarian: {
-        required: function () { return $("#sessionType").val() === "skiSchool"; }
-      },
-      service: {
-        required: function () { return $("#sessionType").val() === "privateInstruction"; }
-      },
-      sessionDate: {
-        required: function () { return $("#sessionType").val() === "privateInstruction"; }
-      },
-      instructor: {
-        required: function () { return $("#sessionType").val() === "privateInstruction"; }
-      },
-      startTime: {
-        required: function () { return $("#sessionType").val() === "privateInstruction"; }
-      },
-      hours: {
-        required: function () { return $("#sessionType").val() === "privateInstruction"; }
-      }
-    },
-    messages: {
-      sessionType: "Molimo odaberite tip usluge.",
-      week: "Molimo odaberite sedmicu za Ski školu.",
-      ageGroup: "Molimo odaberite starosnu grupu.",
-      skiLevel: "Molimo odaberite nivo skijanja.",
-      isVegetarian: "Molimo označite da li je učesnik vegetarijanac.",
-      service: "Molimo odaberite tip sesije (1 na 1, itd).",
-      sessionDate: "Molimo odaberite datum za privatnu instrukciju.",
-      instructor: "Molimo odaberite instruktora.",
-      startTime: "Molimo odaberite vrijeme početka.",
-      hours: "Molimo odaberite trajanje sesije."
-    },
-    errorPlacement: function (error, element) {
-      if (element.attr("name") === "sessionType") {
-        error.insertAfter(element.closest(".form-group"));
-      } else {
-        error.insertAfter(element);
-      }
-    }
-  });
-
-
-
 
 
 

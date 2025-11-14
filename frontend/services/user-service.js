@@ -112,7 +112,7 @@ login: function (entity) {
     $(document).trigger("loginSuccess");
 
     
-    toastr.success("Welcome " + result.data.name + "!");
+    toastr.success("Dobrodošli " + result.data.name + "!");
     $("#login-form")[0].reset();
     UserService.updateAuthButton();
 
