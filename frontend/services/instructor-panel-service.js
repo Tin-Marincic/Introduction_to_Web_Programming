@@ -6,8 +6,8 @@ let InstructorPanelService = {
     const headerHtml = `
       <img src="assets/img/team/default.jpg" alt="Instructor Photo" class="profile-pic">
       <div>
-        <h2>Welcome, ${user.name} ${user.surname}</h2>
-        <p>${user.licence || "Certified Instructor"}</p>
+        <h2>Dobrodošli, ${user.name} ${user.surname}</h2>
+        <p>${user.licence || "Certifikovani Instruktor"}</p>
       </div>`;
     $("#instructor-header").html(headerHtml);
   },

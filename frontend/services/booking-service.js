@@ -39,8 +39,8 @@ var BookingService = {
     if (!form) return;
 
     form.reset();
-    document.getElementById("startTime").innerHTML = '<option value="" disabled selected>Select a start time</option>';
-    document.getElementById("hours").innerHTML = '<option value="" disabled selected>Select number of hours</option>';
+    document.getElementById("startTime").innerHTML = '<option value="" disabled selected>Izaberite početno vrijeme</option>';
+    document.getElementById("hours").innerHTML = '<option value="" disabled selected>Izaberite broj sati</option>';
 
     // Load instructors
     document.getElementById("sessionDate").addEventListener("change", function () {
@@ -48,11 +48,11 @@ var BookingService = {
     if (!selectedDate) return;
 
     const instructorSelect = document.getElementById("instructor");
-    instructorSelect.innerHTML = '<option value="" disabled selected>Loading instructors...</option>';
+    instructorSelect.innerHTML = '<option value="" disabled selected>Učitavanje Instruktora...</option>';
 
     RestClient.get(`availability/active?date=${selectedDate}`, function (ids) {
         RestClient.get("users/instructor", function (allInstructors) {
-        instructorSelect.innerHTML = '<option value="" disabled selected>Select an instructor</option>';
+        instructorSelect.innerHTML = '<option value="" disabled selected>Izaberite Instruktora</option>';
         allInstructors.forEach(instructor => {
             if (ids.includes(instructor.id)) {
             const opt = document.createElement("option");
@@ -72,7 +72,7 @@ var BookingService = {
       if (!serviceSelect) return;
       if (!Array.isArray(services)) return;
 
-      serviceSelect.innerHTML = '<option value="" disabled selected>Select a session type</option>';
+      serviceSelect.innerHTML = '<option value="" disabled selected>Odaberite tip sesije</option>';
 
       services.forEach(service => {
         // ❌ Ignore services that start with "Ski Škola"
@@ -97,7 +97,7 @@ var BookingService = {
 
       const userId = parseInt(localStorage.getItem("user_id"));
       if (!userId || isNaN(userId)) {
-        toastr.error("You must be logged in to make a booking.");
+        toastr.error("Morate biti prijavljeni da biste napravili rezervaciju.");
         return;
       }
 
@@ -116,7 +116,7 @@ var BookingService = {
 
         // Basic validation (extra safety)
         if (!firstName || !lastName || !phoneNumber || !week || !ageGroup || !skiLevel) {
-          toastr.warning("Please fill in all required fields.");
+          toastr.warning("Molim Vas popunite sva potrebna polja");
           return;
         }
 
@@ -136,12 +136,12 @@ var BookingService = {
 
         RestClient.request("bookings/ski-school", "POST", data,
           function () {
-            toastr.success(`Ski School booking for ${firstName} ${lastName} added successfully!`);
+            toastr.success(`Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`);
             BookingService.init();
           },
           function (error) {
-            console.error("Ski School booking failed", error);
-            toastr.error("Error creating Ski School booking.");
+            console.error("Rezervacija za Ski školu neuspješna", error);
+            toastr.error("Rezervacija za Ski školu neuspješna");
           }
         );
       }
@@ -161,12 +161,12 @@ var BookingService = {
 
         RestClient.request("bookings", "POST", booking,
           function () {
-            toastr.success("Private instruction booking successful!");
+            toastr.success("Rezervacija za privatnu instrukciju uspješno izvršena!");
             BookingService.init();
           },
           function (error) {
-            console.error("Private instruction booking failed", error);
-            toastr.error("Error creating private instruction booking.");
+            console.error("Rezervacija za privatnu instrukciju neuspješna", error);
+            toastr.error("Rezervacija za privatnu instrukciju neuspješna");
           }
         );
       }
@@ -187,8 +187,8 @@ function updateAvailableTimes() {
   const hoursSelect = document.getElementById("hours");
 
   // Clear dropdowns
-  startTimeSelect.innerHTML = '<option value="" disabled selected>Select a start time</option>';
-  hoursSelect.innerHTML = '<option value="" disabled selected>Select number of hours</option>';
+  startTimeSelect.innerHTML = '<option value="" disabled selected>Izaberite Početno vrijeme</option>';
+  hoursSelect.innerHTML = '<option value="" disabled selected>Izaberite broj sati</option>';
 
   // Remove any previous alert
   let existingAlert = document.getElementById("no-available-times");
@@ -241,7 +241,7 @@ function updateAvailableTimes() {
     if (!hasAvailableSlot) {
       const alert = document.createElement("div");
       alert.id = "no-available-times";
-      alert.textContent = " No available time slots for this instructor on the selected date or ski resort is not working";
+      alert.textContent = " Nema slobodnih termina za ovog instruktora na odabrani datum ili skijalište ne radi.";
       alert.style.color = "#c00";
       alert.style.fontSize = "0.9em";
       alert.style.marginTop = "0.5em";
@@ -252,7 +252,7 @@ function updateAvailableTimes() {
     
     startTimeSelect.onchange = function () {
       const selectedHour = parseInt(this.value.split(":")[0], 10);
-      hoursSelect.innerHTML = '<option value="" disabled selected>Select number of hours</option>';
+      hoursSelect.innerHTML = '<option value="" disabled selected>Izaberite broj sati</option>';
 
       for (let duration = 1; duration <= 6; duration++) {
         const endHour = selectedHour + duration;
@@ -376,11 +376,11 @@ function initFlatpickr() {
       if (!dateStr) return;
 
       const instructorSelect = document.getElementById("instructor");
-      instructorSelect.innerHTML = '<option value="" disabled selected>Loading instructors...</option>';
+      instructorSelect.innerHTML = '<option value="" disabled selected>Ućitavanje Instruktora...</option>';
 
       RestClient.get(`availability/active?date=${dateStr}`, function (ids) {
         RestClient.get("users/instructor", function (allInstructors) {
-          instructorSelect.innerHTML = '<option value="" disabled selected>Select an instructor</option>';
+          instructorSelect.innerHTML = '<option value="" disabled selected>Izaberite Instruktora</option>';
           allInstructors.forEach(instructor => {
             if (ids.includes(instructor.id)) {
               const opt = document.createElement("option");
@@ -437,20 +437,20 @@ function loadUserBookings() {
       const div = document.createElement("div");
       div.className = "booking-card";
 
-      const cancelMessage = `<p class="text-muted"><em>Please cancel your booking within an acceptable timeframe.</em></p>`;
-      const cancelButton = `<button class="btn btn-danger mt-2" onclick="deleteBooking(${booking.id})">Cancel Booking</button>`;
+      const cancelMessage = `<p class="text-muted"><em>Molimo da svoju rezervaciju otkažete u razumnom vremenskom roku.</em></p>`;
+      const cancelButton = `<button class="btn btn-danger mt-2" onclick="deleteBooking(${booking.id})">Otkažite Rezervaciju</button>`;
 
 
       if (booking.session_type === "Ski_school") {
         div.innerHTML = `
           <div class="card mb-3 p-3 border">
-            <h5>Ski School - ${booking.week ?? "N/A"}</h5>
-            <p><strong>Participant:</strong> ${booking.first_name ?? ""} ${booking.last_name ?? ""}</p>
-            <p><strong>Phone Number:</strong> ${booking.phone_number ?? "-"}</p>
-            <p><strong>Age Group:</strong> ${booking.age_group ?? "-"}</p>
-            <p><strong>Ski Level:</strong> ${booking.ski_level ?? "-"}</p>
-            <p><strong>Vegetarian:</strong> ${booking.is_vegetarian == 1 ? "Yes" : "No"}</p>
-            <p><strong>Allergies / Other Concerns:</strong> ${booking.other ?? "-"}</p>
+            <h5>Škola skijanja - ${booking.week ?? "N/A"}</h5>
+            <p><strong>Učesnik:</strong> ${booking.first_name ?? ""} ${booking.last_name ?? ""}</p>
+            <p><strong>Broj telefona:</strong> ${booking.phone_number ?? "-"}</p>
+            <p><strong>Dobna grupa:</strong> ${booking.age_group ?? "-"}</p>
+            <p><strong>Nivo skijanja:</strong> ${booking.ski_level ?? "-"}</p>
+            <p><strong>Vegetarijanac:</strong> ${booking.is_vegetarian == 1 ? "Da" : "Ne"}</p>
+            <p><strong>Alergije / Ostale napomene:</strong> ${booking.other ?? "-"}</p>
             ${cancelMessage}
             ${cancelButton}
           </div>
@@ -458,11 +458,11 @@ function loadUserBookings() {
       } else {
         div.innerHTML = `
           <div class="card mb-3 p-3 border">
-            <h5>Private Instruction with ${booking.instructor_name ?? "-"} ${booking.instructor_surname ?? ""}</h5>
-            <p><strong>Session Type:</strong> ${booking.service_name ?? "-"}</p>
-            <p><strong>Date:</strong> ${booking.date ?? "-"}</p>
-            <p><strong>Start Time:</strong> ${booking.start_time ?? "-"}</p>
-            <p><strong>Duration:</strong> ${booking.num_of_hours ?? "N/A"} hour(s)</p>
+            <h5>Privatna instrukcija sa ${booking.instructor_name ?? "-"} ${booking.instructor_surname ?? ""}</h5>
+            <p><strong>Tip sesije:</strong> ${booking.service_name ?? "-"}</p>
+            <p><strong>Datum:</strong> ${booking.date ?? "-"}</p>
+            <p><strong>Početak:</strong> ${booking.start_time ?? "-"}</p>
+            <p><strong>Trajanje:</strong> ${booking.num_of_hours ?? "N/A"} sat(a)</p>
             ${cancelMessage}
             ${cancelButton}
           </div>
@@ -478,7 +478,7 @@ function loadUserBookings() {
 }
 
 function deleteBooking(id) {
-  if (confirm("Are you sure you want to cancel this booking?")) {
+  if (confirm("Da li ste sigurni da želite da otkažete ovu rezervaciju?")) {
     RestClient.delete(
       `bookings/${id}`, 
       {}, 
@@ -488,7 +488,7 @@ function deleteBooking(id) {
       },
       function(err) {
         console.error("DELETE booking failed:", err);
-        alert("Error: " + (err.responseText || "Could not delete booking."));
+        alert("Error: " + (err.responseText || "Rezervacija se nije mogla obrisati"));
       }
     );
   }
@@ -533,16 +533,16 @@ function deleteBooking(id) {
       }
     },
     messages: {
-      sessionType: "Please choose a service type.",
-      week: "Please select a week for Ski School.",
-      ageGroup: "Please choose an age group.",
-      skiLevel: "Please choose a skiing level.",
-      isVegetarian: "Please specify if the participant is vegetarian.",
-      service: "Please choose session type (1 on 1, etc).",
-      sessionDate: "Please select a date for private instruction.",
-      instructor: "Please choose an instructor.",
-      startTime: "Please select a start time.",
-      hours: "Please choose session duration."
+      sessionType: "Molimo odaberite tip usluge.",
+      week: "Molimo odaberite sedmicu za Ski školu.",
+      ageGroup: "Molimo odaberite starosnu grupu.",
+      skiLevel: "Molimo odaberite nivo skijanja.",
+      isVegetarian: "Molimo označite da li je učesnik vegetarijanac.",
+      service: "Molimo odaberite tip sesije (1 na 1, itd).",
+      sessionDate: "Molimo odaberite datum za privatnu instrukciju.",
+      instructor: "Molimo odaberite instruktora.",
+      startTime: "Molimo odaberite vrijeme početka.",
+      hours: "Molimo odaberite trajanje sesije."
     },
     errorPlacement: function (error, element) {
       if (element.attr("name") === "sessionType") {

@@ -4,11 +4,11 @@
         <form id="bookingForm">
             <!-- Session Type -->
             <div class="form-group">
-                <label for="sessionType">Choose a Service type:</label>
+                <label for="sessionType">Izaberite tip usluge:</label>
                 <select id="sessionType" name="sessionType" onchange="toggleBookingOptions()" required>
-                    <option value="" disabled selected>Select a service type</option>
-                    <option value="skiSchool">Ski School</option>
-                    <option value="privateInstruction">Private Instruction</option>
+                    <option value="" disabled selected>Izaberite tip usluge</option>
+                    <option value="skiSchool">Ski Škola</option>
+                    <option value="privateInstruction">Privatne Instrukcije</option>
                 </select>
             </div>
 
@@ -19,28 +19,28 @@
 
                     <div class="form-note"
                         style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; margin-bottom: 15px; color: #856404;">
-                        <strong>Note:</strong> You can only reserve one spot at a time.
+                        <strong>Poruka:</strong> Možete rezervisati samo jedno mjesto odjednom.
                     </div>
 
                     <div class="form-group">
-                        <label for="firstName">First Name:</label>
+                        <label for="firstName">Ime:</label>
                         <input type="text" id="firstName" name="firstName" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="lastName">Last Name:</label>
+                        <label for="lastName">Prezime:</label>
                         <input type="text" id="lastName" name="lastName" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="phoneNumber">Phone Number (for WhatsApp group):</label>
-                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+39 123 456 7890" required>
+                        <label for="phoneNumber">Broj telefona (za Whatsapp grupu):</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="week">Select Week:</label>
+                        <label for="week">Izaberi sedmicu:</label>
                         <select id="week" name="week" required>
-                            <option value="" disabled selected>Select a week</option>
+                            <option value="" disabled selected>Izaberi sedmicu</option>
                             <option value="week1">Jan 5–9 (week1)</option>
                             <option value="week2">Jan 12–16 (week2)</option>
                             <option value="week3">Jan 19–23 (week3)</option>
@@ -49,34 +49,34 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="ageGroup">Age Group:</label>
+                        <label for="ageGroup">Dobna skupina:</label>
                         <select id="ageGroup" name="ageGroup" required>
-                            <option value="" disabled selected>Select age group</option>
-                            <option value="child">Child (0–12)</option>
-                            <option value="teen">Teen (13–17)</option>
-                            <option value="adult">Adult (18+)</option>
+                            <option value="" disabled selected>Izaberite dobnu skupinu</option>
+                            <option value="child">Dijete (0–12)</option>
+                            <option value="teen">Tinejdzer (13–17)</option>
+                            <option value="adult">Odrasli (18+)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="skiLevel">Skiing Level:</label>
+                        <label for="skiLevel">Nivo Skijanja:</label>
                         <select id="skiLevel" name="skiLevel" required>
-                            <option value="" disabled selected>Select level</option>
-                            <option value="beginner">Beginner</option>
-                            <option value="advanced">Advanced</option>
+                            <option value="" disabled selected>Izaberite Nivo</option>
+                            <option value="beginner">Pocetnik</option>
+                            <option value="advanced">Napredni</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Is the participant vegetarian?</label>
+                        <label>Da li je učesnik vegetarijanac?</label>
                         <div>
-                            <label><input type="radio" name="isVegetarian" value="1" required> Yes</label>
-                            <label><input type="radio" name="isVegetarian" value="0"> No</label>
+                            <label><input type="radio" name="isVegetarian" value="1" required> Da</label>
+                            <label><input type="radio" name="isVegetarian" value="0"> Ne</label>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="allergies">Allergies or Other Concerns:</label>
+                        <label for="allergies">Alergije ili druge napomene:</label>
                         <textarea id="allergies" name="allergies" placeholder="(Optional)"></textarea>
                     </div>
                 </div>
@@ -84,9 +84,9 @@
                 <!-- Private Instruction Options -->
                 <div id="privateInstructionOptions" style="display: none;">
                     <div class="form-group">
-                        <label for="groupSize">Session type:</label>
+                        <label for="groupSize">Vrsta sesije:</label>
                         <select id="service" name="service" required>
-                            <option value="" disabled selected>Select a Session type</option>
+                            <option value="" disabled selected>Izaberite Vrstu Sesije</option>
                             <option value="82">1 na 1</option>
                             <option value="83">1 na 2</option>
                             <option value="84">1 na 3</option>
@@ -95,15 +95,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="sessionDate">Select Date:</label>
+                        <label for="sessionDate">Izaberite Datum:</label>
                         <input type="text" id="sessionDate" name="sessionDate" class="form-control flatpickr" required
-                            placeholder="Select a date">
+                            placeholder="Izaberite Datum">
                     </div>
 
                     <div class="form-group">
-                        <label for="instructor">Select Instructor:</label>
+                        <label for="instructor">Izaberite Instruktora:</label>
                         <select id="instructor" name="instructor" required>
-                            <option value="" disabled selected>Select an instructor</option>
+                            <option value="" disabled selected>Izaberite Instruktora</option>
                             <option value="instructor1">Vedad Šarić</option>
                             <option value="instructor2">Haris Šarić</option>
                             <option value="instructor3">Iman Sijerčić</option>
@@ -114,9 +114,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="startTime">Start Time:</label>
+                        <label for="startTime">Pocetno Vrijeme:</label>
                         <select id="startTime" name="startTime" onchange="updateHoursOptions()" required>
-                            <option value="" disabled selected>Select a start time</option>
+                            <option value="" disabled selected>Izaberite Pocetno Vrijeme</option>
                             <option value="10:00">10:00 AM</option>
                             <option value="11:00">11:00 AM</option>
                             <option value="12:00">12:00 PM</option>
@@ -127,28 +127,28 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="hours">Number of Hours:</label>
+                        <label for="hours">Broj Sati:</label>
                         <select id="hours" name="hours" required>
-                            <option value="" disabled selected>Select number of hours</option>
+                            <option value="" disabled selected>Izaberite Broj Sati</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <button type="submit">Book Now</button>
+            <button type="submit">Rezervisite sada</button>
         </form>
     </div>
 </section>
 
 <section id="loginReminder" class="container" style="display: none; text-align: center; margin-top: 3rem;">
-    <h2>You must be logged in to book a ski session.</h2>
-    <p>Please <a href="#sign_in">sign in</a> or <a href="#register">register</a> first.</p>
+    <h2>Morate biti prijavljeni da biste rezervisali ski sesiju.</h2>
+    <p>Molim Vas <a href="#sign_in">prijavite se</a> ili <a href="#register">registrujte se</a> first.</p>
 </section>
 
 
 <!-- User Bookings Section -->
 <div class="container mt-5" style="display: none;">
-    <h2 id="userBookingsHeading">Your Upcoming Bookings</h2>
+    <h2 id="userBookingsHeading">Vaše buduce rezervacije</h2>
     <div id="userBookingsContainer"></div>
 </div>
 

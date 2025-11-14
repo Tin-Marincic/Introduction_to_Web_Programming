@@ -10,13 +10,13 @@ let UserService = {
       },
       messages: {
         username: {
-          required: 'Please enter your email',
-          email: 'Please enter a valid email address'
+          required: 'Unesite svoj email',
+          email: 'Unesite ispravnu email adresu'
         },
         password: {
-          required: 'Please enter your password',
-          minlength: 'Password must be at least 3 characters long',
-          maxlength: 'Password cannot be longer than 16 characters'
+          required: 'Unesite svoju lozinku',
+          minlength: 'Lozinka mora imati najmanje 3 karaktera',
+          maxlength: 'Lozinka ne može imati više od 16 karaktera'
         }
       }
     });
@@ -48,30 +48,31 @@ $("#register-form").validate({
         }
     },
     messages: {
-        name: {
-            required: 'Please enter your first name',
-            minlength: 'First name must be at least 3 characters'
-        },
-        surname: {
-            required: 'Please enter your last name',
-            minlength: 'Last name must be at least 3 characters'
-        },
-        username: {
-            required: 'Please enter your email',
-            email: 'Please enter a valid email address'
-        },
-        phone: {
-            required: 'Please enter your phone number',
-            digits: 'Only digits are allowed',
-            minlength: 'Phone number must be at least 8 digits',
-            maxlength: 'Phone number cannot exceed 15 digits'
-        },
-        password: {
-            required: 'Please enter your password',
-            minlength: 'Password must be at least 8 characters',
-            maxlength: 'Password cannot be longer than 16 characters'
-        }
+      name: {
+        required: 'Unesite ime',
+        minlength: 'Ime mora imati najmanje 3 karaktera'
+      },
+      surname: {
+        required: 'Unesite prezime',
+        minlength: 'Prezime mora imati najmanje 3 karaktera'
+      },
+      username: {
+        required: 'Unesite svoj email',
+        email: 'Unesite ispravnu email adresu'
+      },
+      phone: {
+        required: 'Unesite broj telefona',
+        digits: 'Dozvoljeni su samo brojevi',
+        minlength: 'Broj telefona mora imati najmanje 8 cifara',
+        maxlength: 'Broj telefona ne može imati više od 15 cifara'
+      },
+      password: {
+        required: 'Unesite lozinku',
+        minlength: 'Lozinka mora imati najmanje 8 karaktera',
+        maxlength: 'Lozinka ne može imati više od 16 karaktera'
+      }
     }
+
 });
 
 
@@ -129,9 +130,9 @@ login: function (entity) {
   }, function (err) {
     console.error("[UserService] Login error:", err);
     if (err.status === 401 || err.status === 400) {
-      toastr.error("Email or password is incorrect.");
+      toastr.error("Email ili Lozinka nisu tačne");
     } else {
-      toastr.error("Login failed. Please try again.");
+      toastr.error("Login neuspješan. Molim Vas probajte ponovo.");
     }
   });
 },
@@ -140,19 +141,19 @@ login: function (entity) {
     console.log("[UserService] Sending registration request...");
     RestClient.post("auth/register", entity, function () {
       console.log("[UserService] Registration successful!");
-      toastr.success("Registration successful! You can now log in.");
+      toastr.success("Registracija uspješna, sada se možete prijaviti!");
 
       window.location.hash = "#sign_in"; 
 
     }, function (err) {
-      console.error("[UserService] Registration failed:", err);
-      toastr.error(err.responseJSON?.error || "Registration failed.");
+      console.error("[UserService] Registracija neuspješna:", err);
+      toastr.error(err.responseJSON?.error || "Registracija neuspješna.");
     });
   },
 
 
   logout: function () {
-    console.log("[UserService] Logging out...");
+    console.log("[UserService] Odjavljivanje...");
     localStorage.clear();
     UserService.updateAuthButton();
     window.location.href = "index.html#home";
@@ -171,20 +172,20 @@ login: function (entity) {
   $("#nav-team, #nav-booking, #footer-team, #footer-booking").show(); // reset visibility
 
   if (token) {
-    authLink.text("Logout");
+    authLink.text("Odjava");
     authLink.attr("href", "#");
 
     if (role === Constants.ADMIN_ROLE) {
       navLinks.append(`<li class="role-nav"><a href="#admin_panel">Admin Panel</a></li>`);
     } else if (role === Constants.INSTRUCTOR_ROLE) {
-      navLinks.append(`<li class="role-nav"><a href="#instructor_panel">Instructor Panel</a></li>`);
+      navLinks.append(`<li class="role-nav"><a href="#instructor_panel">Instruktor Panel</a></li>`);
 
       // HIDE FOR INSTRUCTOR
       $("#nav-team, #nav-booking, #nav-contact").hide();
       $("#footer-team, #footer-booking, #footer-contact").hide();
     }
   } else {
-    authLink.text("Sign in");
+    authLink.text("Prijava");
     authLink.attr("href", "#sign_in");
   }
 }

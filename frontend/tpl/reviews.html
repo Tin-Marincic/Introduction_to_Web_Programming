@@ -6,8 +6,8 @@
 
     <!-- Add Review Button -->
     <div class="add-review-container text-center" data-aos="fade-up" data-aos-delay="700">
-      <a href="#" class="review-button" role="button" data-bs-toggle="modal" data-bs-target="#addReviewModal">Add
-        Review</a>
+      <a href="#" class="review-button" role="button" data-bs-toggle="modal" data-bs-target="#addReviewModal">Dodaj
+        Rezenciju</a>
     </div>
   </div>
 </section>
@@ -16,14 +16,14 @@
   <div class="modal-dialog">
     <form id="review-form" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addReviewModalLabel">Submit Your Review</h5>
+        <h5 class="modal-title" id="addReviewModalLabel">Objavi Rezenciju</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="grade" class="form-label">Rating</label>
+          <label for="grade" class="form-label">Ocjena</label>
           <select class="form-select" id="grade" name="grade" required>
-            <option value="" disabled selected>Select rating</option>
+            <option value="" disabled selected>Izaberite Ocjenu</option>
             <option value="1">★☆☆☆☆ (1)</option>
             <option value="2">★★☆☆☆ (2)</option>
             <option value="3">★★★☆☆ (3)</option>
@@ -34,12 +34,12 @@
 
 
         <div class="mb-3">
-          <label for="note" class="form-label">Comment</label>
+          <label for="note" class="form-label">Komentar</label>
           <textarea class="form-control" id="note" name="note" rows="3" placeholder="Your feedback..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Submit Review</button>
+        <button type="submit" class="btn btn-primary">Objavi Rezenciju</button>
       </div>
     </form>
   </div>
