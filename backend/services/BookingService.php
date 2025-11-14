@@ -61,49 +61,41 @@ class BookingService extends BaseService {
     }
 
     public function createSkiSchoolBooking($data) {
-        $required = ["user_id", "service_id", "session_type", "num_of_spots", "week"];
+        // Required fields
+        $required = ["user_id", "service_id", "session_type", "first_name", "last_name", "phone_number", "week", "age_group", "ski_level"];
         foreach ($required as $field) {
-            if (!isset($data[$field])) {
+            if (!isset($data[$field]) || empty($data[$field])) {
                 throw new Exception("$field is required.");
             }
         }
 
-        $numSpots = intval($data['num_of_spots']);
-        if ($numSpots < 1 || $numSpots > 20) {
-            throw new Exception("Number of spots must be between 1 and 20.");
-        }
+        // Capacity check: 1 person per booking
+        $availability = $this->getSkiSchoolAvailability();
 
-        $sumAgeGroups = intval($data['age_group_child'] ?? 0) +
-                        intval($data['age_group_teen'] ?? 0) +
-                        intval($data['age_group_adult'] ?? 0);
-
-        $sumSkiLevels = intval($data['ski_level_b'] ?? 0) +
-                        intval($data['ski_level_i'] ?? 0) +
-                        intval($data['ski_level_a'] ?? 0);
-
-        if ($sumAgeGroups !== $numSpots) {
-            throw new Exception("The sum of age groups must equal the number of spots.");
-        }
-
-        if ($sumSkiLevels !== $numSpots) {
-            throw new Exception("The sum of ski levels must equal the number of spots.");
-        }
-
-        $availability = $this->dao->getSkiSchoolAvailability();
-        $weekMap = ["Jan 1-7" => "week1", "Jan 8-14" => "week2", "Jan 15-21" => "week3", "Jan 22-28" => "week4"];
+        // Map to get readable week label
+        $weekMap = ["Jan 5–9" => "week1", "Jan 12–16" => "week2", "Jan 19–23" => "week3", "Jan 26–30" => "week4"];
         $weekLabel = array_search($data['week'], $weekMap);
+        if ($weekLabel === false) {
+            $weekLabel = $data['week']; // fallback if already "week1"
+        }
 
+        // Find the week in current availability
+        $availableSpots = 0;
         foreach ($availability as $entry) {
-            if ($entry['Week'] === $weekLabel) {
+            if ($entry['Week'] === $weekLabel || strpos($entry['Week'], $weekLabel) !== false) {
                 $availableSpots = intval(explode(' ', $entry['Available Spots'])[0]);
-                if ($numSpots > $availableSpots) {
-                    throw new Exception("Not enough available spots for the selected week.");
-                }
+                break;
             }
         }
 
+        if ($availableSpots <= 0) {
+            throw new Exception("No available spots left for the selected week.");
+        }
+
+        // Insert booking
         return $this->dao->insert($data);
     }
+
 
     private function validateNumeric($value, $label) {
         if (!is_numeric($value)) {
@@ -123,4 +115,63 @@ class BookingService extends BaseService {
     public function getBookingsByUserId($userId) {
         return $this->dao->getBookingsByUserId($userId);
     }
+
+    public function getSkiSchoolBookingsByWeek() {
+    return $this->dao->getSkiSchoolBookingsByWeek();
+    }
+    public function deleteBooking($id, $userId, $role) {
+        $isAdmin = ($role === Roles::ADMIN);
+
+        // FIRST: get booking details before deleting
+        $booking = $this->dao->getBookingById($id);
+        if (!$booking) {
+            throw new Exception("Booking not found.");
+        }
+
+        $deleted = $this->dao->deleteBooking($id, $userId, $isAdmin);
+
+        if (!$deleted) {
+            throw new Exception("Booking not found or you are not authorized to delete this booking.");
+        }
+
+        // Only send email if a USER cancelled
+        if (!$isAdmin) {
+            require_once __DIR__ . '/../forms/emailUtil.php';
+            EmailUtil::sendAdminCancellationAlert(
+                $id,
+                $booking['client_name'] ?? 'Unknown User',
+                $booking['client_email'] ?? '',
+                $booking['date']
+            );
+        }
+
+        return true;
+    }
+
+    public function deleteBookingsInRange($start, $end) {
+
+        require_once __DIR__ . '/../forms/emailUtil.php';
+
+        // Get affected bookings
+        $affectedBookings = $this->dao->deleteBookingsInRange($start, $end);
+
+        // Send notification emails
+        foreach ($affectedBookings as $b) {
+            $userEmail = $b['email'];
+            $userName  = $b['name'] . " " . $b['surname'];
+            $date      = $b['date'];
+
+            EmailUtil::sendCancellationEmail($userEmail, $userName, $date);
+        }
+
+        // Block dates
+        $this->dao->blockDateRange($start, $end);
+
+        return count($affectedBookings);
+    }
+
+
+
+
 }
+

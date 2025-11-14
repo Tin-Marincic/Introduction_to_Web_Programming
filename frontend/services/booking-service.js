@@ -1,4 +1,5 @@
 // Helper Reset Functions
+/*
 function resetLevels() {
   document.getElementById("level-beginner").value = 0;
   document.getElementById("level-intermediate").value = 0;
@@ -14,7 +15,7 @@ function resetAgeGroups() {
 function resetVegetarian() {
   document.getElementById("vegetarian-count").value = 0;
 }
-
+*/
 // Disable hidden fields because of error
 function disableHiddenFields() {
   const skiSchool = document.getElementById("skiSchoolOptions");
@@ -70,9 +71,13 @@ var BookingService = {
       const serviceSelect = document.getElementById("service");
       if (!serviceSelect) return;
       if (!Array.isArray(services)) return;
-      serviceSelect.innerHTML = '<option value="" disabled selected>Select a group size</option>';
+
+      serviceSelect.innerHTML = '<option value="" disabled selected>Select a session type</option>';
+
       services.forEach(service => {
-        if (service.name.includes("One on")) {
+        // ❌ Ignore services that start with "Ski Škola"
+        // ✅ Include everything else
+        if (!service.name.trim().toLowerCase().startsWith("ski škola")) {
           const opt = document.createElement("option");
           opt.value = service.id;
           opt.text = service.name;
@@ -86,48 +91,62 @@ var BookingService = {
     form.onsubmit = function (e) {
       e.preventDefault();
 
-      $("[name='ageValidationTrigger']").val("trigger").valid();
-      $("[name='levelValidationTrigger']").val("trigger").valid();
-
-
       if (!$("#bookingForm").valid()) {
-        return; 
-  }
+        return;
+      }
 
       const userId = parseInt(localStorage.getItem("user_id"));
       if (!userId || isNaN(userId)) {
-        toastr.error(" You must be logged in to make a booking.");
+        toastr.error("You must be logged in to make a booking.");
         return;
       }
 
       const sessionType = document.getElementById("sessionType").value;
 
+      // 🏫 --- SKI SCHOOL BOOKING (single participant version) ---
       if (sessionType === "skiSchool") {
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const phoneNumber = document.getElementById("phoneNumber").value.trim();
+        const week = document.getElementById("week").value;
+        const ageGroup = document.getElementById("ageGroup").value;
+        const skiLevel = document.getElementById("skiLevel").value;
+        const isVegetarian = document.querySelector("input[name='isVegetarian']:checked")?.value || 0;
+        const allergies = document.getElementById("allergies").value.trim() || "";
+
+        // Basic validation (extra safety)
+        if (!firstName || !lastName || !phoneNumber || !week || !ageGroup || !skiLevel) {
+          toastr.warning("Please fill in all required fields.");
+          return;
+        }
+
         const data = {
           user_id: userId,
           service_id: 4,
           session_type: "Ski_school",
-          num_of_spots: parseInt(document.getElementById("spots").value),
-          week: document.getElementById("week").value,
-          age_group_child: parseInt(document.getElementById("age-child").value),
-          age_group_teen: parseInt(document.getElementById("age-teen").value),
-          age_group_adult: parseInt(document.getElementById("age-adult").value),
-          ski_level_b: parseInt(document.getElementById("level-beginner").value),
-          ski_level_i: parseInt(document.getElementById("level-intermediate").value),
-          ski_level_a: parseInt(document.getElementById("level-advanced").value),
-          veg_count: parseInt(document.getElementById("vegetarian-count").value) || 0,
-          other: document.getElementById("concerns").value || ""
+          first_name: firstName,
+          last_name: lastName,
+          phone_number: phoneNumber,
+          week: week,
+          age_group: ageGroup,
+          ski_level: skiLevel,
+          is_vegetarian: parseInt(isVegetarian),
+          allergies: allergies
         };
 
-        RestClient.request("bookings/ski-school", "POST", data, function () {
-          toastr.success("Ski School booking successful!");
-          BookingService.init();
-        }, function (error) {
-          console.error("Ski School booking failed", error);
-          toastr.success("Error creating Ski School booking.");
-        });
+        RestClient.request("bookings/ski-school", "POST", data,
+          function () {
+            toastr.success(`Ski School booking for ${firstName} ${lastName} added successfully!`);
+            BookingService.init();
+          },
+          function (error) {
+            console.error("Ski School booking failed", error);
+            toastr.error("Error creating Ski School booking.");
+          }
+        );
       }
 
+      // 🧑‍🏫 --- PRIVATE INSTRUCTION BOOKING (unchanged) ---
       if (sessionType === "privateInstruction") {
         const booking = {
           user_id: userId,
@@ -140,19 +159,23 @@ var BookingService = {
           status: "confirmed"
         };
 
-        RestClient.request("bookings", "POST", booking, function () {
-          toastr.success("Private instruction booking successful!");
-
-          BookingService.init();
-        }, function (error) {
-          console.error("Private instruction booking failed", error);
-          toastr.error("Error creating private instruction booking.");
-        });
+        RestClient.request("bookings", "POST", booking,
+          function () {
+            toastr.success("Private instruction booking successful!");
+            BookingService.init();
+          },
+          function (error) {
+            console.error("Private instruction booking failed", error);
+            toastr.error("Error creating private instruction booking.");
+          }
+        );
       }
     };
 
+    // Keep your event listeners for updating available times
     document.getElementById("instructor").addEventListener("change", updateAvailableTimes);
     document.getElementById("sessionDate").addEventListener("change", updateAvailableTimes);
+
   }
 };
 
@@ -218,7 +241,7 @@ function updateAvailableTimes() {
     if (!hasAvailableSlot) {
       const alert = document.createElement("div");
       alert.id = "no-available-times";
-      alert.textContent = " No available time slots for this instructor on the selected date.";
+      alert.textContent = " No available time slots for this instructor on the selected date or ski resort is not working";
       alert.style.color = "#c00";
       alert.style.fontSize = "0.9em";
       alert.style.marginTop = "0.5em";
@@ -280,7 +303,7 @@ function toggleBookingOptions() {
   disableHiddenFields();
 }
 
-
+/*
 function updateAgeGroup(type, delta) {
   const input = document.getElementById(`age-${type}`);
   const current = parseInt(input.value, 10) || 0;
@@ -326,7 +349,7 @@ function updateVegetarian(delta) {
   input.value = value;
 }
 
-
+*/
 function initFlatpickr() {
   const sessionDate = document.getElementById("sessionDate");
   if (!sessionDate || typeof flatpickr === "undefined") {
@@ -388,151 +411,148 @@ function loadUserBookings() {
   }
 
   RestClient.get(`bookings/user/${userId}`, function (bookings) {
-  if (!Array.isArray(bookings) || bookings.length === 0) {
+    if (!Array.isArray(bookings) || bookings.length === 0) {
+      section.style.display = "none";
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const upcomingOnly = bookings.filter(b => {
+      if (b.session_type === "Private_instruction") {
+        return b.date >= today;
+      }
+      return true;
+    });
+
+    if (upcomingOnly.length === 0) {
+      section.style.display = "none";
+      return;
+    }
+
+    section.style.display = "block";
+    container.innerHTML = "";
+
+    upcomingOnly.forEach(booking => {
+      const div = document.createElement("div");
+      div.className = "booking-card";
+
+      const cancelMessage = `<p class="text-muted"><em>Please cancel your booking within an acceptable timeframe.</em></p>`;
+      const cancelButton = `<button class="btn btn-danger mt-2" onclick="deleteBooking(${booking.id})">Cancel Booking</button>`;
+
+
+      if (booking.session_type === "Ski_school") {
+        div.innerHTML = `
+          <div class="card mb-3 p-3 border">
+            <h5>Ski School - ${booking.week ?? "N/A"}</h5>
+            <p><strong>Participant:</strong> ${booking.first_name ?? ""} ${booking.last_name ?? ""}</p>
+            <p><strong>Phone Number:</strong> ${booking.phone_number ?? "-"}</p>
+            <p><strong>Age Group:</strong> ${booking.age_group ?? "-"}</p>
+            <p><strong>Ski Level:</strong> ${booking.ski_level ?? "-"}</p>
+            <p><strong>Vegetarian:</strong> ${booking.is_vegetarian == 1 ? "Yes" : "No"}</p>
+            <p><strong>Allergies / Other Concerns:</strong> ${booking.other ?? "-"}</p>
+            ${cancelMessage}
+            ${cancelButton}
+          </div>
+        `;
+      } else {
+        div.innerHTML = `
+          <div class="card mb-3 p-3 border">
+            <h5>Private Instruction with ${booking.instructor_name ?? "-"} ${booking.instructor_surname ?? ""}</h5>
+            <p><strong>Session Type:</strong> ${booking.service_name ?? "-"}</p>
+            <p><strong>Date:</strong> ${booking.date ?? "-"}</p>
+            <p><strong>Start Time:</strong> ${booking.start_time ?? "-"}</p>
+            <p><strong>Duration:</strong> ${booking.num_of_hours ?? "N/A"} hour(s)</p>
+            ${cancelMessage}
+            ${cancelButton}
+          </div>
+        `;
+      }
+
+      container.appendChild(div);
+    });
+  }, function (err) {
+    console.error("Failed to fetch bookings:", err);
     section.style.display = "none";
-    return;
-  }
-
-  const today = new Date().toISOString().split("T")[0];
-
-  const upcomingOnly = bookings.filter(b => {
-    if (b.session_type === "Private_instruction") {
-      return b.date >= today;
-    }
-    return true; 
   });
-
-  if (upcomingOnly.length === 0) {
-    section.style.display = "none";
-    return;
-  }
-
-  section.style.display = "block";
-  container.innerHTML = "";
-
-  upcomingOnly.forEach(booking => {
-    const div = document.createElement("div");
-    div.className = "booking-card";
-
-    if (booking.session_type === "Ski_school") {
-      div.innerHTML = `
-        <div class="card mb-3 p-3 border">
-          <h5>Ski School - ${booking.week ?? "N/A"}</h5>
-          <p><strong>Spots:</strong> ${booking.num_of_spots ?? "N/A"}</p>
-          <p><strong>Ages:</strong> 
-            Child: ${booking.age_group_child ?? 0}, 
-            Teen: ${booking.age_group_teen ?? 0}, 
-            Adult: ${booking.age_group_adult ?? 0}
-          </p>
-          <p><strong>Ski Levels:</strong> 
-            Beginner: ${booking.ski_level_b ?? 0}, 
-            Intermediate: ${booking.ski_level_i ?? 0}, 
-            Advanced: ${booking.ski_level_a ?? 0}
-          </p>
-          <p><strong>Vegetarians:</strong> ${booking.veg_count ?? 0}</p>
-          <p><strong>Other:</strong> ${booking.other ?? "-"}</p>
-        </div>
-      `;
-    } else {
-      div.innerHTML = `
-        <div class="card mb-3 p-3 border">
-          <h5>Private Instruction with ${booking.instructor_name ?? "-"} ${booking.instructor_surname ?? ""}</h5>
-          <p><strong>Session Type:</strong> ${booking.service_name ?? "-"}</p>
-          <p><strong>Date:</strong> ${booking.date ?? "-"}</p>
-          <p><strong>Start Time:</strong> ${booking.start_time ?? "-"}</p>
-          <p><strong>Duration:</strong> ${booking.num_of_hours ?? "N/A"} hour(s)</p>
-        </div>
-      `;
-    }
-
-    container.appendChild(div);
-  });
-}, function (err) {
-  console.error("Failed to fetch bookings:", err);
-  section.style.display = "none";
-});
-
-$.validator.addMethod("ageGroupTotalMatch", function (_, element) {
-  const isSkiSchool = $("#sessionType").val() === "skiSchool";
-  const spots = parseInt($("#spots").val(), 10) || 0;
-  const totalAge =
-    parseInt($("#age-child").val(), 10) +
-    parseInt($("#age-teen").val(), 10) +
-    parseInt($("#age-adult").val(), 10);
-
-  return !isSkiSchool || totalAge === spots;
-}, "Total age group count must equal number of spots.");
-
-$.validator.addMethod("levelTotalMatch", function (_, element) {
-  const isSkiSchool = $("#sessionType").val() === "skiSchool";
-  const spots = parseInt($("#spots").val(), 10) || 0;
-  const totalLevel =
-    parseInt($("#level-beginner").val(), 10) +
-    parseInt($("#level-intermediate").val(), 10) +
-    parseInt($("#level-advanced").val(), 10);
-
-  return !isSkiSchool || totalLevel === spots;
-}, "Total skill level count must equal number of spots.");
-
-
-
-$("#bookingForm").validate({
-  rules: {
-    sessionType: { required: true },
-    spots: {
-      required: function () { return $("#sessionType").val() === "skiSchool"; },
-      min: 1,
-      max: 20
-    },
-    week: {
-      required: function () { return $("#sessionType").val() === "skiSchool"; }
-    },
-    ageValidationTrigger: {
-      ageGroupTotalMatch: true
-    },
-    levelValidationTrigger: {
-      levelTotalMatch: true
-    },
-    service: {
-      required: function () { return $("#sessionType").val() === "privateInstruction"; }
-    },
-    sessionDate: {
-      required: function () { return $("#sessionType").val() === "privateInstruction"; }
-    },
-    instructor: {
-      required: function () { return $("#sessionType").val() === "privateInstruction"; }
-    },
-    startTime: {
-      required: function () { return $("#sessionType").val() === "privateInstruction"; }
-    },
-    hours: {
-      required: function () { return $("#sessionType").val() === "privateInstruction"; }
-    }
-  },
-  messages: {
-    sessionType: "Please choose a service type.",
-    spots: {
-      required: "Please enter number of spots.",
-      min: "Minimum 1 spot is required.",
-      max: "Maximum 20 spots allowed."
-    },
-    week: "Please select a week for Ski School.",
-    service: "Please choose session type (1 on 1, etc).",
-    sessionDate: "Please select a date for private instruction.",
-    instructor: "Please choose an instructor.",
-    startTime: "Please select a start time.",
-    hours: "Please choose session duration."
-  },
-  errorPlacement: function (error, element) {
-    if (element.attr("name") === "sessionType") {
-      error.insertAfter(element.closest(".form-group"));
-    } else {
-      error.insertAfter(element);
-    }
-  }
-});
-
 }
+
+function deleteBooking(id) {
+  if (confirm("Are you sure you want to cancel this booking?")) {
+    RestClient.delete(
+      `bookings/${id}`, 
+      {}, 
+      function(response) {
+        alert(response.message);
+        loadUserBookings();
+      },
+      function(err) {
+        console.error("DELETE booking failed:", err);
+        alert("Error: " + (err.responseText || "Could not delete booking."));
+      }
+    );
+  }
+}
+
+
+
+
+
+
+
+  // ✅ Updated validation messages for Ski School
+  $("#bookingForm").validate({
+    rules: {
+      sessionType: { required: true },
+      week: {
+        required: function () { return $("#sessionType").val() === "skiSchool"; }
+      },
+      ageGroup: {
+        required: function () { return $("#sessionType").val() === "skiSchool"; }
+      },
+      skiLevel: {
+        required: function () { return $("#sessionType").val() === "skiSchool"; }
+      },
+      isVegetarian: {
+        required: function () { return $("#sessionType").val() === "skiSchool"; }
+      },
+      service: {
+        required: function () { return $("#sessionType").val() === "privateInstruction"; }
+      },
+      sessionDate: {
+        required: function () { return $("#sessionType").val() === "privateInstruction"; }
+      },
+      instructor: {
+        required: function () { return $("#sessionType").val() === "privateInstruction"; }
+      },
+      startTime: {
+        required: function () { return $("#sessionType").val() === "privateInstruction"; }
+      },
+      hours: {
+        required: function () { return $("#sessionType").val() === "privateInstruction"; }
+      }
+    },
+    messages: {
+      sessionType: "Please choose a service type.",
+      week: "Please select a week for Ski School.",
+      ageGroup: "Please choose an age group.",
+      skiLevel: "Please choose a skiing level.",
+      isVegetarian: "Please specify if the participant is vegetarian.",
+      service: "Please choose session type (1 on 1, etc).",
+      sessionDate: "Please select a date for private instruction.",
+      instructor: "Please choose an instructor.",
+      startTime: "Please select a start time.",
+      hours: "Please choose session duration."
+    },
+    errorPlacement: function (error, element) {
+      if (element.attr("name") === "sessionType") {
+        error.insertAfter(element.closest(".form-group"));
+      } else {
+        error.insertAfter(element);
+      }
+    }
+  });
+
 
 
 

@@ -122,26 +122,6 @@ Flight::route('POST /bookings', function () {
     Flight::json(Flight::bookingService()->createBooking($data));
 });
 
-/**
- * @OA\Delete(
- *     path="/bookings/{id}",
- *     tags={"Bookings"},
- *     summary="Delete a booking by ID",
- *     security={{"ApiKey": {}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="Booking ID",
- *         @OA\Schema(type="integer", example=5)
- *     ),
- *     @OA\Response(response=200, description="Booking deleted")
- * )
- */
-Flight::route('DELETE /bookings/@id', function ($id) {
-    Flight::auth_middleware()->authorizeRole([Roles::USER, Roles::ADMIN]);
-    Flight::json(Flight::bookingService()->deleteBooking($id));
-});
 
 /**
  * @OA\Get(
@@ -186,27 +166,29 @@ Flight::route('GET /instructors/@id/bookings', function ($id) {
  * @OA\Post(
  *     path="/bookings/ski-school",
  *     tags={"Bookings"},
- *     summary="Create a new Ski School booking",
- *     security={{"ApiKey": {}}},
+ *     summary="Create a new Ski School booking (single participant)",
+ *     security={{"ApiKey": {}}}, 
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *             required={
- *                 "user_id", "service_id", "session_type", "num_of_spots", "week"
+ *                 "user_id", "service_id", "session_type",
+ *                 "first_name", "last_name", "phone_number", "week",
+ *                 "age_group", "ski_level", "is_vegetarian"
  *             },
- *             @OA\Property(property="user_id", type="integer", example=1, description="ID of the user booking"),
+ *             @OA\Property(property="user_id", type="integer", example=1, description="ID of the user making the booking"),
  *             @OA\Property(property="service_id", type="integer", example=4, description="Service ID for ski school"),
  *             @OA\Property(property="session_type", type="string", example="Ski_school", description="Must be 'Ski_school'"),
- *             @OA\Property(property="num_of_spots", type="integer", example=3, description="Total number of spots reserved"),
+ * 
+ *             @OA\Property(property="first_name", type="string", example="John", description="First name of participant"),
+ *             @OA\Property(property="last_name", type="string", example="Doe", description="Last name of participant"),
+ *             @OA\Property(property="phone_number", type="string", example="+39 123 456 7890", description="Participant's WhatsApp phone number"),
+ * 
  *             @OA\Property(property="week", type="string", example="week1", description="Ski school week (week1–week4)"),
- *             @OA\Property(property="age_group_child", type="integer", example=1, description="Number of children (0–12)"),
- *             @OA\Property(property="age_group_teen", type="integer", example=1, description="Number of teens (13–17)"),
- *             @OA\Property(property="age_group_adult", type="integer", example=1, description="Number of adults (18+)"),
- *             @OA\Property(property="ski_level_b", type="integer", example=1, description="Beginner level count"),
- *             @OA\Property(property="ski_level_i", type="integer", example=1, description="Intermediate level count"),
- *             @OA\Property(property="ski_level_a", type="integer", example=1, description="Advanced level count"),
- *             @OA\Property(property="veg_count", type="integer", example=1, description="Optional vegetarian count"),
- *             @OA\Property(property="other", type="string", example="Allergic to nuts", description="Optional other concerns")
+ *             @OA\Property(property="age_group", type="string", example="teen", description="Age group: child, teen, or adult"),
+ *             @OA\Property(property="ski_level", type="string", example="beginner", description="Skiing level: beginner, intermediate, or advanced"),
+ *             @OA\Property(property="is_vegetarian", type="boolean", example=true, description="Whether the participant is vegetarian"),
+ *             @OA\Property(property="other", type="string", example="Allergic to nuts", description="Optional: allergies or concerns")
  *         )
  *     ),
  *     @OA\Response(
@@ -214,12 +196,12 @@ Flight::route('GET /instructors/@id/bookings', function ($id) {
  *         description="Ski School booking created",
  *         @OA\JsonContent(
  *             @OA\Property(property="message", type="string", example="Ski School booking created"),
- *             @OA\Property(property="booking_id", type="integer", example=15)
+ *             @OA\Property(property="booking_id", type="integer", example=42)
  *         )
  *     ),
  *     @OA\Response(
  *         response=400,
- *         description="Validation error or overbooking"
+ *         description="Validation error or failed booking"
  *     )
  * )
  */
@@ -229,12 +211,26 @@ Flight::route('POST /bookings/ski-school', function () {
 
     try {
         $data = Flight::request()->data->getData();
+
+        // Validation (basic example)
+        $required = ['user_id', 'first_name', 'last_name', 'phone_number', 'week', 'age_group', 'ski_level'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                Flight::halt(400, "Missing required field: $field");
+            }
+        }
+
         $bookingId = Flight::bookingService()->createSkiSchoolBooking($data);
+
+        // Optional: you could also add the phone number to a separate "phone_numbers" table
+        // if you have a service like Flight::phoneService()->storePhoneNumber($data);
+
         Flight::json(["message" => "Ski School booking created", "booking_id" => $bookingId]);
     } catch (Exception $e) {
         Flight::halt(400, $e->getMessage());
     }
 });
+
 
 /**
  * @OA\Get(
@@ -268,3 +264,131 @@ Flight::route('GET /bookings/user/@id', function ($id) {
         Flight::halt(400, $e->getMessage());
     }
 });
+
+
+/**
+ * @OA\Get(
+ *     path="/bookings/ski-school-bookings",
+ *     tags={"Bookings"},
+ *     summary="Get all Ski School bookings grouped by week for admin panel",
+ *     security={{"ApiKey": {}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Grouped ski school bookings by week"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized"
+ *     )
+ * )
+ */
+Flight::route('GET /bookings/ski-school-bookings', function () {
+    // Only allow admins
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
+
+    try {
+        $data = Flight::bookingService()->getSkiSchoolBookingsByWeek();
+        Flight::json($data);
+    } catch (Exception $e) {
+        Flight::halt(400, $e->getMessage());
+    }
+});
+
+/**
+ * @OA\Delete(
+ *     path="/bookings/range",
+ *     tags={"Bookings"},
+ *     summary="Delete all bookings between two dates (ADMIN ONLY)",
+ *     security={{"ApiKey": {}}}, 
+ * 
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"start_date", "end_date"},
+ *             @OA\Property(property="start_date", type="string", format="date", example="2025-01-10"),
+ *             @OA\Property(property="end_date", type="string", format="date", example="2025-01-13")
+ *         )
+ *     ),
+ *
+ *     @OA\Response(
+ *         response=200,
+ *         description="Bookings deleted successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Deleted 23 bookings between 2025-01-10 and 2025-01-13")
+ *         )
+ *     ),
+ * 
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid input or unauthorized"
+ *     )
+ * )
+ */
+Flight::route('DELETE /bookings/range', function() {
+
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]); // ADMIN ONLY
+
+    try {
+        $body = Flight::request()->data->getData();
+
+        if (!isset($body['start_date']) || !isset($body['end_date'])) {
+            Flight::halt(400, "start_date and end_date are required.");
+        }
+
+        $start = $body['start_date'];
+        $end   = $body['end_date'];
+
+        // Perform deletion
+        $count = Flight::bookingService()->deleteBookingsInRange($start, $end);
+
+        Flight::json([
+            "message" => "Deleted $count bookings between $start and $end"
+        ]);
+
+    } catch (Exception $e) {
+        Flight::halt(400, $e->getMessage());
+    }
+});
+
+
+/**
+ * @OA\Delete(
+ *     path="/bookings/{id}",
+ *     tags={"Bookings"},
+ *     summary="Delete a booking by ID",
+ *     security={{"ApiKey": {}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         @OA\Schema(type="integer"),
+ *         description="Booking ID to delete"
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Booking deleted successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Booking deleted successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Deletion error or unauthorized"
+ *     )
+ * )
+ */
+Flight::route('DELETE /bookings/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::USER, Roles::ADMIN]);
+
+    try {
+        $user = Flight::get('user');
+        $userId = $user->id;
+        $role = $user->role;
+
+        Flight::bookingService()->deleteBooking($id, $userId, $role);
+        Flight::json(["message" => "Booking deleted successfully"]);
+    } catch (Exception $e) {
+        Flight::halt(400, $e->getMessage());
+    }
+});
+

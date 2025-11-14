@@ -47,6 +47,12 @@
             <div id="booking-tables"></div>
         </section>
 
+        <!-- 🆕 Ski School Bookings -->
+        <section class="section">
+            <h2>Ski School Bookings</h2>
+            <div id="ski-school-bookings"></div>
+        </section>
+
 
 
         <section class="section">
@@ -62,6 +68,21 @@
                 </tbody>
             </table>
         </section>
+
+        <div class="card p-3">
+            <h5>Cancel All Bookings in Date Range</h5>
+
+            <label>Start Date:</label>
+            <input type="date" id="cancel-start" class="form-control mb-2">
+
+            <label>End Date:</label>
+            <input type="date" id="cancel-end" class="form-control mb-2">
+
+            <button class="btn btn-danger" onclick="AdminPanelService.cancelRange()">
+                Cancel Bookings
+            </button>
+        </div>
+
 
     </main>
 </section>
@@ -89,7 +110,7 @@
 
                 <div class="mb-3">
                     <label for="edit-service-price" class="form-label">Price</label>
-                    <input type="number" class="form-control" id="edit-service-price" step="0.01" required>
+                    <input type="number" class="form-control" id="edit-service-price" step="0.01">
                 </div>
             </div>
             <div class="modal-footer">
@@ -119,7 +140,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="create-service-price" class="form-label">Price</label>
-                    <input type="number" class="form-control" id="create-service-price" step="0.01" required>
+                    <input type="number" class="form-control" id="create-service-price" step="0.01">
                 </div>
             </div>
             <div class="modal-footer">

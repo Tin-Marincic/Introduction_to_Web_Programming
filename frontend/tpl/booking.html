@@ -16,93 +16,68 @@
             <div id="bookingDetailsContainer" style="display: none;">
                 <!-- Ski School Options -->
                 <div id="skiSchoolOptions" style="display: none;">
-                    <div class="form-group">
-                        <label for="spots">Number of Spots:</label>
-                        <input type="number" id="spots" name="spots" min="1" max="20"
-                            onchange="resetLevels(); resetVegetarian(); resetAgeGroups();"
-                            placeholder="Enter number of spots">
+
+                    <div class="form-note"
+                        style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; margin-bottom: 15px; color: #856404;">
+                        <strong>Note:</strong> You can only reserve one spot at a time.
                     </div>
+
+                    <div class="form-group">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number (for WhatsApp group):</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+39 123 456 7890" required>
+                    </div>
+
                     <div class="form-group">
                         <label for="week">Select Week:</label>
-                        <select id="week" name="week">
+                        <select id="week" name="week" required>
                             <option value="" disabled selected>Select a week</option>
-                            <option value="week1">Jan 1–7 (week1)</option>
-                            <option value="week2">Jan 8–14 (week2)</option>
-                            <option value="week3">Jan 15–21 (week3)</option>
-                            <option value="week4">Jan 22–28 (week4)</option>
+                            <option value="week1">Jan 5–9 (week1)</option>
+                            <option value="week2">Jan 12–16 (week2)</option>
+                            <option value="week3">Jan 19–23 (week3)</option>
+                            <option value="week4">Jan 26–30 (week4)</option>
                         </select>
                     </div>
 
-                    <!-- Age Groups -->
                     <div class="form-group">
-                        <label>Age Groups for Participants:</label>
-                        <div class="level-selector">
-                            <div class="level-option">
-                                <span>Child (0–12)</span>
-                                <button type="button" class="minus" onclick="updateAgeGroup('child', -1)">-</button>
-                                <input type="number" id="age-child" name="age-child" value="0" readonly>
-                                <button type="button" class="plus" onclick="updateAgeGroup('child', 1)">+</button>
-                            </div>
-                            <div class="level-option">
-                                <span>Teen (13–17)</span>
-                                <button type="button" class="minus" onclick="updateAgeGroup('teen', -1)">-</button>
-                                <input type="number" id="age-teen" name="age-teen" value="0" readonly>
-                                <button type="button" class="plus" onclick="updateAgeGroup('teen', 1)">+</button>
-                            </div>
-                            <div class="level-option">
-                                <span>Adult (18+)</span>
-                                <button type="button" class="minus" onclick="updateAgeGroup('adult', -1)">-</button>
-                                <input type="number" id="age-adult" name="age-adult" value="0" readonly>
-                                <button type="button" class="plus" onclick="updateAgeGroup('adult', 1)">+</button>
-                            </div>
-                        </div>
-                        <input type="hidden" name="ageValidationTrigger" value="trigger" />
+                        <label for="ageGroup">Age Group:</label>
+                        <select id="ageGroup" name="ageGroup" required>
+                            <option value="" disabled selected>Select age group</option>
+                            <option value="child">Child (0–12)</option>
+                            <option value="teen">Teen (13–17)</option>
+                            <option value="adult">Adult (18+)</option>
+                        </select>
                     </div>
 
-                    <!-- Ski Levels -->
                     <div class="form-group">
-                        <label>Skiing Levels for Participants:</label>
-                        <div class="level-selector">
-                            <div class="level-option">
-                                <span>Beginner</span>
-                                <button type="button" class="minus" onclick="updateLevel('beginner', -1)">-</button>
-                                <input type="number" id="level-beginner" name="level-beginner" value="0" readonly>
-                                <button type="button" class="plus" onclick="updateLevel('beginner', 1)">+</button>
-                            </div>
-                            <div class="level-option">
-                                <span>Intermediate</span>
-                                <button type="button" class="minus" onclick="updateLevel('intermediate', -1)">-</button>
-                                <input type="number" id="level-intermediate" name="level-intermediate" value="0"
-                                    readonly>
-                                <button type="button" class="plus" onclick="updateLevel('intermediate', 1)">+</button>
-                            </div>
-                            <div class="level-option">
-                                <span>Advanced</span>
-                                <button type="button" class="minus" onclick="updateLevel('advanced', -1)">-</button>
-                                <input type="number" id="level-advanced" name="level-advanced" value="0" readonly>
-                                <button type="button" class="plus" onclick="updateLevel('advanced', 1)">+</button>
-                            </div>
-                        </div>
-                        <input type="hidden" name="levelValidationTrigger" value="trigger" />
+                        <label for="skiLevel">Skiing Level:</label>
+                        <select id="skiLevel" name="skiLevel" required>
+                            <option value="" disabled selected>Select level</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
                     </div>
 
-                    <!-- Vegetarian -->
                     <div class="form-group">
-                        <label>Vegetarian Count:</label>
-                        <div class="level-selector">
-                            <div class="level-option">
-                                <span>Vegetarians</span>
-                                <button type="button" class="minus" onclick="updateVegetarian(-1)">-</button>
-                                <input type="number" id="vegetarian-count" name="vegetarian-count" value="0" readonly>
-                                <button type="button" class="plus" onclick="updateVegetarian(1)">+</button>
-                            </div>
+                        <label>Is the participant vegetarian?</label>
+                        <div>
+                            <label><input type="radio" name="isVegetarian" value="1" required> Yes</label>
+                            <label><input type="radio" name="isVegetarian" value="0"> No</label>
                         </div>
                     </div>
 
-                    <!-- Other Concerns -->
                     <div class="form-group">
-                        <label for="concerns">Other Concerns (allergies, etc.):</label>
-                        <textarea id="concerns" name="concerns" placeholder="(Optional)"></textarea>
+                        <label for="allergies">Allergies or Other Concerns:</label>
+                        <textarea id="allergies" name="allergies" placeholder="(Optional)"></textarea>
                     </div>
                 </div>
 
@@ -112,9 +87,10 @@
                         <label for="groupSize">Session type:</label>
                         <select id="service" name="service" required>
                             <option value="" disabled selected>Select a Session type</option>
-                            <option value="1">1 on 1</option>
-                            <option value="2">1 on 2</option>
-                            <option value="3">1 on 3</option>
+                            <option value="82">1 na 1</option>
+                            <option value="83">1 na 2</option>
+                            <option value="84">1 na 3</option>
+                            <option value="85">nesto pored ponudjenih opcija</option>
                         </select>
                     </div>
 

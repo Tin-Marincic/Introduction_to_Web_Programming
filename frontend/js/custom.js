@@ -112,6 +112,7 @@ function updateBookingView() {
     AdminPanelService.loadInstructors();
     AdminPanelService.loadInstructorBookings();
     AdminPanelService.loadSkiSchoolAvailability();
+    AdminPanelService.loadSkiSchoolBookings();
 
     $("#edit-service-form").on("submit", function (e) {
       e.preventDefault();
