@@ -38,23 +38,23 @@ class BookingService extends BaseService {
         $this->validateNumeric($data['num_of_hours'], "Number of hours");
 
         if (empty($data['date']) || empty($data['start_time']) || empty($data['service_id'])) {
-            throw new Exception("Date, start time, and service are required.");
+            throw new Exception("Datum, vrijeme početka i usluga su obavezni.");
         }
 
         
         if (strtotime($data['date']) < strtotime(date('Y-m-d'))) {
-            throw new Exception("Cannot book sessions in the past.");
+            throw new Exception("Nije moguće rezervisati termine u prošlosti.");
         }
 
         
         $availableIds = (new AvailabilityCalendarDao())->getAvailableInstructorsByDate($data['date']);
         if (!in_array($data['instructor_id'], $availableIds)) {
-            throw new Exception("Selected instructor is not available on this date.");
+            throw new Exception("Odabrani instruktor nije dostupan na ovaj datum.");
         }
 
         
         if ($this->dao->hasTimeConflict($data['instructor_id'], $data['date'], $data['start_time'], $data['num_of_hours'])) {
-            throw new Exception("Instructor is already booked during this time slot.");
+            throw new Exception("Instruktor je već zauzet u ovom terminu.");
         }
 
         return $this->dao->insert($data);
@@ -65,7 +65,7 @@ class BookingService extends BaseService {
         $required = ["user_id", "service_id", "session_type", "first_name", "last_name", "phone_number", "week", "age_group", "ski_level"];
         foreach ($required as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {
-                throw new Exception("$field is required.");
+                throw new Exception("$field je obavezno.");
             }
         }
 
@@ -89,7 +89,7 @@ class BookingService extends BaseService {
         }
 
         if ($availableSpots <= 0) {
-            throw new Exception("No available spots left for the selected week.");
+            throw new Exception("Nema više slobodnih mjesta za odabranu sedmicu.");
         }
 
         // Insert booking
@@ -99,7 +99,7 @@ class BookingService extends BaseService {
 
     private function validateNumeric($value, $label) {
         if (!is_numeric($value)) {
-            throw new Exception("$label must be numeric.");
+            throw new Exception("$label mora biti broj.");
         }
     }
 
@@ -125,13 +125,13 @@ class BookingService extends BaseService {
         // FIRST: get booking details before deleting
         $booking = $this->dao->getBookingById($id);
         if (!$booking) {
-            throw new Exception("Booking not found.");
+            throw new Exception("Termin nije pronadjen.");
         }
 
         $deleted = $this->dao->deleteBooking($id, $userId, $isAdmin);
 
         if (!$deleted) {
-            throw new Exception("Booking not found or you are not authorized to delete this booking.");
+            throw new Exception("Rezervacija nije pronađena ili niste ovlašteni da je obrišete.");
         }
 
         // Only send email if a USER cancelled

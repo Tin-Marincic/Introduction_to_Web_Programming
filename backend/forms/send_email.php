@@ -58,7 +58,7 @@ $message = $_POST['message'] ?? '';
 
 if (!$subject || !$message) {
     http_response_code(400);
-    echo json_encode(["error" => "Please fill in subject and message."]);
+    echo json_encode(["error" => "Molim Vas upisite i predmet i poruku"]);
     exit;
 }
 
@@ -82,10 +82,10 @@ try {
     // Email content
     $mail->isHTML(true);
     $mail->Subject = $subject;
-    $mail->Body = "<strong>Message from $name ($email)</strong><br><br>" . nl2br($message);
+    $mail->Body = "<strong>Poruka od $name ($email)</strong><br><br>" . nl2br($message);
 
     $mail->send();
-    echo json_encode(["success" => "Message sent successfully."]);
+    echo json_encode(["success" => "Poruka uspjesno poslana"]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(["error" => "Mailer Error: " . $mail->ErrorInfo]);

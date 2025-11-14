@@ -6,7 +6,7 @@ let AdminPanelService = {
       services.forEach(service => {
         let formattedPrice = service.name.toLowerCase().includes("ski škola")
           ? `KM ${service.price}`
-          : `KM ${service.price} / hour`;
+          : `KM ${service.price} / sat`;
 
         rows += `
           <tr>
@@ -19,7 +19,7 @@ let AdminPanelService = {
                 Edit
               </button>
               <button class="btn btn-outline-danger btn-sm" 
-                onclick="AdminPanelService.deleteService(${service.id})">Delete</button>
+                onclick="AdminPanelService.deleteService(${service.id})">Obriši</button>
             </td>
           </tr>`;
       });
@@ -27,7 +27,7 @@ let AdminPanelService = {
       $("#services-body").html(rows);
     }, function (err) {
       console.error("Failed to load services", err);
-      $("#services-body").html("<tr><td colspan='4'>Failed to load services</td></tr>");
+      $("#services-body").html("<tr><td colspan='4'>Nije moguće učitati usluge</td></tr>");
     });
   },
 
@@ -42,26 +42,26 @@ let AdminPanelService = {
   },
 
   deleteService: function (id) {
-    if (!confirm("Are you sure you want to delete this service?")) return;
+    if (!confirm("Jeste li sigurni da želite obrisati ovu uslugu?")) return;
 
     RestClient.delete(`api/services/${id}`, null, function () {
-      toastr.success("Service deleted.");
+      toastr.success("Usluga obrisana");
       AdminPanelService.loadServices();
     }, function (err) {
-      toastr.error("Failed to delete service.");
+      toastr.error("Brisanje usluge nije uspjelo.");
       console.error("Delete error", err);
     });
   },
 
   deleteBooking: function(id) {
-  if (!confirm("Are you sure you want to cancel this booking?")) return;
+  if (!confirm("Jeste li sigurni da želite obrisati ovu uslugu?")) return;
 
     RestClient.delete(`bookings/${id}`, {}, function(response) {
         toastr.success(response.message || "Booking deleted.");
         AdminPanelService.loadInstructorBookings();
         AdminPanelService.loadSkiSchoolBookings();
     }, function(err) {
-        toastr.error("Error deleting booking.");
+        toastr.error("Brisanje usluge nije uspjelo.");
         console.error("DELETE booking failed:", err);
     });
   },
@@ -77,8 +77,8 @@ let AdminPanelService = {
             <td>${instructor.name} ${instructor.surname}</td>
             <td>${instructor.licence || "-"}</td>
             <td>
-              <button class="btn btn-danger btn-sm" onclick="AdminPanelService.editInstructor(${instructor.id})">Edit</button>
-              <button class="btn btn-outline-danger btn-sm" onclick="AdminPanelService.deleteInstructor(${instructor.id})">Delete</button>
+              <button class="btn btn-danger btn-sm" onclick="AdminPanelService.editInstructor(${instructor.id})">Uredi</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="AdminPanelService.deleteInstructor(${instructor.id})">Obriši</button>
             </td>
           </tr>`;
       });
@@ -86,19 +86,19 @@ let AdminPanelService = {
       $("#team-body").html(rows);
     }, function (error) {
       console.error("Failed to load instructors:", error);
-      $("#team-body").html("<tr><td colspan='3'>Unable to load team members.</td></tr>");
+      $("#team-body").html("<tr><td colspan='3'>Nije moguće učitati članove tima.</td></tr>");
     });
   },
 
 
   deleteInstructor: function (id) {
-    if (!confirm("Are you sure you want to delete this instructor?")) return;
+    if (!confirm("Jeste li sigurni da želite obrisati ovu uslugu?")) return;
 
     RestClient.delete(`instructors/${id}`, null, function () {
-      toastr.success("Instructor deleted");
+      toastr.success("Instruktor obrisan");
       AdminPanelService.loadInstructors();
     }, function (error) {
-      toastr.error("Failed to delete instructor.");
+      toastr.error("Neuspješno brisanje instruktora.");
       console.error(error);
     });
   },
@@ -125,7 +125,7 @@ loadInstructorBookings: function () {
                         <td>
                             <button class="btn btn-danger btn-sm"
                                 onclick="AdminPanelService.deleteBooking(${booking.booking_id})">
-                                Delete
+                                Obriši
                             </button>
                         </td>
                     </tr>`;
@@ -137,14 +137,14 @@ loadInstructorBookings: function () {
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Client</th>
-                            <th>Phone</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Lesson</th>
-                            <th>Duration</th>
+                            <th>Klijent</th>
+                            <th>Telefon</th>
+                            <th>Datum</th>
+                            <th>Vrijeme</th>
+                            <th>Lekcija</th>
+                            <th>Trajanje</th>
                             <th>Status</th>
-                            <th>Actions</th>
+                            <th>Akcije</th>
                         </tr>
                         </thead>
                         <tbody>${rows}</tbody>
@@ -174,7 +174,7 @@ loadInstructorBookings: function () {
       $("#availability-table tbody").html(rows);
     }, function (err) {
       console.error("Failed to load ski school availability", err);
-      $("#availability-table tbody").html("<tr><td colspan='2'>Unable to load availability</td></tr>");
+      $("#availability-table tbody").html("<tr><td colspan='2'>Nije moguće učitati dostupnost.</td></tr>");
     });
   },
 
@@ -211,7 +211,7 @@ loadSkiSchoolBookings: function () {
                         <td>
                             <button class="btn btn-danger btn-sm"
                                 onclick="AdminPanelService.deleteBooking(${b.booking_id})">
-                                Delete
+                                Obriši
                             </button>
                         </td>
                     </tr>`;
@@ -223,14 +223,14 @@ loadSkiSchoolBookings: function () {
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Parent Name</th>
-                                <th>Phone</th>
-                                <th>Child Name</th>
-                                <th>Age Group</th>
-                                <th>Ski Level</th>
-                                <th>Allergy</th>
-                                <th>Vegetarian</th>
-                                <th>Actions</th>
+                                <th>Ime roditelja/osobe </th>
+                                <th>Telefon</th>
+                                <th>Ime djeteta/osobe</th>
+                                <th>Dobna grupa</th>
+                                <th>Nivo skijanja</th>
+                                <th>Alergije</th>
+                                <th>Vegetarijanac</th>
+                                <th>Akcije</th>
                             </tr>
                         </thead>
                         <tbody>${rows}</tbody>
@@ -242,7 +242,7 @@ loadSkiSchoolBookings: function () {
 
     }, function (err) {
         console.error("Failed to load ski school bookings", err);
-        $("#booking-tables").append("<p>Error loading ski school bookings.</p>");
+        $("#booking-tables").append("<p>Greška pri učitavanju rezervacija za ski školu.</p>");
     });
 },
 
@@ -251,11 +251,11 @@ cancelRange: function () {
     let end = $("#cancel-end").val();
 
     if (!start || !end) {
-        toastr.error("Please select both dates.");
+        toastr.error("Molimo odaberite oba datuma.");
         return;
     }
 
-    if (!confirm(`Are you sure you want to cancel all bookings from ${start} to ${end}?`)) return;
+    if (!confirm(`Jeste li sigurni da želite otkazati sve rezervacije od… ${start} do ${end}?`)) return;
 
     RestClient.delete("bookings/range", { start_date: start, end_date: end }, 
         function (response) {
@@ -264,7 +264,7 @@ cancelRange: function () {
             AdminPanelService.loadSkiSchoolBookings();
         },
         function (err) {
-            toastr.error("Error cancelling bookings.");
+            toastr.error("Greška pri otkazivanju rezervacija.");
             console.error(err);
         }
     );

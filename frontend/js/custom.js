@@ -252,22 +252,22 @@ $("#register-form").validate({
     "confirm-password": { equalTo: "#password" }
   },
   messages: {
-    name: { required: 'Please enter your first name' },
-    surname: { required: 'Please enter your last name' },
+    name: { required: 'Molim Vas upisite ime' },
+    surname: { required: 'Molim Vas upisite prezime' },
     username: {
-      required: 'Please enter your email',
-      email: 'Please enter a valid email address'
+      required: 'Molim Vas upisite email',
+      email: 'Molim Vas upisite validnu email adresu'
     },
     phone: {
-      required: 'Please enter your phone number',
-      digits: 'Only digits are allowed',
-      minlength: 'Phone number must be at least 8 digits',
-      maxlength: 'Phone number cannot exceed 15 digits'
+      required: 'Molim Vas upisite broj telefona',
+      digits: 'Samo su cifre dozvoljene',
+      minlength: 'Broj telefona mora imati najmanje 8 cifara',
+      maxlength: 'Broj telefona ne moze biti duzi od 15 cifara'
     },
     password: {
-      required: 'Please enter your password',
-      minlength: 'Password must be at least 3 characters long',
-      maxlength: 'Password cannot be longer than 16 characters'
+      required: 'Molim Vas upisite Vasu lozinku',
+      minlength: 'Lozinka mora imati najmanje 3 karaktera',
+      maxlength: 'Lozinka ne može biti duža od 16 karaktera'
     },
     "confirm-password": {
       equalTo: 'Passwords do not match'

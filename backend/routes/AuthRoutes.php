@@ -66,7 +66,7 @@ Flight::group('/auth', function() {
   
        if ($response['success']) {
            Flight::json([
-               'message' => 'User registered successfully',
+               'message' => 'Korisnik uspjesno registrovan',
                'data' => $response['data']
            ]);
        } else {
@@ -101,7 +101,7 @@ Flight::group('/auth', function() {
   
        if ($response['success']) {
             Flight::json([
-                'message' => 'User logged in successfully',
+                'message' => 'Korisnik uspjesno prijavljen',
                 'data' => $response['data']
             ]);
         } else {

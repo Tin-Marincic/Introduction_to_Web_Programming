@@ -5,8 +5,8 @@ const ClientLoader = {
       services.forEach((service, index) => {
         const delay = 100 * (index + 1);
         const formattedPrice = service.name.toLowerCase().includes("ski škola")
-          ? `<sup>KM</sup>${service.price || '...'}<span> / week</span>`
-          : `<sup>KM</sup>${service.price || '...'}<span> / hour</span>`;
+          ? `<sup>KM</sup>${service.price || '...'}<span> / sedmici</span>`
+          : `<sup>KM</sup>${service.price || '...'}<span> / sat</span>`;
         html += `
           <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="${delay}">
             <div class="pricing-item">
@@ -16,7 +16,7 @@ const ClientLoader = {
                 <li>${service.description || '...'}</li>
               </ul>
               <div class="btn-wrap">
-                <a href="#booking" class="btn-buy">Book Now</a>
+                <a href="#booking" class="btn-buy">Rezerviši sada</a>
               </div>
             </div>
           </div>`;
@@ -24,7 +24,7 @@ const ClientLoader = {
       $("#pricing-cards").html(html);
     }, function (err) {
       console.error("Failed to load pricing plans", err);
-      $("#pricing-cards").html("<p>Error loading services.</p>");
+      $("#pricing-cards").html("<p>Greška pri učitavanju usluga.</p>");
     });
   },
 
@@ -50,7 +50,7 @@ const ClientLoader = {
       });
       $("#review-list").html(html);
     }, function () {
-      $("#review-list").html("<p class='text-center'>Unable to load reviews.</p>");
+      $("#review-list").html("<p class='text-center'>Nije moguće učitati recenzije.</p>");
     });
   },
 
@@ -75,8 +75,8 @@ const ClientLoader = {
               <div class="pic"><img src="assets/img/team/${imgFile}" class="img-fluid" alt=""></div>
               <div class="member-info">
                 <h4>${fullName}</h4>
-                <span>${instructor.licence} Instructor</span>
-                <a href="#booking" class="btn btn-primary">Book Now</a>
+                <span>${instructor.licence} Instruktor</span>
+                <a href="#booking" class="btn btn-primary">Rezerviši sada</a>
               </div>
             </div>
           </div>`;
@@ -84,7 +84,7 @@ const ClientLoader = {
       $("#team-list").html(html);
     }, function (err) {
       console.error("Failed to load instructors", err);
-      $("#team-list").html("<p class='text-center'>Unable to load instructors.</p>");
+      $("#team-list").html("<p class='text-center'>Nije moguće učitati instruktore.</p>");
     });
   },
 
@@ -133,11 +133,11 @@ initReviewModal: function () {
     }
 
     RestClient.post("reviews", payload, function () {
-      toastr.success("Review submitted successfully!");
+      toastr.success("Recenzija je uspješno poslana!");
       location.reload();
     }, function (err) {
       console.error("Review submission failed:", err);
-      toastr.error(err.responseJSON?.error || "Failed to submit review.");
+      toastr.error(err.responseJSON?.error || "Nije uspjelo slanje recenzije.");
     });
   });
 }
