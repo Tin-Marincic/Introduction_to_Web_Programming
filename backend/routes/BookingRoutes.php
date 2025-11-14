@@ -117,7 +117,7 @@ Flight::route('GET /bookings/instructor/@id/upcoming', function ($id) {
  * )
  */
 Flight::route('POST /bookings', function () {
-    Flight::auth_middleware()->authorizeRole(Roles::USER, Roles::ADMIN);
+    Flight::auth_middleware()->authorizeRoles([Roles::USER, Roles::ADMIN]);
     $data = Flight::request()->data->getData();
     Flight::json(Flight::bookingService()->createBooking($data));
 });
