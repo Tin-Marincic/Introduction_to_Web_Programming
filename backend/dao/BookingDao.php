@@ -6,54 +6,61 @@ class BookingDao extends BaseDao {
         parent::__construct("bookings");
     }
 
-    // This is for my admin panel BOOKING DETAILS FOR ALL INSTRUCTORS
     public function getDetailedUpcomingInstructorBookings() {
         $stmt = $this->connection->prepare(
-            "SELECT 
-                u.name AS instructor_name, 
-                u.surname AS instructor_surname, 
-                c.name AS client_name, 
-                c.phone AS client_phone,        
-                b.date, 
-                b.start_time, 
-                b.session_type, 
-                b.num_of_hours, 
-                b.status 
-            FROM bookings b 
-            JOIN users u ON b.instructor_id = u.id 
-            JOIN users c ON b.user_id = c.id
-            WHERE b.date >= CURDATE() AND u.role = 'instructor'
-            ORDER BY u.surname, u.name, b.date, b.start_time ASC"
+        "SELECT 
+            CONCAT(u.name, ' ', u.surname) AS instructor_full_name,
+            b.id AS booking_id,
+            c.name AS client_name,
+            c.phone AS client_phone,
+            b.date,
+            b.start_time,
+            b.session_type,
+            b.num_of_hours,
+            b.status
+        FROM bookings b
+        JOIN users u ON b.instructor_id = u.id
+        JOIN users c ON b.user_id = c.id
+        WHERE b.date >= CURDATE()
+        ORDER BY u.surname, u.name, b.date, b.start_time"
         );
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
     }
 
-
     // Get available spots for ski school bookings for each week in January FOR ADMIN
     public function getSkiSchoolAvailability() {
-        $totalSpotsPerWeek = 100;
-        $stmt = $this->connection->prepare(
-            "SELECT 
+        $totalSpotsPerWeek = 100; // capacity per week
+
+        $stmt = $this->connection->prepare("
+            SELECT 
                 week,
-                SUM(num_of_spots) AS spots_booked
-            FROM bookings 
+                COUNT(*) AS spots_booked
+            FROM bookings
             WHERE session_type = 'Ski_school'
             GROUP BY week
-            ORDER BY FIELD(week, 'week1', 'week2', 'week3', 'week4')"
-        );
+            ORDER BY FIELD(week, 'week1', 'week2', 'week3', 'week4')
+        ");
         $stmt->execute();
         $results = $stmt->fetchAll();
-    
-        $weeks = ['week1' => 'Jan 1-7', 'week2' => 'Jan 8-14', 'week3' => 'Jan 15-21', 'week4' => 'Jan 22-28'];
+
+        $weeks = [
+            'week1' => 'Jan 5–9',
+            'week2' => 'Jan 12–16',
+            'week3' => 'Jan 19–23',
+            'week4' => 'Jan 26–30'
+        ];
+
         $availability = [];
         foreach ($weeks as $week => $dateRange) {
             $availability[$dateRange] = $totalSpotsPerWeek;
         }
+
         foreach ($results as $result) {
-            $weekRange = $weeks[$result['week']];
-            $availability[$weekRange] = max(0, $totalSpotsPerWeek - $result['spots_booked']);
+            $weekRange = $weeks[$result['week']] ?? $result['week'];
+            $availability[$weekRange] = max(0, $totalSpotsPerWeek - intval($result['spots_booked']));
         }
+
         $formattedResults = [];
         foreach ($availability as $weekRange => $availableSpots) {
             $formattedResults[] = [
@@ -61,8 +68,10 @@ class BookingDao extends BaseDao {
                 'Available Spots' => "{$availableSpots} spots available"
             ];
         }
+
         return $formattedResults;
     }
+
     
     // Calculate total hours worked by an instructor this month FOR INSTRUCTOR
     public function getTotalHoursThisMonth($instructorId) {
@@ -96,17 +105,27 @@ class BookingDao extends BaseDao {
     //get all upcoming bookings for instructor panel
     public function getDetailedUpcomingBookings($instructorId) {
         $stmt = $this->connection->prepare(
-            "SELECT c.name AS client_name, c.phone, b.date, b.start_time, b.session_type, b.num_of_hours, b.status
+            "SELECT 
+                b.id AS booking_id,
+                c.name AS client_name, 
+                c.phone, 
+                b.date, 
+                b.start_time, 
+                b.session_type, 
+                b.num_of_hours, 
+                b.status
             FROM bookings b
             JOIN users c ON b.user_id = c.id
             WHERE b.instructor_id = :instructor_id
             AND b.date >= CURDATE()
             ORDER BY b.date, b.start_time"
         );
+
         $stmt->bindParam(':instructor_id', $instructorId);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     //to check if there is already a booking for that date time and for that instructor
     public function hasTimeConflict($instructorId, $date, $startTime, $numOfHours) {
@@ -162,16 +181,14 @@ public function getBookingsByUserId($userId) {
             b.date,
             b.start_time,
             b.num_of_hours,
-            b.num_of_spots,
             b.week,
-            b.age_group_child,
-            b.age_group_teen,
-            b.age_group_adult,
-            b.ski_level_b,
-            b.ski_level_i,
-            b.ski_level_a,
-            b.veg_count,
-            b.other,
+            b.first_name,
+            b.last_name,
+            b.phone_number,
+            b.age_group,
+            b.ski_level,
+            b.is_vegetarian,
+            b.allergies AS other,
             b.status,
             s.name AS service_name,
             u.name AS instructor_name,
@@ -187,7 +204,193 @@ public function getBookingsByUserId($userId) {
 }
 
 
+// Get all Ski School bookings grouped by week for admin
+public function getSkiSchoolBookingsByWeek() {
+    $stmt = $this->connection->prepare("
+        SELECT
+            b.id AS booking_id,
+            b.week,
+            u.name AS user_name,
+            u.surname AS user_surname,
+            b.first_name AS child_first_name,
+            b.last_name AS child_last_name,
+            b.phone_number,
+            b.age_group,
+            b.ski_level,
+            b.allergies,
+            b.is_vegetarian,
+            b.date,
+            b.status
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        WHERE b.session_type = 'Ski_school'
+        ORDER BY 
+            FIELD(b.week, 'week1', 'week2', 'week3', 'week4'),
+            b.age_group ASC,
+            b.date ASC
+    ");
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Group results by week
+    $grouped = [
+        'week1' => [],
+        'week2' => [],
+        'week3' => [],
+        'week4' => []
+    ];
+
+    foreach ($results as $row) {
+        if (isset($grouped[$row['week']])) {
+            $grouped[$row['week']][] = $row;
+        } else {
+            // fallback if some weird week value is inserted
+            $grouped[$row['week']] = [$row];
+        }
+    }
+
+    return $grouped;
+}
+
+public function deleteBooking($bookingId, $userId, $isAdmin) {
+    if ($isAdmin) {
+        // Admin can delete ANY booking
+        $stmt = $this->connection->prepare("
+            DELETE FROM bookings
+            WHERE id = :id
+        ");
+        $stmt->bindParam(':id', $bookingId);
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
+    }
+
+    // Normal user: can delete only their own booking
+    $stmt = $this->connection->prepare("
+        DELETE FROM bookings
+        WHERE id = :id AND user_id = :user_id
+    ");
+    $stmt->bindParam(':id', $bookingId);
+    $stmt->bindParam(':user_id', $userId);
+    $stmt->execute();
+    
+    return $stmt->rowCount() > 0;
+}
+
+
+public function deleteBookingsInRange($startDate, $endDate) {
+
+    // Fetch affected bookings before deleting
+    $stmt = $this->connection->prepare("
+        SELECT b.id, b.user_id, b.date, u.name, u.surname, u.username AS email
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        WHERE b.date BETWEEN :start AND :end
+          AND b.user_id != 0
+    ");
+    $stmt->execute([
+        ':start' => $startDate,
+        ':end' => $endDate
+    ]);
+
+    $affected = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Delete them
+    $deleteStmt = $this->connection->prepare("
+        DELETE FROM bookings
+        WHERE date BETWEEN :start AND :end
+    ");
+    $deleteStmt->execute([
+        ':start' => $startDate,
+        ':end' => $endDate
+    ]);
+
+    return $affected; // return list of users to email
+}
+
+
+public function blockDateRange($startDate, $endDate) {
+
+    // Valid SERVICE ID
+    $serviceId = $this->connection
+        ->query("SELECT id FROM services LIMIT 1")
+        ->fetchColumn();
+
+    if (!$serviceId) {
+        throw new Exception("No services found — cannot block dates.");
+    }
+
+    // VALID SYSTEM USER ID
+    $systemUserId = $this->connection
+        ->query("SELECT id FROM users WHERE username='systemblocker@gmail.com' LIMIT 1")
+        ->fetchColumn();
+
+    if (!$systemUserId) {
+        throw new Exception("System user not found. Create a user with username 'systemblocker'.");
+    }
+
+    // GET ALL INSTRUCTORS
+    $instructors = $this->connection
+        ->query("SELECT id FROM users WHERE role='instructor'")
+        ->fetchAll(PDO::FETCH_COLUMN);
+
+    if (!$instructors) {
+        throw new Exception("No instructors found — cannot block dates.");
+    }
+
+    // DATE RANGE LOOP
+    $period = new DatePeriod(
+        new DateTime($startDate),
+        new DateInterval('P1D'),
+        (new DateTime($endDate))->modify('+1 day')
+    );
+
+    foreach ($period as $dateObj) {
+        $date = $dateObj->format('Y-m-d');
+
+        foreach ($instructors as $instructorId) {
+
+            $stmt = $this->connection->prepare("
+                INSERT INTO bookings (
+                    user_id,
+                    instructor_id,
+                    service_id,
+                    session_type,
+                    date,
+                    start_time,
+                    num_of_hours,
+                    status
+                ) VALUES (
+                    :user_id,
+                    :instructor_id,
+                    :service_id,
+                    'Private_instruction',
+                    :date,
+                    '00:00:00',
+                    24,
+                    'cancelled'
+                )
+            ");
+
+            $stmt->execute([
+                ':user_id'       => $systemUserId,
+                ':instructor_id' => $instructorId,
+                ':service_id'    => $serviceId,
+                ':date'          => $date
+            ]);
+        }
+    }
+}
+
+public function getBookingById($id) {
+    $stmt = $this->connection->prepare("
+        SELECT b.*, u.name AS client_name, u.username AS client_email
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        WHERE b.id = :id
+    ");
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
 }
 ?>
