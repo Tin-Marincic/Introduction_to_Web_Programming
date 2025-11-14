@@ -2295,6 +2295,43 @@ section,
   }
 }
 
+/* ----------------------------------------
+   Improved look for Ime, Prezime, Phone
+-----------------------------------------*/
+
+#firstName,
+#lastName,
+#phoneNumber {
+  background: #fafafa !important;
+  border: 1px solid #d8d8d8 !important;
+  padding: 12px !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  font-size: 16px !important;
+  transition: 0.2s ease-in-out;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+#firstName:focus,
+#lastName:focus,
+#phoneNumber:focus {
+  border-color: #da3722 !important;
+  box-shadow: 0 0 0 3px rgba(218,55,34,0.15) !important;
+  background: #fff !important;
+}
+
+/* Better spacing for these 3 form groups */
+#firstName,
+#lastName,
+#phoneNumber {
+  margin-top: 4px;
+}
+
+#firstName::placeholder,
+#lastName::placeholder,
+#phoneNumber::placeholder {
+  color: #999;
+}
 
 /*--------------------------------------------------------------
 # Admin panel

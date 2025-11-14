@@ -137,8 +137,13 @@ var BookingService = {
 
         RestClient.request("bookings/ski-school", "POST", data,
           function () {
-            toastr.success(`Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`);
-            BookingService.init();
+          toastr.success(`Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`);
+
+          setTimeout(() => {
+            window.location.hash = "#_refresh";
+            window.location.hash = "#booking";
+          }, 10);
+
           },
           function (error) {
             console.error("Rezervacija za Ski školu neuspješna", error);
@@ -163,7 +168,12 @@ var BookingService = {
         RestClient.request("bookings", "POST", booking,
           function () {
             toastr.success("Rezervacija za privatnu instrukciju uspješno izvršena!");
-            BookingService.init();
+
+            setTimeout(() => {
+              window.location.hash = "#_refresh";
+              window.location.hash = "#booking";
+            }, 10);
+
           },
           function (error) {
             console.error("Rezervacija za privatnu instrukciju neuspješna", error);
