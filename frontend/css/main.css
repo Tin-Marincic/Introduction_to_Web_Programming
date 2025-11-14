@@ -1002,7 +1002,7 @@ section,
 /* Responsive Fixes */
 @media (max-width: 426px) {
   .hero h2 {
-    font-size: 26px;
+    font-size: 24px;
     padding: 0 10px;
   }
 
@@ -1055,7 +1055,7 @@ section,
 
 @media (max-width: 376px) {
   .hero h2 {
-    font-size: 22px;
+    font-size: 20px;
     padding: 0 10px;
   }
 

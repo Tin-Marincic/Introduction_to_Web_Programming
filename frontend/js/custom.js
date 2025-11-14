@@ -206,20 +206,110 @@ $("#edit-instructor-form").on("submit", function (e) {
 });
 
 
-
 app.route({
   view: 'booking',
   load: 'booking.html',
   onReady: function () {
-    
-    updateBookingView();
 
-    
+    updateBookingView();
+    disableHiddenFields();
+    toggleBookingOptions();
+
+    // 🔥 Now the form exists, so validator attaches correctly
+    $("#bookingForm").validate({
+      ignore: ":hidden",
+
+      rules: {
+        sessionType: { required: true },
+
+        // ⭐ SKI SCHOOL RULES
+        firstName: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        },
+        lastName: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        },
+        phoneNumber: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; },
+          minlength: 6
+        },
+        week: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        },
+        ageGroup: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        },
+        skiLevel: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        },
+        isVegetarian: {
+          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        },
+
+        // ⭐ PRIVATE INSTRUCTION RULES
+        service: {
+          required: function () { return $("#sessionType").val() === "privateInstruction"; }
+        },
+        sessionDate: {
+          required: function () { return $("#sessionType").val() === "privateInstruction"; }
+        },
+        instructor: {
+          required: function () { return $("#sessionType").val() === "privateInstruction"; }
+        },
+        startTime: {
+          required: function () { return $("#sessionType").val() === "privateInstruction"; }
+        },
+        hours: {
+          required: function () { return $("#sessionType").val() === "privateInstruction"; }
+        }
+      },
+
+      messages: {
+        sessionType: "Izaberite tip usluge.",
+
+        firstName: "Unesite ime",
+        lastName: "Unesite prezime",
+        phoneNumber: {
+          required: "Unesite broj telefona",
+          minlength: "Broj telefona je prekratak"
+        },
+        week: "Izaberite sedmicu",
+        ageGroup: "Izaberite dobnu skupinu",
+        skiLevel: "Izaberite nivo",
+        isVegetarian: "Odaberite jednu opciju",
+
+        service: "Izaberite vrstu sesije",
+        sessionDate: "Izaberite datum",
+        instructor: "Izaberite instruktora",
+        startTime: "Izaberite početno vrijeme",
+        hours: "Izaberite broj sati"
+      },
+
+      errorPlacement: function (error, element) {
+        // put radio button errors nicely under group
+        if (element.attr("name") === "isVegetarian") {
+          error.insertAfter(element.closest(".form-group"));
+          return;
+        }
+
+        // sessionType special case
+        if (element.attr("name") === "sessionType") {
+          error.insertAfter(element.closest(".form-group"));
+          return;
+        }
+
+        // default placement
+        error.insertAfter(element);
+      }
+    });
+
+
     $(document)
       .off('loginSuccess.booking')
       .on('loginSuccess.booking', updateBookingView);
   }
 });
+
 
 
   app.route({
