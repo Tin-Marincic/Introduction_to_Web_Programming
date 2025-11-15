@@ -386,7 +386,7 @@ Flight::route('DELETE /bookings/@id', function($id) {
         $role = $user->role;
 
         Flight::bookingService()->deleteBooking($id, $userId, $role);
-        Flight::json(["message" => "Booking deleted successfully"]);
+        Flight::json(["message" => "Rezervacija uspješno obrisana"]);
     } catch (Exception $e) {
         Flight::halt(400, $e->getMessage());
     }

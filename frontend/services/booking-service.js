@@ -43,6 +43,22 @@ var BookingService = {
     document.getElementById("startTime").innerHTML = '<option value="" disabled selected>Izaberite početno vrijeme</option>';
     document.getElementById("hours").innerHTML = '<option value="" disabled selected>Izaberite broj sati</option>';
 
+        // ⭐ Initialize International Phone Input
+    const phoneInputField = document.getElementById("phoneNumber");
+    if (phoneInputField) {
+      const phoneInput = window.intlTelInput(phoneInputField, {
+        initialCountry: "ba", // Bosnia default
+        preferredCountries: ["ba", "hr", "rs", "me", "de", "at", "si", "ch"],
+        separateDialCode: true,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.3.0/js/utils.js",
+      });
+
+      // Save full phone number (+38761234567)
+      phoneInputField.addEventListener("blur", function () {
+        phoneInputField.dataset.fullNumber = phoneInput.getNumber();
+      });
+    }
+
     // Load instructors
     document.getElementById("sessionDate").addEventListener("change", function () {
     const selectedDate = this.value;
@@ -106,15 +122,22 @@ var BookingService = {
 
       // 🏫 --- SKI SCHOOL BOOKING (single participant version) ---
       if (sessionType === "skiSchool") {
+
+        const iti = intlTelInputGlobals.getInstance(document.getElementById("phoneNumber"));
+        const phoneNumber = iti.getNumber(); // THIS sends +387xxxxxxxx
+
         const firstName = document.getElementById("firstName").value.trim();
         const lastName = document.getElementById("lastName").value.trim();
-        const phoneNumber = document.getElementById("phoneNumber").value.trim();
         const week = document.getElementById("week").value;
         const ageGroup = document.getElementById("ageGroup").value;
         const skiLevel = document.getElementById("skiLevel").value;
         const isVegetarian = document.querySelector("input[name='isVegetarian']:checked")?.value || 0;
         const allergies = document.getElementById("allergies").value.trim() || "";
 
+        if (!iti.isValidNumber()) {
+          toastr.error("Unesite ispravan broj telefona");
+          return;
+        }
         // Basic validation (extra safety)
         if (!firstName || !lastName || !phoneNumber || !week || !ageGroup || !skiLevel) {
           toastr.warning("Molim Vas popunite sva potrebna polja");

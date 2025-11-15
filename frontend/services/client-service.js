@@ -5,7 +5,7 @@ const ClientLoader = {
       services.forEach((service, index) => {
         const delay = 100 * (index + 1);
         const formattedPrice = service.name.toLowerCase().includes("ski škola")
-          ? `<sup>KM</sup>${service.price || '...'}<span> / sedmici</span>`
+          ? `<sup>KM</sup>${service.price || '...'}<span> / sedmica</span>`
           : `<sup>KM</sup>${service.price || '...'}<span> / sat</span>`;
         html += `
           <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="${delay}">
