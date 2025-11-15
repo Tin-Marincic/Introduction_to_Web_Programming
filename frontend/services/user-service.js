@@ -23,7 +23,6 @@ let UserService = {
 
 
 
-
     this.updateAuthButton();
 
     // LOGIN FORM SUBMIT
@@ -43,6 +42,30 @@ let UserService = {
         UserService.logout();
       }
     });
+
+      // Registration form submit
+$(document).on("submit", "#register-form", function (e) {
+  e.preventDefault();
+
+  console.log("[UserService] Register form submitted");
+
+  if (!$("#register-form").valid()) {
+    return;
+  }
+
+  const phoneInput = document.getElementById("phone");
+  const iti = window.intlTelInputGlobals.getInstance(phoneInput);
+
+  const user = {
+    name: $("#name").val().trim(),
+    surname: $("#surname").val().trim(),
+    username: $("#username").val().trim(),
+    phone: iti ? iti.getNumber() : $("#phone").val().trim(),
+    password: $("#password").val().trim()
+  };
+
+  UserService.register(user);
+});
   },
 
 login: function (entity) {
@@ -97,6 +120,7 @@ login: function (entity) {
       toastr.error(err.responseJSON?.error || "Registracija neuspješna.");
     });
   },
+
 
 
   logout: function () {
