@@ -324,63 +324,71 @@ app.route({
       InstructorPanelService.initAvailability();
     }
   });
-
 app.route({
   view: 'register',
   load: 'register.html',
   onReady: function () {
 
-    // ---------------------------
-    // 1. Initialize intl-tel-input
-    // ---------------------------
-    const phoneInput = document.getElementById("phone");
+    console.log("[Register Route] Loaded register.html");
 
-    let iti = null;
-    if (phoneInput) {
-      iti = window.intlTelInput(phoneInput, {
-        initialCountry: "ba",
-        preferredCountries: ["ba", "hr", "rs", "si", "de", "at", "ch"],
-        separateDialCode: true,
-        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
-      });
+    // -------------------------------------------------------------------
+    // 0. FULL RESET — VERY IMPORTANT
+    // -------------------------------------------------------------------
+    const form = $("#register-form");
+
+    if (form.length) {
+      form[0].reset();                 // clear inputs
+      form.removeClass("error");       // remove any error class
+
+      // reset validator if exists
+      if (form.data('validator')) {
+        form.validate().resetForm();   // clear error messages
+        form.validate().reset();       // reset internal state
+      }
     }
 
-    // ----------------------------------------
-    // 2. Custom validator for phone correctness
-    // ----------------------------------------
+    // -------------------------------------------------------------------
+    // 1. DESTROY OLD intl-tel-input IF IT EXISTS
+    // -------------------------------------------------------------------
+    const phoneEl = document.getElementById("phone");
+
+    const oldInstance = window.intlTelInputGlobals.getInstance(phoneEl);
+    if (oldInstance) {
+      oldInstance.destroy();
+      console.log("[Register Route] Old intl-tel-input destroyed");
+    }
+
+    // -------------------------------------------------------------------
+    // 2. CREATE NEW intl-tel-input INSTANCE
+    // -------------------------------------------------------------------
+    let iti = window.intlTelInput(phoneEl, {
+      initialCountry: "ba",
+      preferredCountries: ["ba", "hr", "rs", "si", "de", "at", "ch"],
+      separateDialCode: true,
+      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+    });
+
+    console.log("[Register Route] intl-tel-input initialized");
+
+    // -------------------------------------------------------------------
+    // 3. Custom validator for phone number
+    // -------------------------------------------------------------------
     $.validator.addMethod("phoneValid", function (value, element) {
-      const instance = intlTelInputGlobals.getInstance(element);
+      const instance = window.intlTelInputGlobals.getInstance(element);
       return instance && instance.isValidNumber();
     }, "Unesite ispravan broj telefona");
 
-    // ----------------------------
-    // 3. jQuery Form Validation
-    // ----------------------------
-    $("#register-form").validate({
+    // -------------------------------------------------------------------
+    // 4. APPLY FRESH VALIDATION (NO EVENT HANDLERS HERE)
+    // -------------------------------------------------------------------
+    form.off().validate({
       rules: {
-        name: {
-          required: true,
-          minlength: 3
-        },
-        surname: {
-          required: true,
-          minlength: 3
-        },
-        username: {
-          required: true,
-          email: true
-        },
-        phone: {
-          required: true,
-          phoneValid: true
-        },
-        password: {
-          required: true,
-          minlength: 8,
-          maxlength: 16
-        }
+        name: { required: true, minlength: 3 },
+        surname: { required: true, minlength: 3 },
+        username: { required: true, email: true },
+        phone: { required: true, phoneValid: true },
+        password: { required: true, minlength: 8, maxlength: 16 }
       },
-
       messages: {
         name: {
           required: 'Unesite ime',
@@ -406,39 +414,10 @@ app.route({
       }
     });
 
-    // ----------------------------
-    // 4. Submit Registration Form
-    // ----------------------------
-    $("#register-form").on("submit", function (e) {
-      e.preventDefault();
-
-      if (!$("#register-form").valid()) {
-        return;
-      }
-
-      const fullPhone = iti ? iti.getNumber() : $("#phone").val();
-
-      const user = {
-        name: $("#name").val().trim(),
-        surname: $("#surname").val().trim(),
-        username: $("#username").val().trim(),
-        phone: fullPhone,
-        password: $("#password").val().trim()
-      };
-
-
-      RestClient.post("auth/register", user,
-        function () {
-          toastr.success("Registracija uspješna! Možete se prijaviti.");
-          window.location.hash = "#sign_in";
-        },
-        function (err) {
-          toastr.error(err.responseJSON?.error || "Registracija neuspješna.");
-          console.error(err);
-        }
-      );
-    });
-
+    // -------------------------------------------------------------------
+    // 5. 🚫 IMPORTANT: NO SUBMIT HANDLER HERE
+    //    Submit is handled ONLY in UserService
+    // -------------------------------------------------------------------
   }
 });
 
