@@ -1,8 +1,7 @@
 <section class="instructor-panel">
     <div class="container">
 
-        <div class="instructor-header" id="instructor-header">
-        </div>
+        <div class="instructor-header" id="instructor-header"></div>
 
         <div class="summary-cards">
             <div class="card">
@@ -31,19 +30,25 @@
             <tbody></tbody>
         </table>
 
+        <!-- ✅ NEW AVAILABILITY UI -->
         <div class="availability-calendar">
             <h3>Namjestite svoju dostupnost (koje dane zelite biti dostupni za rad)</h3>
-            <div class="week-days">
-                <button type="button" class="day-toggle" data-day="monday">Ponedjeljak</button>
-                <button type="button" class="day-toggle" data-day="tuesday">Utorak</button>
-                <button type="button" class="day-toggle" data-day="wednesday">Srijeda</button>
-                <button type="button" class="day-toggle" data-day="thursday">Cetvrtak</button>
-                <button type="button" class="day-toggle" data-day="friday">Petak</button>
-                <button type="button" class="day-toggle" data-day="saturday">Subota</button>
-                <button type="button" class="day-toggle" data-day="sunday">Nedjelja</button>
+
+            <!-- CURRENT WEEK -->
+            <div class="week-container">
+                <h4>Ova sedmica</h4>
+                <div class="week-days this-week"></div>
             </div>
+
+            <!-- NEXT WEEK -->
+            <div class="week-container">
+                <h4>Sljedeća sedmica</h4>
+                <div class="week-days next-week"></div>
+            </div>
+
             <button type="button" class="save-availability">Spasite Dostupnost</button>
         </div>
+
     </div>
 </section>
 

@@ -2416,6 +2416,16 @@ section,
 /*--------------------------------------------------------------
 # Admin panel
 --------------------------------------------------------------*/
+/* Make ski school bookings scrollable like instructor bookings */
+#ski-school-bookings {
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Also any table inside ski-school-bookings */
+#ski-school-bookings table {
+  min-width: 600px; /* prevents squeezing on small screens */
+}
 
 .admin-panel {
   font-family: 'Arial', sans-serif;
