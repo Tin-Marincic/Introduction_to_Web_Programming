@@ -21,59 +21,6 @@ let UserService = {
       }
     });
 
-$("#register-form").validate({
-    rules: {
-        name: {
-            required: true,
-            minlength: 3
-        },
-        surname: {
-            required: true,
-            minlength: 3
-        },
-        username: {
-            required: true,
-            email: true
-        },
-        phone: {
-            required: true,
-            digits: true, 
-            minlength: 8,
-            maxlength: 15
-        },
-        password: {
-            required: true,
-            minlength: 8,
-            maxlength: 16
-        }
-    },
-    messages: {
-      name: {
-        required: 'Unesite ime',
-        minlength: 'Ime mora imati najmanje 3 karaktera'
-      },
-      surname: {
-        required: 'Unesite prezime',
-        minlength: 'Prezime mora imati najmanje 3 karaktera'
-      },
-      username: {
-        required: 'Unesite svoj email',
-        email: 'Unesite ispravnu email adresu'
-      },
-      phone: {
-        required: 'Unesite broj telefona',
-        digits: 'Dozvoljeni su samo brojevi',
-        minlength: 'Broj telefona mora imati najmanje 8 cifara',
-        maxlength: 'Broj telefona ne može imati više od 15 cifara'
-      },
-      password: {
-        required: 'Unesite lozinku',
-        minlength: 'Lozinka mora imati najmanje 8 karaktera',
-        maxlength: 'Lozinka ne može imati više od 16 karaktera'
-      }
-    }
-
-});
 
 
 
