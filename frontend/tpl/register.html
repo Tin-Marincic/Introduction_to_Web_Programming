@@ -4,40 +4,45 @@
             <div class="col-lg-6 offset-lg-3">
                 <div class="form-box" data-aos="fade-up">
                     <h3 class="text-center">Registrujte se sa Unisportom</h3>
+
                     <form id="register-form">
+
                         <div class="form-group">
                             <label for="name">Ime</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
+
                         <div class="form-group">
                             <label for="surname">Prezime</label>
                             <input type="text" class="form-control" id="surname" name="surname" required>
                         </div>
+
+                        <!-- UPDATED FIELD (email instead of username) -->
                         <div class="form-group">
-                            <label for="username">Email</label>
-                            <input type="email" class="form-control" id="username" name="username" required>
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" autocomplete="off"
+                                required>
                         </div>
+
                         <div class="form-group">
                             <label for="phone">Broj Telefona</label>
                             <input type="tel" id="phone" name="phone" class="form-control" required>
                         </div>
-                        <div class="form-group position-relative">
-                            <label for="password">Lozinka</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
 
-                            <!-- eye icon -->
-                            <span id="togglePassword" class="bi bi-eye-fill" style="position: absolute; 
-                 right: 12px; 
-                 top: 38px; 
-                 cursor: pointer; 
-                 font-size: 1.2rem; 
-                 color: #666;">
+                        <!-- PASSWORD -->
+                        <div class="form-group position-relative">
+                            <label for="register-password">Lozinka</label>
+                            <input type="password" class="form-control" id="register-password" name="password" required>
+
+                            <span id="toggleRegisterPassword" class="bi bi-eye-slash-fill"
+                                style="position:absolute; right:12px; top:38px; cursor:pointer; font-size:1.2rem; color:#666;">
                             </span>
                         </div>
 
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Registruj se</button>
                         </div>
+
                     </form>
                 </div>
             </div>
