@@ -416,28 +416,29 @@ app.route({
         return;
       }
 
-      // get full phone number with prefix
       const fullPhone = iti ? iti.getNumber() : $("#phone").val();
 
       const user = {
         name: $("#name").val().trim(),
         surname: $("#surname").val().trim(),
         username: $("#username").val().trim(),
-        phone: fullPhone,          // SENDS +387XXXXXXXX
+        phone: fullPhone,
         password: $("#password").val().trim()
       };
 
-      RestClient.request("auth/register", "POST", user,
+
+      RestClient.post("auth/register", user,
         function () {
           toastr.success("Registracija uspješna! Možete se prijaviti.");
           window.location.hash = "#sign_in";
         },
         function (err) {
-          toastr.error("Registracija neuspješna. Provjerite podatke.");
+          toastr.error(err.responseJSON?.error || "Registracija neuspješna.");
           console.error(err);
         }
       );
     });
+
   }
 });
 
