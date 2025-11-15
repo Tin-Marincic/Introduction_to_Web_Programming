@@ -1854,14 +1854,14 @@ section,
   padding: 1px 0 3px 0;
 }
 
-
-
 /*--------------------------------------------
 #Sign_in section
 ---------------------------------------------*/
-#sign_in{
+#sign_in {
   padding: 5%;
 }
+
+/* SIGN-IN FORM CONTAINER */
 .sign-in-form .form-box {
   padding: 20px;
   background: #fff;
@@ -1873,27 +1873,58 @@ section,
   font-weight: bold;
 }
 
-.sign-in-form input[type="username"],
+/* Needed for eye icon */
+.sign-in-form .form-group {
+  position: relative;
+}
+
+/* SINGLE CLEAN INPUT RULE (same as register) */
+.sign-in-form input[type="email"],
 .sign-in-form input[type="password"] {
   margin-bottom: 15px;
   border-radius: 4px;
   border: 1px solid #ccc;
+  padding: 0.375rem 0.75rem;
+  padding-right: 40px;     /* space for icon */
+  height: 38px;            /* match register exactly */
+  box-sizing: border-box;  /* ensure consistent height */
 }
 
+/* PERFECT ICON ALIGNMENT */
+#toggleLoginPassword {
+  position: absolute;
+  right: 12px;
+  top: 73%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+}
+
+
+/* LOGIN BUTTON */
 .sign-in-form button {
   width: 100%;
   padding: 10px;
   border-radius: 4px;
 }
 
+/* LINKS */
 .sign-in-form a {
   color: #007bff;
   text-decoration: none;
 }
-
 .sign-in-form a:hover {
   text-decoration: underline;
 }
+
+/* SIGN-IN LABELS */
+.sign-in-form .form-group label {
+  display: block;
+  margin-bottom: 6px;   /* ← MATCHES REGISTER! */
+}
+
+
 /*--------------------------------------------
 #Register section
 ---------------------------------------------*/

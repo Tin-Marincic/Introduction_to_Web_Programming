@@ -111,6 +111,9 @@ app.route({
 
         const form = $("#login-form");
 
+        /* --------------------------------------------
+           RESET FORM AND VALIDATOR
+        ---------------------------------------------*/
         if (form.length) {
             form[0].reset();
 
@@ -121,6 +124,9 @@ app.route({
             }
         }
 
+        /* --------------------------------------------
+           INITIALIZE VALIDATION
+        ---------------------------------------------*/
         form.off().validate({
             rules: {
                 username: { required: true, email: true },
@@ -139,8 +145,26 @@ app.route({
             }
         });
 
+        /* --------------------------------------------
+           LOGIN PASSWORD VISIBILITY TOGGLE
+        ---------------------------------------------*/
+        $(document)
+            .off("click.loginToggle")
+            .on("click.loginToggle", "#toggleLoginPassword", function () {
+
+                const field = $("#password");
+                const hidden = field.attr("type") === "password";
+
+                field.attr("type", hidden ? "text" : "password");
+
+                $(this)
+                    .toggleClass("bi-eye-fill", hidden)
+                    .toggleClass("bi-eye-slash-fill", !hidden);
+            });
+
     }
 });
+
 
   app.route({
   view: 'admin_panel',
