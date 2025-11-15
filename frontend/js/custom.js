@@ -102,7 +102,6 @@ function updateBookingView() {
 
 
   app.route({ view: 'sign_in', load: 'sign_in.html' });
-  app.route({ view: 'register', load: 'register.html' });
 
   app.route({
   view: 'admin_panel',
@@ -215,6 +214,13 @@ app.route({
     disableHiddenFields();
     toggleBookingOptions();
 
+        // ⭐ Custom validator for intl-tel-input
+    $.validator.addMethod("phoneValid", function (value, element) {
+      const instance = intlTelInputGlobals.getInstance(element);
+      return instance && instance.isValidNumber();
+    }, "Unesite ispravan broj telefona");
+
+
     // 🔥 Now the form exists, so validator attaches correctly
     $("#bookingForm").validate({
       ignore: ":hidden",
@@ -231,7 +237,7 @@ app.route({
         },
         phoneNumber: {
           required: function () { return $("#sessionType").val() === "skiSchool"; },
-          minlength: 6
+          phoneValid: true
         },
         week: {
           required: function () { return $("#sessionType").val() === "skiSchool"; }
@@ -269,10 +275,7 @@ app.route({
 
         firstName: "Unesite ime",
         lastName: "Unesite prezime",
-        phoneNumber: {
-          required: "Unesite broj telefona",
-          minlength: "Broj telefona je prekratak"
-        },
+        phoneNumber: "Unesite broj telefona",
         week: "Izaberite sedmicu",
         ageGroup: "Izaberite dobnu skupinu",
         skiLevel: "Izaberite nivo",
@@ -322,66 +325,118 @@ app.route({
     }
   });
 
-  app.route({
+app.route({
   view: 'register',
   load: 'register.html',
   onReady: function () {
 
-$("#register-form").validate({
-  rules: {
-    name: { required: true, minlength: 2 },
-    surname: { required: true, minlength: 2 },
-    username: { required: true, email: true },
-    phone: {
-      required: true,
-      digits: true,
-      minlength: 8,
-      maxlength: 15
-    },
-    password: { required: true, minlength: 3, maxlength: 16 },
-    "confirm-password": { equalTo: "#password" }
-  },
-  messages: {
-    name: { required: 'Molim Vas upisite ime' },
-    surname: { required: 'Molim Vas upisite prezime' },
-    username: {
-      required: 'Molim Vas upisite email',
-      email: 'Molim Vas upisite validnu email adresu'
-    },
-    phone: {
-      required: 'Molim Vas upisite broj telefona',
-      digits: 'Samo su cifre dozvoljene',
-      minlength: 'Broj telefona mora imati najmanje 8 cifara',
-      maxlength: 'Broj telefona ne moze biti duzi od 15 cifara'
-    },
-    password: {
-      required: 'Molim Vas upisite Vasu lozinku',
-      minlength: 'Lozinka mora imati najmanje 3 karaktera',
-      maxlength: 'Lozinka ne može biti duža od 16 karaktera'
-    },
-    "confirm-password": {
-      equalTo: 'Passwords do not match'
+    // ---------------------------
+    // 1. Initialize intl-tel-input
+    // ---------------------------
+    const phoneInput = document.getElementById("phone");
+
+    let iti = null;
+    if (phoneInput) {
+      iti = window.intlTelInput(phoneInput, {
+        initialCountry: "ba",
+        preferredCountries: ["ba", "hr", "rs", "si", "de", "at", "ch"],
+        separateDialCode: true,
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+      });
     }
-  }
-});
 
+    // ----------------------------------------
+    // 2. Custom validator for phone correctness
+    // ----------------------------------------
+    $.validator.addMethod("phoneValid", function (value, element) {
+      const instance = intlTelInputGlobals.getInstance(element);
+      return instance && instance.isValidNumber();
+    }, "Unesite ispravan broj telefona");
 
+    // ----------------------------
+    // 3. jQuery Form Validation
+    // ----------------------------
+    $("#register-form").validate({
+      rules: {
+        name: {
+          required: true,
+          minlength: 3
+        },
+        surname: {
+          required: true,
+          minlength: 3
+        },
+        username: {
+          required: true,
+          email: true
+        },
+        phone: {
+          required: true,
+          phoneValid: true
+        },
+        password: {
+          required: true,
+          minlength: 8,
+          maxlength: 16
+        }
+      },
+
+      messages: {
+        name: {
+          required: 'Unesite ime',
+          minlength: 'Ime mora imati najmanje 3 karaktera'
+        },
+        surname: {
+          required: 'Unesite prezime',
+          minlength: 'Prezime mora imati najmanje 3 karaktera'
+        },
+        username: {
+          required: 'Unesite svoj email',
+          email: 'Unesite ispravnu email adresu'
+        },
+        phone: {
+          required: 'Unesite broj telefona',
+          phoneValid: 'Unesite ispravan broj telefona'
+        },
+        password: {
+          required: 'Unesite lozinku',
+          minlength: 'Lozinka mora imati najmanje 8 karaktera',
+          maxlength: 'Lozinka ne može imati više od 16 karaktera'
+        }
+      }
+    });
+
+    // ----------------------------
+    // 4. Submit Registration Form
+    // ----------------------------
     $("#register-form").on("submit", function (e) {
       e.preventDefault();
-      console.log("[UserService] Register form submitted");
 
       if (!$("#register-form").valid()) {
-        console.warn("[UserService] Register form validation failed");
         return;
       }
 
-      const entity = Object.fromEntries(new FormData(this).entries());
-      console.log("Raw registration form data:", entity);
+      // get full phone number with prefix
+      const fullPhone = iti ? iti.getNumber() : $("#phone").val();
 
-      delete entity["confirm-password"];
-      console.log("Cleaned registration entity:", entity);
+      const user = {
+        name: $("#name").val().trim(),
+        surname: $("#surname").val().trim(),
+        username: $("#username").val().trim(),
+        phone: fullPhone,          // SENDS +387XXXXXXXX
+        password: $("#password").val().trim()
+      };
 
-      UserService.register(entity);
+      RestClient.request("auth/register", "POST", user,
+        function () {
+          toastr.success("Registracija uspješna! Možete se prijaviti.");
+          window.location.hash = "#sign_in";
+        },
+        function (err) {
+          toastr.error("Registracija neuspješna. Provjerite podatke.");
+          console.error(err);
+        }
+      );
     });
   }
 });

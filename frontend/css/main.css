@@ -948,6 +948,77 @@ section,
   }
 }
 
+/* -----------------------------------------
+   RESPONSIVE HERO TEXT (Fixes H2 on mobile)
+------------------------------------------*/
+
+/* Large screens (default stays same) */
+.hero h2 {
+  font-size: 40px;
+  line-height: 1.2;
+}
+
+/* Medium screens */
+@media (max-width: 992px) {
+  .hero h2 {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+}
+
+/* Small tablets & large phones */
+@media (max-width: 768px) {
+  .hero h2 {
+    font-size: 28px;
+    padding: 0 10px;
+    line-height: 1.25;
+  }
+
+  .hero p {
+    font-size: 14px;
+    padding: 0 15px;
+  }
+
+  .hero .carousel {
+    min-height: calc(100vh - 70px);
+  }
+}
+
+/* Phones */
+@media (max-width: 576px) {
+  .hero h2 {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+
+  .hero p {
+    font-size: 13px;
+  }
+
+  .hero .btn-get-started {
+    padding: 6px 22px;
+    font-size: 14px;
+  }
+}
+
+/* Small phones (iPhone SE, old Androids) */
+@media (max-width: 420px) {
+  .hero h2 {
+    font-size: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+
 /* Gallery Section */
 #gallery {
   padding: 60px 0;
@@ -1863,6 +1934,16 @@ section,
   text-decoration: underline;
 }
 
+#register-form .intl-tel-input {
+  width: 100%;
+  display: block !important;
+}
+
+#register-form .form-group label {
+  display: block;
+  margin-bottom: 6px;
+}
+
 /*--------------------------------------------------------------
 # Contact Section
 --------------------------------------------------------------*/
@@ -2300,8 +2381,7 @@ section,
 -----------------------------------------*/
 
 #firstName,
-#lastName,
-#phoneNumber {
+#lastName {
   background: #fafafa !important;
   border: 1px solid #d8d8d8 !important;
   padding: 12px !important;
@@ -2313,8 +2393,7 @@ section,
 }
 
 #firstName:focus,
-#lastName:focus,
-#phoneNumber:focus {
+#lastName:focus {
   border-color: #da3722 !important;
   box-shadow: 0 0 0 3px rgba(218,55,34,0.15) !important;
   background: #fff !important;
@@ -2322,16 +2401,17 @@ section,
 
 /* Better spacing for these 3 form groups */
 #firstName,
-#lastName,
-#phoneNumber {
+#lastName {
   margin-top: 4px;
 }
 
 #firstName::placeholder,
-#lastName::placeholder,
-#phoneNumber::placeholder {
+#lastName::placeholder{
   color: #999;
 }
+
+
+
 
 /*--------------------------------------------------------------
 # Admin panel

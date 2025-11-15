@@ -57,7 +57,7 @@ let AdminPanelService = {
   if (!confirm("Jeste li sigurni da želite obrisati ovu uslugu?")) return;
 
     RestClient.delete(`bookings/${id}`, {}, function(response) {
-        toastr.success(response.message || "Booking deleted.");
+        toastr.success(response.message || "Rezervacija uspjesno obrisana.");
         AdminPanelService.loadInstructorBookings();
         AdminPanelService.loadSkiSchoolBookings();
     }, function(err) {
