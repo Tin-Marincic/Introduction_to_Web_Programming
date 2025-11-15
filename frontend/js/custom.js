@@ -101,7 +101,46 @@ function updateBookingView() {
 });
 
 
-  app.route({ view: 'sign_in', load: 'sign_in.html' });
+app.route({
+    view: "sign_in",
+    load: "sign_in.html",
+    cache: false,
+    onReady: function () {
+
+        console.log("[Sign-In Route] Loaded sign_in.html");
+
+        const form = $("#login-form");
+
+        if (form.length) {
+            form[0].reset();
+
+            if (form.data("validator")) {
+                let v = form.validate();
+                v.resetForm();
+                v.reset();
+            }
+        }
+
+        form.off().validate({
+            rules: {
+                username: { required: true, email: true },
+                password: { required: true, minlength: 3, maxlength: 16 }
+            },
+            messages: {
+                username: {
+                    required: "Unesite svoj email",
+                    email: "Unesite ispravnu email adresu"
+                },
+                password: {
+                    required: "Unesite svoju lozinku",
+                    minlength: "Lozinka mora imati najmanje 3 karaktera",
+                    maxlength: "Lozinka ne može imati više od 16 karaktera"
+                }
+            }
+        });
+
+    }
+});
 
   app.route({
   view: 'admin_panel',
@@ -325,123 +364,97 @@ app.route({
     }
   });
 app.route({
-  view: 'register',
-  load: 'register.html',
-  onReady: function () {
+    view: "register",
+    load: "register.html",
+    cache: false,
+    onReady: function () {
 
-    console.log("[Register Route] Loaded register.html");
+        console.log("[Register Route] Loaded register.html");
 
-    // -------------------------------------------------------------------
-    // 0. FULL RESET — VERY IMPORTANT
-    // -------------------------------------------------------------------
-    const form = $("#register-form");
+        // Attach SPA delegated handlers (login, register, logout)
+        UserService.init();
 
-    if (form.length) {
-      form[0].reset();                 // clear inputs
-      form.removeClass("error");       // remove any error class
+        const form = $("#register-form");
+        const phoneEl = document.getElementById("phone");
 
-      // reset validator if exists
-      if (form.data('validator')) {
-        form.validate().resetForm();   // clear error messages
-        form.validate().reset();       // reset internal state
-      }
-    }
-
-    // -------------------------------------------------------------------
-    // 1. DESTROY OLD intl-tel-input IF IT EXISTS
-    // -------------------------------------------------------------------
-    const phoneEl = document.getElementById("phone");
-
-    const oldInstance = window.intlTelInputGlobals.getInstance(phoneEl);
-    if (oldInstance) {
-      oldInstance.destroy();
-      console.log("[Register Route] Old intl-tel-input destroyed");
-    }
-
-    // -------------------------------------------------------------------
-    // 2. CREATE NEW intl-tel-input INSTANCE
-    // -------------------------------------------------------------------
-    let iti = window.intlTelInput(phoneEl, {
-      initialCountry: "ba",
-      preferredCountries: ["ba", "hr", "rs", "si", "de", "at", "ch"],
-      separateDialCode: true,
-      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
-    });
-
-    console.log("[Register Route] intl-tel-input initialized");
-
-    // -------------------------------------------------------------------
-    // 3. Custom validator for phone number
-    // -------------------------------------------------------------------
-    $.validator.addMethod("phoneValid", function (value, element) {
-      const instance = window.intlTelInputGlobals.getInstance(element);
-      return instance && instance.isValidNumber();
-    }, "Unesite ispravan broj telefona");
-
-    // -------------------------------------------------------------------
-    // 4. APPLY FRESH VALIDATION (NO EVENT HANDLERS HERE)
-    // -------------------------------------------------------------------
-    form.off().validate({
-      rules: {
-        name: { required: true, minlength: 3 },
-        surname: { required: true, minlength: 3 },
-        username: { required: true, email: true },
-        phone: { required: true, phoneValid: true },
-        password: { required: true, minlength: 8, maxlength: 16 }
-      },
-      messages: {
-        name: {
-          required: 'Unesite ime',
-          minlength: 'Ime mora imati najmanje 3 karaktera'
-        },
-        surname: {
-          required: 'Unesite prezime',
-          minlength: 'Prezime mora imati najmanje 3 karaktera'
-        },
-        username: {
-          required: 'Unesite svoj email',
-          email: 'Unesite ispravnu email adresu'
-        },
-        phone: {
-          required: 'Unesite broj telefona',
-          phoneValid: 'Unesite ispravan broj telefona'
-        },
-        password: {
-          required: 'Unesite lozinku',
-          minlength: 'Lozinka mora imati najmanje 8 karaktera',
-          maxlength: 'Lozinka ne može imati više od 16 karaktera'
+        /* --------------------------------------------
+           1) RESET VALIDATOR ONLY (DO NOT RESET FORM!)
+        ---------------------------------------------*/
+        if (form.data("validator")) {
+            const v = form.validate();
+            v.resetForm(); // only clears error messages, not values
         }
-      }
-    });
 
-    // -------------------------------------------------------------------
-    // 5. 🚫 IMPORTANT: NO SUBMIT HANDLER HERE
-    //    Submit is handled ONLY in UserService
-    // -------------------------------------------------------------------
+        /* --------------------------------------------
+           2) INIT VALIDATOR FIRST (before phone plugin)
+        ---------------------------------------------*/
+        initValidator();
 
-    // -------------------------------------------------------------------
-// 6. Password Visibility Toggle
-// -------------------------------------------------------------------
-// -------------------------------------------------------------------
-// 6. Password Visibility Toggle (SPA-safe delegated binding)
-// -------------------------------------------------------------------
-$(document)
-  .off("click", "#togglePassword")
-  .on("click", "#togglePassword", function () {
+        function initValidator() {
+            console.log("[Register Route] Validator READY");
 
-    const passwordField = $("#password");
-    const type = passwordField.attr("type") === "password" ? "text" : "password";
+            $.validator.addMethod(
+                "phoneValid",
+                function (value, element) {
+                    const inst = window.intlTelInputGlobals.getInstance(element);
+                    return inst && inst.isValidNumber();
+                },
+                "Unesite ispravan broj telefona"
+            );
 
-    passwordField.attr("type", type);
+            form.validate({
+                rules: {
+                    name: { required: true, minlength: 3 },
+                    surname: { required: true, minlength: 3 },
+                    email: { required: true, email: true }, // FIXED
+                    phone: { required: true, phoneValid: true },
+                    password: { required: true, minlength: 8, maxlength: 16 }
+                },
+                messages: {
+                    name: { required: "Unesite ime" },
+                    surname: { required: "Unesite prezime" },
+                    email: { required: "Unesite svoj email" }, // FIXED
+                    phone: { required: "Unesite broj telefona" },
+                    password: { required: "Unesite lozinku" }
+                }
+            });
+        }
 
-    // toggle icon
-    $(this).toggleClass("bi-eye-fill bi-eye-slash-fill");
+        /* --------------------------------------------
+           3) DESTROY OLD intlTelInput INSTANCE
+        ---------------------------------------------*/
+        const oldInstance = window.intlTelInputGlobals.getInstance(phoneEl);
+        if (oldInstance) oldInstance.destroy();
+
+        /* --------------------------------------------
+           4) INIT PHONE INPUT LAST (async)
+        ---------------------------------------------*/
+        const iti = window.intlTelInput(phoneEl, {
+            initialCountry: "ba",
+            separateDialCode: true,
+            preferredCountries: ["ba", "hr", "rs", "si", "de", "at", "ch"],
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+        });
+
+        /* --------------------------------------------
+           5) PASSWORD VISIBILITY TOGGLE
+        ---------------------------------------------*/
+        $(document)
+            .off("click.registerToggle")
+            .on("click.registerToggle", "#toggleRegisterPassword", function () {
+
+                const field = $("#register-password");
+                const hidden = field.attr("type") === "password";
+
+                field.attr("type", hidden ? "text" : "password");
+
+                $(this)
+                    .toggleClass("bi-eye-fill", hidden)
+                    .toggleClass("bi-eye-slash-fill", !hidden);
+            });
+
+    }
 });
-
-  }
-});
-
-
 
   app.run();
 });
