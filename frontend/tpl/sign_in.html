@@ -4,40 +4,34 @@
             <div class="col-lg-6 offset-lg-3">
                 <div class="form-box" data-aos="fade-up">
                     <h3 class="text-center">Prijavite se sa Unisport</h3>
+
                     <form id="login-form" onsubmit="console.log('Form submitted');">
+
                         <div class="form-group">
                             <label for="username">Email</label>
                             <input type="email" class="form-control" id="username" name="username" required>
                         </div>
-                        <div class="form-group">
+
+                        <div class="form-group position-relative">
                             <label for="password">Lozinka</label>
                             <input type="password" class="form-control" id="password" name="password" required>
+
+                            <!-- 👁️ CLEAN, NO INLINE STYLE -->
+                            <span id="toggleLoginPassword" class="bi bi-eye-slash-fill"></span>
                         </div>
+
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Prijavi se</button>
                         </div>
+
                     </form>
+
                     <div class="text-center mt-3">
                         <p>Nemate profil? <a href="#register">Registruj se</a></p>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function () {
-            console.log('Sign in page loaded');
-            $('#login-form').on('submit', function (e) {
-                e.preventDefault();
-                console.log('Form submitted via jQuery');
-                const formData = {
-                    username: $('#username').val(),
-                    password: $('#password').val()
-                };
-                console.log('Form data:', formData);
-                UserService.login(formData);
-            });
-        });
-    </script>
 </section>
