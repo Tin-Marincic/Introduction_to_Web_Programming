@@ -418,6 +418,26 @@ app.route({
     // 5. 🚫 IMPORTANT: NO SUBMIT HANDLER HERE
     //    Submit is handled ONLY in UserService
     // -------------------------------------------------------------------
+
+    // -------------------------------------------------------------------
+// 6. Password Visibility Toggle
+// -------------------------------------------------------------------
+// -------------------------------------------------------------------
+// 6. Password Visibility Toggle (SPA-safe delegated binding)
+// -------------------------------------------------------------------
+$(document)
+  .off("click", "#togglePassword")
+  .on("click", "#togglePassword", function () {
+
+    const passwordField = $("#password");
+    const type = passwordField.attr("type") === "password" ? "text" : "password";
+
+    passwordField.attr("type", type);
+
+    // toggle icon
+    $(this).toggleClass("bi-eye-fill bi-eye-slash-fill");
+});
+
   }
 });
 
