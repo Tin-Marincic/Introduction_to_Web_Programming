@@ -22,5 +22,41 @@ class AuthDao extends BaseDao {
         return $this->query_unique($query, ['phone' => $phone]);
     }
 
+    public function setResetToken($email, $token, $expires) {
+    $stmt = $this->connection->prepare("
+        UPDATE users 
+        SET reset_token = :token, reset_expires = :expires 
+        WHERE username = :email
+    ");
+    $stmt->execute([
+        ':token' => $token,
+        ':expires' => $expires,
+        ':email' => $email
+    ]);
+}
+
+public function getUserByResetToken($token) {
+    $stmt = $this->connection->prepare("
+        SELECT * FROM users 
+        WHERE reset_token = :token 
+        AND reset_expires > NOW()
+    ");
+    $stmt->execute([':token' => $token]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function updatePassword($userId, $hashedPassword) {
+    $stmt = $this->connection->prepare("
+        UPDATE users 
+        SET password = :password, reset_token = NULL, reset_expires = NULL 
+        WHERE id = :id
+    ");
+    $stmt->execute([
+        ':password' => $hashedPassword,
+        ':id' => $userId
+    ]);
+}
+
+
 
 }

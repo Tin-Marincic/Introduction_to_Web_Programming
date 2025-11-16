@@ -92,4 +92,36 @@ public function register($data) {
 
        return ['success' => true, 'data' => array_merge($user, ['token' => $token])];             
    }
+
+   public function forgotPassword($email) {
+    $user = $this->auth_dao->get_user_by_email($email);
+
+    if (!$user) {
+        return ['success' => false, 'error' => 'Korisnik sa datim emailom ne postoji.'];
+    }
+
+    $token = bin2hex(random_bytes(32));
+    $expires = date("Y-m-d H:i:s", time() + 3600); // 1 hour
+
+    $this->auth_dao->setResetToken($email, $token, $expires);
+
+    require_once __DIR__ . '/../forms/emailUtil.php';
+    EmailUtil::sendPasswordResetEmail($email, $user['name'], $token);
+
+    return ['success' => true];
+}
+
+public function resetPassword($token, $newPassword) {
+    $user = $this->auth_dao->getUserByResetToken($token);
+
+    if (!$user) {
+        return ['success' => false, 'error' => 'Nevažeći ili istekao token.'];
+    }
+
+    $hashed = password_hash($newPassword, PASSWORD_BCRYPT);
+    $this->auth_dao->updatePassword($user['id'], $hashed);
+
+    return ['success' => true];
+}
+
 }
