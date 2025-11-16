@@ -523,18 +523,9 @@ app.route({
     onReady: function () {
         console.log("[Reset Password] Loaded reset_password.html");
 
-        /** -------------------------
-         *  TOKEN EXTRACTION
-         * ------------------------- */
-        let hash = window.location.hash;
-        let token = "";
-
-        if (hash.includes("token=")) {
-            token = hash.split("token=")[1];
-        }
-
-        window.resetToken = token; // store globally
-        console.log("Captured token:", token);
+        /** Token already extracted earlier */
+        const token = window.resetToken || "";
+        console.log("Token:", token);
 
         /** -------------------------
          *  PASSWORD VISIBILITY TOGGLE
@@ -545,10 +536,14 @@ app.route({
 
             if (isHidden) {
                 passwordField.attr("type", "text");
-                $(this).removeClass("bi-eye-slash-fill").addClass("bi-eye-fill");
+                $(this)
+                    .removeClass("bi-eye-slash-fill")
+                    .addClass("bi-eye-fill");
             } else {
                 passwordField.attr("type", "password");
-                $(this).removeClass("bi-eye-fill").addClass("bi-eye-slash-fill");
+                $(this)
+                    .removeClass("bi-eye-fill")
+                    .addClass("bi-eye-slash-fill");
             }
         });
 
@@ -571,7 +566,6 @@ app.route({
         });
     }
 });
-
 
 
   app.run();
