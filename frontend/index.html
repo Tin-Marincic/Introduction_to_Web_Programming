@@ -87,6 +87,8 @@
     <section id="register" data-load="tpl/register.html"></section>
     <section id="admin_panel" data-load="tpl/admin_panel.html"></section>
     <section id="instructor_panel" data-load="tpl/instructor_panel.html"></section>
+    <section id="forgot_password" data-load="tpl/forgot_password.html"></section>
+    <section id="reset_password" data-load="tpl/reset_password.html"></section>
   </main>
   <!-- End Main -->
 
@@ -153,6 +155,22 @@
 
 
   <!-- ========== SCRIPTS ========== -->
+
+  <script>
+    // Capture token BEFORE SPA routing
+    window.resetToken = null;
+
+    const originalHash = window.location.hash;
+
+    if (originalHash.startsWith("#reset_password/token=")) {
+      window.resetToken = originalHash.split("token=")[1];
+      // Force SPApp to load only the view
+      window.location.hash = "#reset_password";
+    }
+
+    console.log("Captured token:", window.resetToken);
+  </script>
+
 
   <!-- 1) jQuery core  -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>

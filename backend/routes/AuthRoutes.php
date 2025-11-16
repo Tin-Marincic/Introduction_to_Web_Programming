@@ -111,5 +111,35 @@ Flight::group('/auth', function() {
         }
 
    });
+
+
+   Flight::route("POST /forgot-password", function() {
+    $data = Flight::request()->data->getData();
+    $email = $data['email'] ?? '';
+
+    $response = Flight::auth_service()->forgotPassword($email);
+
+    if ($response['success']) {
+        Flight::json(['message' => 'Email za reset lozinke je poslan.']);
+    } else {
+        Flight::json(['error' => $response['error']], 400);
+    }
+});
+
+Flight::route("POST /reset-password", function() {
+    $data = Flight::request()->data->getData();
+
+    $token = $data['token'] ?? '';
+    $newPassword = $data['password'] ?? '';
+
+    $response = Flight::auth_service()->resetPassword($token, $newPassword);
+
+    if ($response['success']) {
+        Flight::json(['message' => 'Lozinka uspješno resetovana.']);
+    } else {
+        Flight::json(['error' => $response['error']], 400);
+    }
+});
+
 });
 ?>

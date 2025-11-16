@@ -60,9 +60,12 @@ Flight::route('/*', function () {
     $method = Flight::request()->method;
 
     // Public routes
+    // Public routes (no token required)
     if (
         $url === '/auth/login' ||
         $url === '/auth/register' ||
+        $url === '/auth/forgot-password' ||
+        $url === '/auth/reset-password' ||
         $url === '/test-connection' ||
         $url === '/check-env' ||
         ($url === '/reviews' && $method === 'GET') ||
@@ -71,6 +74,7 @@ Flight::route('/*', function () {
     ) {
         return true;
     }
+
 
     try {
         $headers = getallheaders();

@@ -1,3 +1,15 @@
+// Fix SPApp hash routing for reset password
+(function() {
+    let h = window.location.hash;
+
+    if (h.startsWith("#reset_password/")) {
+        // Force SPApp to load the correct view
+        window.location.hash = "#reset_password";
+    }
+})();
+
+
+
 $(document).ready(function() {
   var app = $.spapp({
     pageNotFound: 'error_404',
@@ -479,6 +491,88 @@ app.route({
 
     }
 });
+
+
+app.route({
+    view: "forgot_password",
+    load: "forgot_password.html",
+    cache: false,
+    onReady: function () {
+        console.log("[Forgot Password] Loaded forgot_password.html");
+
+        $("#forgot-form").on("submit", async function (e) {
+            e.preventDefault();
+
+            const email = $("#email").val();
+
+            const res = await fetch(backendBaseURL + "auth/forgot-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+            alert(data.message || data.error);
+        });
+    }
+});
+app.route({
+    view: "reset_password",
+    load: "reset_password.html",
+    cache: false,
+    onReady: function () {
+        console.log("[Reset Password] Loaded reset_password.html");
+
+        /** -------------------------
+         *  TOKEN EXTRACTION
+         * ------------------------- */
+        let hash = window.location.hash;
+        let token = "";
+
+        if (hash.includes("token=")) {
+            token = hash.split("token=")[1];
+        }
+
+        window.resetToken = token; // store globally
+        console.log("Captured token:", token);
+
+        /** -------------------------
+         *  PASSWORD VISIBILITY TOGGLE
+         * ------------------------- */
+        $(document).on("click", "#toggleResetPassword", function () {
+            const passwordField = $("#password");
+            const isHidden = passwordField.attr("type") === "password";
+
+            if (isHidden) {
+                passwordField.attr("type", "text");
+                $(this).removeClass("bi-eye-slash-fill").addClass("bi-eye-fill");
+            } else {
+                passwordField.attr("type", "password");
+                $(this).removeClass("bi-eye-fill").addClass("bi-eye-slash-fill");
+            }
+        });
+
+        /** -------------------------
+         *  FORM SUBMIT
+         * ------------------------- */
+        $("#reset-form").on("submit", async function (e) {
+            e.preventDefault();
+
+            const password = $("#password").val();
+
+            const res = await fetch(backendBaseURL + "auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, password })
+            });
+
+            const data = await res.json();
+            alert(data.message || data.error);
+        });
+    }
+});
+
+
 
   app.run();
 });
