@@ -383,11 +383,29 @@ public function blockDateRange($startDate, $endDate) {
 
 public function getBookingById($id) {
     $stmt = $this->connection->prepare("
-        SELECT b.*, u.name AS client_name, u.username AS client_email
+        SELECT 
+            b.*,
+
+            -- Client information
+            u1.name AS client_first_name,
+            u1.surname AS client_last_name,
+            CONCAT(u1.name, ' ', u1.surname) AS client_name,
+            u1.username AS client_email,
+
+            -- Instructor information
+            u2.name AS instructor_first_name,
+            u2.surname AS instructor_last_name,
+            CONCAT(u2.name, ' ', u2.surname) AS instructor_name,
+            u2.username AS instructor_email
+
         FROM bookings b
-        JOIN users u ON b.user_id = u.id
+        JOIN users u1 ON b.user_id = u1.id
+        LEFT JOIN users u2 ON b.instructor_id = u2.id
+
         WHERE b.id = :id
+        LIMIT 1
     ");
+
     $stmt->execute([':id' => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
