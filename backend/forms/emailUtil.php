@@ -153,26 +153,16 @@ class EmailUtil {
     }
 
     public static function sendPasswordResetEmail($email, $name, $token) {
-    $mail = new PHPMailer(true);
-
     try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'skolaskijanjaunisport@gmail.com';
-        $mail->Password = 'ezqc huvo idlq dyqy';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-
-        $mail->setFrom('skolaskijanjaunisport@gmail.com', 'Unisport Ski School');
+        // USE SAME MAILER CONFIG AS OTHER EMAILS
+        $mail = self::setupMailer();
         $mail->addAddress($email, $name);
 
-        // AUTO-SELECT CORRECT FRONTEND URL
+        // AUTO-SELECT FRONTEND URL
         $frontendURL = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false)
             ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend"
             : "https://unisport-frontend-rg53w.ondigitalocean.app";
 
-        // SPApp-compatible format (the only one that worked for you)
         $resetLink = "$frontendURL/#reset_password/token=$token";
 
         $mail->isHTML(true);
@@ -180,7 +170,7 @@ class EmailUtil {
 
         $mail->Body = "
             <p>Poštovani/Poštovana <strong>$name</strong>,</p>
-            <p>Kliknite na sljedeći link da resetujete vašu lozinku:</p>
+            <p>Kliknite na link da resetujete lozinku:</p>
             <p><a href='$resetLink'>$resetLink</a></p>
             <p>Link ističe za 1 sat.</p>
             <br>
@@ -191,8 +181,10 @@ class EmailUtil {
         return true;
 
     } catch (Exception $e) {
+        error_log("RESET PASSWORD EMAIL FAILED: " . $e->getMessage());
         return false;
     }
 }
+
 
 }
