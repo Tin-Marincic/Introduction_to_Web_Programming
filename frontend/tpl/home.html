@@ -116,4 +116,16 @@
 
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll("video.gallery-media").forEach(v => {
+                v.onended = () => {
+                    v.currentTime = 0;
+                    v.play();
+                };
+            });
+        });
+    </script>
+
 </section>
