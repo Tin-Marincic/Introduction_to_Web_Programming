@@ -106,6 +106,14 @@ class BookingService extends BaseService {
         return $bookingId;
     }
 
+    /* ============================================================
+        CHECK IF USER HAS BOOKINGS (for reviews)
+        ============================================================ */
+        public function userHasBooking($userId) {
+            return $this->dao->userHasBooking($userId);
+        }
+
+
 
     /* ============================================================
        CREATE SKI SCHOOL BOOKING
