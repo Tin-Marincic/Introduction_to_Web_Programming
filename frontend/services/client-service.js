@@ -58,12 +58,18 @@ const ClientLoader = {
     RestClient.get("users/instructor", function (instructors) {
       let html = "";
       const staticImages = {
-        "Vedad Saric": "Vedad.jpg",
-        "Haris Saric": "Haris.jpg",
-        "Ilma Catovic": "Ilma.jpg",
-        "Iman Sijercic": "Iman.jpg",
-        "Tin Marincic": "Tin.jpg",
-        "Muhamed Saric": "Saka.jpg"
+        "Vedad Šarić": "Vedad.jpg",
+        "Haris Šarić": "Haris.jpg",
+        "Ilma Ćatovic": "Ilma.jpg",
+        "Iman Sijerčić": "Iman.jpg",
+        "Tin Marinčić": "Tin.jpg",
+        "Muhamed Šarić": "Saka.jpg",
+        "Amila Bilal": "Amila Bilal Asistent Trenera.jpg",
+        "Anes Mešetović": "Anes Mešetović U1.jpg",
+        "Armin Muharemvoić": "Armin Muharemović U1.jpg",
+        "Edin Mujan": "Edin Mujan U1.jpg",
+        "Goran Crnoja": "Goran Crnoja.jpg",
+        "Jasmin Selimović": "Jasmin Selimović U1.jpg"
       };
       instructors.forEach((instructor, index) => {
         const fullName = `${instructor.name} ${instructor.surname}`;
@@ -75,7 +81,8 @@ const ClientLoader = {
               <div class="pic"><img src="assets/img/team/${imgFile}" class="img-fluid" alt=""></div>
               <div class="member-info">
                 <h4>${fullName}</h4>
-                <span>${instructor.licence} Instruktor</span>
+                <span>${instructor.licence}</span>
+                <h6>instruktor</h6>
                 <a href="#booking" class="btn btn-primary">Rezerviši sada</a>
               </div>
             </div>
