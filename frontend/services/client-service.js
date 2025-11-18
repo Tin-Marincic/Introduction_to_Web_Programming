@@ -60,16 +60,16 @@ const ClientLoader = {
       const staticImages = {
         "Vedad Šarić": "Vedad.jpg",
         "Haris Šarić": "Haris.jpg",
-        "Ilma Ćatovic": "Ilma.jpg",
+        "Ilma Ćatović": "Ilma.jpg",
         "Iman Sijerčić": "Iman.jpg",
         "Tin Marinčić": "Tin.jpg",
         "Muhamed Šarić": "Saka.jpg",
         "Amila Bilal": "Amila Bilal Asistent Trenera.jpg",
         "Anes Mešetović": "Anes Mešetović U1.jpg",
-        "Armin Muharemvoić": "Armin Muharemović U1.jpg",
+        "Armin Muharemović": "Armin Muharemović U1.jpg",
         "Edin Mujan": "Edin Mujan U1.jpg",
-        "Goran Crnoja": "Goran Crnoja.jpg",
-        "Jasmin Selimović": "Jasmin Selimović U1.jpg"
+        "Goran Crnoja": "Goran Crnoja U1.jpg",
+        "Jasmin Selimović": "Jasmin Selimović U1.jpg",
       };
       instructors.forEach((instructor, index) => {
         const fullName = `${instructor.name} ${instructor.surname}`;
