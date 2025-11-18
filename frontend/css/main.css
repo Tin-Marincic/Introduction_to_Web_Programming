@@ -2303,6 +2303,11 @@ section,
   margin-bottom: 20px;
 }
 
+/* Fix phone input flag alignment */
+.iti__selected-flag {
+  height:auto !important;
+}
+
 @media (max-width: 768px) {
   .booking-section {
     padding: 5%;
