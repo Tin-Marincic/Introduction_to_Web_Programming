@@ -70,6 +70,12 @@ const ClientLoader = {
         "Edin Mujan": "Edin Mujan U1.jpg",
         "Goran Crnoja": "Goran Crnoja U1.jpg",
         "Jasmin Selimović": "Jasmin Selimović U1.jpg",
+        "Amila Fejzić": "amila fejzic.jpg",
+        "Anes Škamo": "Anes Škamo.jpg",
+        "Armina Džigal": "Džigal Armina.jpg",
+        "Nermin Mehmedić": "Nermin Mehmedić.jpg",
+        "Sara Ibrica": "Sara Ibrica.jpg",
+        "Zerina Čajić": "zerina cajic.jpg"
       };
       instructors.forEach((instructor, index) => {
         const fullName = `${instructor.name} ${instructor.surname}`;
