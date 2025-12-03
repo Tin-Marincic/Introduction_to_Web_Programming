@@ -545,6 +545,10 @@ app.route({
             e.preventDefault();
 
             const email = $("#email").val();
+            const msgBox = $("#forgot-msg");
+
+            // Clear previous message
+            msgBox.hide().removeClass("alert-success alert-danger");
 
             const res = await fetch(backendBaseURL + "auth/forgot-password", {
                 method: "POST",
@@ -553,10 +557,25 @@ app.route({
             });
 
             const data = await res.json();
-            alert(data.message || data.error);
+
+            // Success
+            if (res.ok) {
+                msgBox
+                    .addClass("alert-success")
+                    .text("Ako postoji nalog sa ovom email adresom, poslat je link za resetovanje lozinke.")
+                    .fadeIn();
+            }
+            // Error
+            else {
+                msgBox
+                    .addClass("alert-danger")
+                    .text(data.error || "Došlo je do greške. Molimo pokušajte ponovo.")
+                    .fadeIn();
+            }
         });
     }
 });
+
 app.route({
     view: "reset_password",
     load: "reset_password.html",
