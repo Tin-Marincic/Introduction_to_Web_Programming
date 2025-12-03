@@ -65,7 +65,7 @@ class BookingDao extends BaseDao {
         foreach ($availability as $weekRange => $availableSpots) {
             $formattedResults[] = [
                 'Week' => $weekRange,
-                'Available Spots' => "{$availableSpots} spots available"
+                'Available Spots' => "{$availableSpots} mjesta slobodno"
             ];
         }
 
