@@ -16,7 +16,7 @@ let AdminPanelService = {
             <td>
               <button class="btn btn-danger btn-sm" 
                 onclick="AdminPanelService.editService(${service.id}, '${service.name.replace(/'/g, "\\'")}', decodeURIComponent('${encodeURIComponent(service.description || "")}'), '${service.price || ""}')">
-                Edit
+                Uredi
               </button>
               <button class="btn btn-outline-danger btn-sm" 
                 onclick="AdminPanelService.deleteService(${service.id})">Obriši</button>
