@@ -16,7 +16,7 @@ class EmailUtil {
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
         $mail->Username = 'skolaskijanjaunisport@gmail.com';
-        $mail->Password = 'ezqc huvo idlq dyqy';   // App Password
+        $mail->Password = 'nxeq xpsm qphx wavt';   // App Password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 

@@ -70,7 +70,7 @@ try {
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
     $mail->Username = 'skolaskijanjaunisport@gmail.com'; 
-    $mail->Password = 'ezqc huvo idlq dyqy';        
+    $mail->Password = 'nxeq xpsm qphx wavt';        
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
