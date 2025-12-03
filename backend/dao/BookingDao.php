@@ -39,16 +39,16 @@ class BookingDao extends BaseDao {
             FROM bookings
             WHERE session_type = 'Ski_school'
             GROUP BY week
-            ORDER BY FIELD(week, 'week1', 'week2', 'week3', 'week4')
+            ORDER BY FIELD(week, 'sedmica_1', 'sedmica_2', 'sedmica_3', 'sedmica_4')
         ");
         $stmt->execute();
         $results = $stmt->fetchAll();
 
         $weeks = [
-            'week1' => 'Jan 5–9',
-            'week2' => 'Jan 12–16',
-            'week3' => 'Jan 19–23',
-            'week4' => 'Jan 26–30'
+            'sedmica_1' => 'Jan 5–9',
+            'sedmica_2' => 'Jan 12–16',
+            'sedmica_3' => 'Jan 19–23',
+            'sedmica_4' => 'Jan 26–30'
         ];
 
         $availability = [];
@@ -227,7 +227,7 @@ public function getSkiSchoolBookingsByWeek() {
         JOIN users u ON b.user_id = u.id
         WHERE b.session_type = 'Ski_school'
         ORDER BY 
-            FIELD(b.week, 'week1', 'week2', 'week3', 'week4'),
+            FIELD(b.week, 'sedmica_1', 'sedmica_2', 'sedmica_3', 'sedmica_4'),
             b.age_group ASC,
             b.date ASC
     ");
@@ -236,10 +236,10 @@ public function getSkiSchoolBookingsByWeek() {
 
     // Group results by week
     $grouped = [
-        'week1' => [],
-        'week2' => [],
-        'week3' => [],
-        'week4' => []
+        'sedmica_1' => [],
+        'sedmica_2' => [],
+        'sedmica_3' => [],
+        'sedmica_4' => []
     ];
 
     foreach ($results as $row) {
