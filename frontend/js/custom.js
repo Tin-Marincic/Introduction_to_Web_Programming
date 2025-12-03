@@ -289,12 +289,50 @@ app.route({
     disableHiddenFields();
     toggleBookingOptions();
 
-        // ⭐ Custom validator for intl-tel-input
+    // ⭐ Limit dateOfBirth in the date picker (HTML min/max)
+    const dobInput = document.getElementById("dateOfBirth");
+    if (dobInput) {
+      const today = new Date();
+      const maxDate = today.toISOString().split("T")[0];
+
+      const minDateObj = new Date();
+      minDateObj.setFullYear(minDateObj.getFullYear() - 70);
+      const minDate = minDateObj.toISOString().split("T")[0];
+
+      dobInput.setAttribute("min", minDate);
+      dobInput.setAttribute("max", maxDate);
+    }
+
+    // ⭐ Custom validator for intl-tel-input
     $.validator.addMethod("phoneValid", function (value, element) {
       const instance = intlTelInputGlobals.getInstance(element);
       return instance && instance.isValidNumber();
     }, "Unesite ispravan broj telefona");
 
+    // ⭐ Custom validator for date of birth
+    $.validator.addMethod("validBirthDate", function (value, element) {
+      // If not ski school → ignore
+      if ($("#sessionType").val() !== "skiSchool") return true;
+      if (!value) return false;
+
+      const dob = new Date(value);
+      if (isNaN(dob)) return false;
+
+      const today = new Date();
+      const seventyYearsAgo = new Date();
+      seventyYearsAgo.setFullYear(today.getFullYear() - 70);
+
+      // normalize to midnight to avoid timezone weirdness
+      dob.setHours(0,0,0,0);
+      today.setHours(0,0,0,0);
+      seventyYearsAgo.setHours(0,0,0,0);
+
+      // cannot be in the future, cannot be older than 70
+      if (dob > today) return false;
+      if (dob < seventyYearsAgo) return false;
+
+      return true;
+    }, "Datum rođenja ne može biti u budućnosti niti stariji od 70 godina.");
 
     // 🔥 Now the form exists, so validator attaches correctly
     $("#bookingForm").validate({
@@ -317,8 +355,9 @@ app.route({
         week: {
           required: function () { return $("#sessionType").val() === "skiSchool"; }
         },
-        ageGroup: {
-          required: function () { return $("#sessionType").val() === "skiSchool"; }
+        dateOfBirth: {                        // NEW
+          required: function () { return $("#sessionType").val() === "skiSchool"; },
+          validBirthDate: true
         },
         skiLevel: {
           required: function () { return $("#sessionType").val() === "skiSchool"; }
@@ -352,7 +391,10 @@ app.route({
         lastName: "Unesite prezime",
         phoneNumber: "Unesite broj telefona",
         week: "Izaberite sedmicu",
-        ageGroup: "Izaberite dobnu skupinu",
+        dateOfBirth: {
+          required: "Unesite datum rođenja",
+          validBirthDate: "Datum rođenja ne može biti u budućnosti niti stariji od 70 godina"
+        },
         skiLevel: "Izaberite nivo",
         isVegetarian: "Odaberite jednu opciju",
 
@@ -364,7 +406,7 @@ app.route({
       },
 
       errorPlacement: function (error, element) {
-        // put radio button errors nicely under group
+        // radio button errors
         if (element.attr("name") === "isVegetarian") {
           error.insertAfter(element.closest(".form-group"));
           return;
@@ -376,11 +418,10 @@ app.route({
           return;
         }
 
-        // default placement
+        // default
         error.insertAfter(element);
       }
     });
-
 
     $(document)
       .off('loginSuccess.booking')

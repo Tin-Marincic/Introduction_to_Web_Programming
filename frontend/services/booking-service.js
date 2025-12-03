@@ -121,52 +121,55 @@ var BookingService = {
       const sessionType = document.getElementById("sessionType").value;
 
       // 🏫 --- SKI SCHOOL BOOKING (single participant version) ---
+      // 🏫 --- SKI SCHOOL BOOKING (single participant version) ---
       if (sessionType === "skiSchool") {
 
         const iti = intlTelInputGlobals.getInstance(document.getElementById("phoneNumber"));
-        const phoneNumber = iti.getNumber(); // THIS sends +387xxxxxxxx
+        const phoneNumber = iti.getNumber(); // sends +387xxxxxxxx
 
-        const firstName = document.getElementById("firstName").value.trim();
-        const lastName = document.getElementById("lastName").value.trim();
-        const week = document.getElementById("week").value;
-        const ageGroup = document.getElementById("ageGroup").value;
-        const skiLevel = document.getElementById("skiLevel").value;
+        const firstName    = document.getElementById("firstName").value.trim();
+        const lastName     = document.getElementById("lastName").value.trim();
+        const week         = document.getElementById("week").value;
+        const dateOfBirth  = document.getElementById("dateOfBirth").value;   // NEW
+        const skiLevel     = document.getElementById("skiLevel").value;
+        const address      = document.getElementById("address").value.trim() || ""; // NEW
         const isVegetarian = document.querySelector("input[name='isVegetarian']:checked")?.value || 0;
-        const allergies = document.getElementById("allergies").value.trim() || "";
+        const allergies    = document.getElementById("allergies").value.trim() || "";
 
         if (!iti.isValidNumber()) {
           toastr.error("Unesite ispravan broj telefona");
           return;
         }
+
         // Basic validation (extra safety)
-        if (!firstName || !lastName || !phoneNumber || !week || !ageGroup || !skiLevel) {
+        if (!firstName || !lastName || !phoneNumber || !week || !dateOfBirth || !skiLevel) {
           toastr.warning("Molim Vas popunite sva potrebna polja");
           return;
         }
 
         const data = {
-          user_id: userId,
-          service_id: 4,
+          user_id:      userId,
+          service_id:   4,
           session_type: "Ski_school",
-          first_name: firstName,
-          last_name: lastName,
+          first_name:   firstName,
+          last_name:    lastName,
           phone_number: phoneNumber,
-          week: week,
-          age_group: ageGroup,
-          ski_level: skiLevel,
+          week:         week,
+          date_of_birth: dateOfBirth,          // NEW – required, NOT NULL
+          ski_level:     skiLevel,
+          address:       address || null,      // NEW – optional
           is_vegetarian: parseInt(isVegetarian),
-          allergies: allergies
+          allergies:     allergies
         };
 
         RestClient.request("bookings/ski-school", "POST", data,
           function () {
-          toastr.success(`Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`);
+            toastr.success(`Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`);
 
-          setTimeout(() => {
-            window.location.hash = "#_refresh";
-            window.location.hash = "#booking";
-          }, 10);
-
+            setTimeout(() => {
+              window.location.hash = "#_refresh";
+              window.location.hash = "#booking";
+            }, 10);
           },
           function (error) {
             console.error("Rezervacija za Ski školu neuspješna", error);
@@ -174,6 +177,7 @@ var BookingService = {
           }
         );
       }
+
 
       // 🧑‍🏫 --- PRIVATE INSTRUCTION BOOKING (unchanged) ---
       if (sessionType === "privateInstruction") {
@@ -481,8 +485,9 @@ function loadUserBookings() {
             <h5>Škola skijanja - ${booking.week ?? "N/A"}</h5>
             <p><strong>Učesnik:</strong> ${booking.first_name ?? ""} ${booking.last_name ?? ""}</p>
             <p><strong>Broj telefona:</strong> ${booking.phone_number ?? "-"}</p>
-            <p><strong>Dobna grupa:</strong> ${booking.age_group ?? "-"}</p>
+            <p><strong>Datum rođenja:</strong> ${booking.date_of_birth ?? "-"}</p>
             <p><strong>Nivo skijanja:</strong> ${booking.ski_level ?? "-"}</p>
+            <p><strong>Adresa:</strong> ${booking.address ?? "-"}</p>
             <p><strong>Vegetarijanac:</strong> ${booking.is_vegetarian == 1 ? "Da" : "Ne"}</p>
             <p><strong>Alergije / Ostale napomene:</strong> ${booking.other ?? "-"}</p>
             ${cancelMessage}

@@ -204,8 +204,9 @@ loadSkiSchoolBookings: function () {
                         <td>${b.user_name || ""} ${b.user_surname || ""}</td>
                         <td>${b.phone_number || "-"}</td>
                         <td>${b.child_first_name || ""} ${b.child_last_name || ""}</td>
-                        <td>${b.age_group || "-"}</td>
+                        <td>${b.date_of_birth || "-"}</td>
                         <td>${b.ski_level || "-"}</td>
+                        <td>${b.address || "-"}</td>
                         <td>${b.allergies || "-"}</td>
                         <td>${b.is_vegetarian ? "Yes" : "No"}</td>
                         <td>
@@ -226,8 +227,9 @@ loadSkiSchoolBookings: function () {
                                 <th>Ime roditelja/osobe </th>
                                 <th>Telefon</th>
                                 <th>Ime djeteta/osobe</th>
-                                <th>Dobna grupa</th>
+                                <th>Datum rođenja</th>
                                 <th>Nivo skijanja</th>
+                                <th>Adresa/lokacija</th>
                                 <th>Alergije</th>
                                 <th>Vegetarijanac</th>
                                 <th>Akcije</th>
