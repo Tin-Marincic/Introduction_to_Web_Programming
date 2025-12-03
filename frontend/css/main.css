@@ -1996,6 +1996,26 @@ section,
   display: block;
   margin-bottom: 6px;
 }
+/* Make phone input in register look clean and aligned */
+#register-form .intl-tel-input input[type="tel"] {
+  width: 100%;
+  padding: 10px 12px 10px 52px; /* space for flag */
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 15px;
+}
+
+#register-form .iti__selected-flag {
+  height: 100% !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Optional: keep the dropdown aligned nicely */
+#register-form .intl-tel-input {
+  line-height: 1.2;
+}
 
 /*--------------------------------------------------------------
 # Contact Section
