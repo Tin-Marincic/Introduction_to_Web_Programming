@@ -121,8 +121,9 @@ class BookingService extends BaseService {
     public function createSkiSchoolBooking($data) {
         $required = [
             "user_id", "service_id", "session_type", "first_name",
-            "last_name", "phone_number", "week", "age_group", "ski_level"
+            "last_name", "phone_number", "week", "date_of_birth", "ski_level"
         ];
+
 
         foreach ($required as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {

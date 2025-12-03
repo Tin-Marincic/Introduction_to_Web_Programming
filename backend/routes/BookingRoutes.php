@@ -174,21 +174,83 @@ Flight::route('GET /instructors/@id/bookings', function ($id) {
  *             required={
  *                 "user_id", "service_id", "session_type",
  *                 "first_name", "last_name", "phone_number", "week",
- *                 "age_group", "ski_level", "is_vegetarian"
+ *                 "date_of_birth", "ski_level", "is_vegetarian"
  *             },
- *             @OA\Property(property="user_id", type="integer", example=1, description="ID of the user making the booking"),
- *             @OA\Property(property="service_id", type="integer", example=4, description="Service ID for ski school"),
- *             @OA\Property(property="session_type", type="string", example="Ski_school", description="Must be 'Ski_school'"),
- * 
- *             @OA\Property(property="first_name", type="string", example="John", description="First name of participant"),
- *             @OA\Property(property="last_name", type="string", example="Doe", description="Last name of participant"),
- *             @OA\Property(property="phone_number", type="string", example="+39 123 456 7890", description="Participant's WhatsApp phone number"),
- * 
- *             @OA\Property(property="week", type="string", example="week1", description="Ski school week (week1–week4)"),
- *             @OA\Property(property="age_group", type="string", example="teen", description="Age group: child, teen, or adult"),
- *             @OA\Property(property="ski_level", type="string", example="beginner", description="Skiing level: beginner, intermediate, or advanced"),
- *             @OA\Property(property="is_vegetarian", type="boolean", example=true, description="Whether the participant is vegetarian"),
- *             @OA\Property(property="other", type="string", example="Allergic to nuts", description="Optional: allergies or concerns")
+ *             @OA\Property(
+ *                 property="user_id",
+ *                 type="integer",
+ *                 example=1,
+ *                 description="ID of the user making the booking"
+ *             ),
+ *             @OA\Property(
+ *                 property="service_id",
+ *                 type="integer",
+ *                 example=4,
+ *                 description="Service ID for ski school"
+ *             ),
+ *             @OA\Property(
+ *                 property="session_type",
+ *                 type="string",
+ *                 example="Ski_school",
+ *                 description="Must be 'Ski_school'"
+ *             ),
+ *
+ *             @OA\Property(
+ *                 property="first_name",
+ *                 type="string",
+ *                 example="John",
+ *                 description="First name of participant"
+ *             ),
+ *             @OA\Property(
+ *                 property="last_name",
+ *                 type="string",
+ *                 example="Doe",
+ *                 description="Last name of participant"
+ *             ),
+ *             @OA\Property(
+ *                 property="phone_number",
+ *                 type="string",
+ *                 example="+39 123 456 7890",
+ *                 description="Participant's WhatsApp phone number"
+ *             ),
+ *
+ *             @OA\Property(
+ *                 property="week",
+ *                 type="string",
+ *                 example="week1",
+ *                 description="Ski school week (week1–week4)"
+ *             ),
+ *             @OA\Property(
+ *                 property="date_of_birth",
+ *                 type="string",
+ *                 format="date",
+ *                 example="2015-02-14",
+ *                 description="Datum rođenja učesnika (YYYY-MM-DD), obavezno polje"
+ *             ),
+ *             @OA\Property(
+ *                 property="ski_level",
+ *                 type="string",
+ *                 example="beginner",
+ *                 description="Skiing level: beginner, intermediate, or advanced"
+ *             ),
+ *             @OA\Property(
+ *                 property="is_vegetarian",
+ *                 type="boolean",
+ *                 example=true,
+ *                 description="Whether the participant is vegetarian"
+ *             ),
+ *             @OA\Property(
+ *                 property="address",
+ *                 type="string",
+ *                 example="Grbavica, Sarajevo",
+ *                 description="Adresa stanovanja/kupljenja ako je potreban prevoz (opcionalno)"
+ *             ),
+ *             @OA\Property(
+ *                 property="other",
+ *                 type="string",
+ *                 example="Allergic to nuts",
+ *                 description="Optional: allergies or concerns"
+ *             )
  *         )
  *     ),
  *     @OA\Response(
@@ -206,14 +268,15 @@ Flight::route('GET /instructors/@id/bookings', function ($id) {
  * )
  */
 
+
 Flight::route('POST /bookings/ski-school', function () {
-    Flight::auth_middleware()->authorizeRole(Roles::USER);
+    Flight::auth_middleware()->authorizeRoles([Roles::USER, Roles::ADMIN]);
 
     try {
         $data = Flight::request()->data->getData();
 
         // Validation (basic example)
-        $required = ['user_id', 'first_name', 'last_name', 'phone_number', 'week', 'age_group', 'ski_level'];
+        $required = ['user_id', 'first_name', 'last_name', 'phone_number', 'week', 'date_of_birth', 'ski_level'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 Flight::halt(400, "Missing required field: $field");

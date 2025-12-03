@@ -7,7 +7,7 @@
                 <label for="sessionType">Izaberite tip usluge:</label>
                 <select id="sessionType" name="sessionType" onchange="toggleBookingOptions()" required>
                     <option value="" disabled selected>Izaberite tip usluge</option>
-                    <option value="skiSchool">Ski Škola</option>
+                    <option value="skiSchool">Škola Skijanja</option>
                     <option value="privateInstruction">Privatne Instrukcije</option>
                 </select>
             </div>
@@ -50,14 +50,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="ageGroup">Dobna skupina:</label>
-                        <select id="ageGroup" name="ageGroup">
-                            <option value="" disabled selected>Izaberite dobnu skupinu</option>
-                            <option value="child">Dijete (0–12)</option>
-                            <option value="teen">Tinejdzer (13–17)</option>
-                            <option value="adult">Odrasli (18+)</option>
-                        </select>
+                        <label for="dateOfBirth">Datum rođenja učesnika:</label>
+                        <input type="date" id="dateOfBirth" name="dateOfBirth">
                     </div>
+
 
                     <div class="form-group">
                         <label for="skiLevel">Nivo Skijanja:</label>
@@ -67,6 +63,17 @@
                             <option value="advanced">Napredni</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="address">
+                            Adresa stanovanja/kupljenja (ukoliko vam je potreban prevoz):
+                        </label>
+                        <input type="text" id="address" name="address" placeholder="Opcionalno">
+                        <small class="field-hint">
+                            Ako vam prevoz nije potreban, polje možete ostaviti prazno.
+                        </small>
+                    </div>
+
 
                     <div class="form-group">
                         <label>Da li je učesnik vegetarijanac?</label>
