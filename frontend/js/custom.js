@@ -575,7 +575,6 @@ app.route({
         });
     }
 });
-
 app.route({
     view: "reset_password",
     load: "reset_password.html",
@@ -583,13 +582,13 @@ app.route({
     onReady: function () {
         console.log("[Reset Password] Loaded reset_password.html");
 
-        /** Token already extracted earlier */
+        // Token already extracted earlier
         const token = window.resetToken || "";
         console.log("Token:", token);
 
-        /** -------------------------
-         *  PASSWORD VISIBILITY TOGGLE
-         * ------------------------- */
+        // -------------------------
+        // PASSWORD VISIBILITY TOGGLE
+        // -------------------------
         $(document).on("click", "#toggleResetPassword", function () {
             const passwordField = $("#password");
             const isHidden = passwordField.attr("type") === "password";
@@ -607,13 +606,17 @@ app.route({
             }
         });
 
-        /** -------------------------
-         *  FORM SUBMIT
-         * ------------------------- */
+        // -------------------------
+        // FORM SUBMIT
+        // -------------------------
         $("#reset-form").on("submit", async function (e) {
             e.preventDefault();
 
             const password = $("#password").val();
+            const msgBox = $("#reset-msg");
+
+            // clear previous message
+            msgBox.hide().removeClass("alert-success alert-danger");
 
             const res = await fetch(backendBaseURL + "auth/reset-password", {
                 method: "POST",
@@ -622,10 +625,25 @@ app.route({
             });
 
             const data = await res.json();
-            alert(data.message || data.error);
+
+            if (res.ok) {
+                msgBox
+                    .addClass("alert-success")
+                    .text("Lozinka je uspješno resetovana. Sada se možete prijaviti sa novom lozinkom.")
+                    .fadeIn();
+
+                // optional: redirect to login after 2–3s
+                // setTimeout(() => { window.location.hash = "#sign_in"; }, 2500);
+            } else {
+                msgBox
+                    .addClass("alert-danger")
+                    .text(data.error || "Došlo je do greške pri resetovanju lozinke. Molimo pokušajte ponovo.")
+                    .fadeIn();
+            }
         });
     }
 });
+
 
 
   app.run();
