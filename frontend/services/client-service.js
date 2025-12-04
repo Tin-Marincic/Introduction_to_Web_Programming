@@ -32,7 +32,7 @@ const ClientLoader = {
       <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="${staticDelay}">
         <div class="pricing-item">
           <h3>Noćno skijanje instrukcije</h3>
-          <h4><span>Cijena po dogovoru</span></h4>
+          <h4><sup>KM</sup>...<span> / sat</span></h4>
           <ul>
             <li>Minimalno 2 sata – super iskustvo pod reflektorima i idealno za brzi napredak!</li>
             <li>Ovu uslugu nije moguće rezervisati putem sistema.</li>
