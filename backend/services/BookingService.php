@@ -133,7 +133,7 @@ class BookingService extends BaseService {
 
         // Check capacity
         $availability = $this->getSkiSchoolAvailability();
-        $weekMap = ["Jan 5–9" => "week1", "Jan 12–16" => "week2", "Jan 19–23" => "week3", "Jan 26–30" => "week4"];
+        $weekMap = ["Jan 5–9" => "sedmica_1", "Jan 12–16" => "sedmica_2", "Jan 19–23" => "sedmica_3", "Jan 26–30" => "sedmica_4"];
         $weekLabel = array_search($data['week'], $weekMap);
 
         if ($weekLabel === false) $weekLabel = $data['week'];
