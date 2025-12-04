@@ -2,11 +2,14 @@ const ClientLoader = {
   loadServices: function () {
     RestClient.get("api/services", function (services) {
       let html = "";
+
+      // Dinamičke usluge iz API-ja
       services.forEach((service, index) => {
         const delay = 100 * (index + 1);
         const formattedPrice = service.name.toLowerCase().includes("ski škola")
           ? `<sup>KM</sup>${service.price || '...'}<span> / sedmica</span>`
           : `<sup>KM</sup>${service.price || '...'}<span> / sat</span>`;
+
         html += `
           <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="${delay}">
             <div class="pricing-item">
@@ -21,6 +24,29 @@ const ClientLoader = {
             </div>
           </div>`;
       });
+
+      // 🔹 Staticka usluga: Noćno skijanje instrukcije (bez dugmeta)
+     // 🔹 Static service: Noćno skijanje instrukcije
+    const staticDelay = 100 * (services.length + 1);
+    html += `
+      <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="${staticDelay}">
+        <div class="pricing-item">
+          <h3>Noćno skijanje instrukcije</h3>
+          <h4><span>Cijena po dogovoru</span></h4>
+          <ul>
+            <li>Minimalno 2 sata – super iskustvo pod reflektorima i idealno za brzi napredak!</li>
+            <li>Ovu uslugu nije moguće rezervisati putem sistema.</li>
+            <li>Rezervacije isključivo putem telefona:</li>
+            <li><strong><a href="tel:+38761337548">+387 61 337 548</a></strong></li>
+          </ul>
+
+          <!-- Empty block so styling stays the same -->
+          <div class="btn-wrap" style="height:52px;"></div>
+        </div>
+      </div>
+    `;
+
+
       $("#pricing-cards").html(html);
     }, function (err) {
       console.error("Failed to load pricing plans", err);
@@ -101,59 +127,51 @@ const ClientLoader = {
     });
   },
 
-initReviewModal: function () {
-  const userId = localStorage.getItem("user_id");
+  initReviewModal: function () {
+    const userId = localStorage.getItem("user_id");
 
-  
-  $(".add-review-container").hide();
+    $(".add-review-container").hide();
 
-  
-  if (!userId) {
-    return;
-  }
-
-  
-  RestClient.get(`users/${userId}/has-bookings`, function (response) {
-    if (response.has_booking) {
-      $(".add-review-container").show();
-    }
-  }, function (err) {
-    console.error("Failed to check user booking status:", err);
-  });
-
-  
-  $(".review-button").on("click", function (e) {
-    e.preventDefault();
-    $("#addReviewModal").modal("show");
-  });
-
-
-    
-  $("#review-form").off("submit").on("submit", function (e) {
-    e.preventDefault();
-
-    const formData = Object.fromEntries(new FormData(this).entries());
-
-    const payload = {
-      user_id: parseInt(userId),
-      grade: parseInt(formData.grade),
-      note: formData.note
-    };
-
-    const parsedBookingId = parseInt(formData.booking_id);
-    if (!isNaN(parsedBookingId)) {
-      payload.booking_id = parsedBookingId;
+    if (!userId) {
+      return;
     }
 
-    RestClient.post("reviews", payload, function () {
-      toastr.success("Recenzija je uspješno poslana!");
-      location.reload();
+    RestClient.get(`users/${userId}/has-bookings`, function (response) {
+      if (response.has_booking) {
+        $(".add-review-container").show();
+      }
     }, function (err) {
-      console.error("Review submission failed:", err);
-      toastr.error(err.responseJSON?.error || "Nije uspjelo slanje recenzije.");
+      console.error("Failed to check user booking status:", err);
     });
-  });
-}
 
+    $(".review-button").on("click", function (e) {
+      e.preventDefault();
+      $("#addReviewModal").modal("show");
+    });
 
+    $("#review-form").off("submit").on("submit", function (e) {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(this).entries());
+
+      const payload = {
+        user_id: parseInt(userId),
+        grade: parseInt(formData.grade),
+        note: formData.note
+      };
+
+      const parsedBookingId = parseInt(formData.booking_id);
+      if (!isNaN(parsedBookingId)) {
+        payload.booking_id = parsedBookingId;
+      }
+
+      RestClient.post("reviews", payload, function () {
+        toastr.success("Recenzija je uspješno poslana!");
+        location.reload();
+      }, function (err) {
+        console.error("Review submission failed:", err);
+        toastr.error(err.responseJSON?.error || "Nije uspjelo slanje recenzije.");
+      });
+    });
+  }
 };

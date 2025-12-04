@@ -40,7 +40,7 @@ class EmailUtil {
 
             $mail->Body = "
                 <p>Poštovani/Poštovana <strong>$userName</strong>,</p>
-                <p>Vaša rezervacija za termin <strong>$date</strong> je otkazana.</p>
+                <p>Mi se izvinjavamo ali Vaša rezervacija za termin <strong>$date</strong> je otkazana.</p>
                 <p>Ukoliko želite, možete izvršiti novu rezervaciju putem našeg sistema.</p>
                 <br>
                 <p><strong>Unisport Škola Skijanja</strong></p>
@@ -48,7 +48,7 @@ class EmailUtil {
                 <hr>
 
                 <p>Dear <strong>$userName</strong>,</p>
-                <p>Your booking for <strong>$date</strong> has been cancelled.</p>
+                <p>We are sorry but your booking for <strong>$date</strong> has been cancelled.</p>
                 <p>You may book a new session at any time.</p>
                 <br>
                 <p><strong>Unisport Ski School</strong></p>
@@ -65,8 +65,9 @@ class EmailUtil {
 
     /* ============================================================
        2) ADMIN receives alert when USER cancels a booking
+          → show date + time, no booking ID
     ============================================================ */
-    public static function sendAdminCancellationAlert($bookingId, $userName, $userEmail, $date) {
+    public static function sendAdminCancellationAlert($userName, $userEmail, $date, $time) {
         try {
             $mail = self::setupMailer();
             $mail->addAddress('skolaskijanjaunisport@gmail.com', 'Admin');
@@ -77,8 +78,8 @@ class EmailUtil {
             $mail->Body = "
                 <p><strong>Obavijest:</strong> Korisnik je otkazao rezervaciju.</p>
                 <p><strong>Korisnik:</strong> $userName ($userEmail)</p>
-                <p><strong>ID rezervacije:</strong> $bookingId</p>
                 <p><strong>Datum:</strong> $date</p>
+                <p><strong>Vrijeme:</strong> $time</p>
             ";
 
             $mail->send();
@@ -125,8 +126,9 @@ class EmailUtil {
 
     /* ============================================================
        4) INSTRUCTOR receives email when USER cancels a booking
+          → include date + time
     ============================================================ */
-    public static function sendInstructorCancellationEmail($instructorEmail, $instructorName, $clientName, $date) {
+    public static function sendInstructorCancellationEmail($instructorEmail, $instructorName, $clientName, $date, $time) {
         try {
             $mail = self::setupMailer();
             $mail->addAddress($instructorEmail, $instructorName);
@@ -139,6 +141,7 @@ class EmailUtil {
                 <p>Korisnik <strong>$clientName</strong> je otkazao rezervaciju.</p>
 
                 <p><strong>Datum:</strong> $date</p>
+                <p><strong>Vrijeme:</strong> $time</p>
 
                 <br>
                 <p><strong>Unisport Škola Skijanja</strong></p>
@@ -152,39 +155,53 @@ class EmailUtil {
         }
     }
 
+
     public static function sendPasswordResetEmail($email, $name, $token) {
-    try {
-        // USE SAME MAILER CONFIG AS OTHER EMAILS
-        $mail = self::setupMailer();
-        $mail->addAddress($email, $name);
+        try {
+            // USE SAME MAILER CONFIG AS OTHER EMAILS
+            $mail = self::setupMailer();
+            $mail->addAddress($email, $name);
 
-        // AUTO-SELECT FRONTEND URL
-        $frontendURL = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false)
-            ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend"
-            : "https://unisport-frontend-rg53w.ondigitalocean.app";
+            // AUTO-SELECT FRONTEND URL
+            $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
 
-        $resetLink = "$frontendURL/#reset_password/token=$token";
+            if (strpos($host, 'localhost') !== false) {
+                // Local development environment
+                $frontendURL = 'http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend';
 
-        $mail->isHTML(true);
-        $mail->Subject = "Resetovanje lozinke - Unisport";
+            } elseif (strpos($host, 'skiunisport.com') !== false) {
+                // Your main live domain
+                $frontendURL = 'https://skiunisport.com';
 
-        $mail->Body = "
-            <p>Poštovani/Poštovana <strong>$name</strong>,</p>
-            <p>Kliknite na link da resetujete lozinku:</p>
-            <p><a href='$resetLink'>$resetLink</a></p>
-            <p>Link ističe za 1 sat.</p>
-            <br>
-            <p>Unisport Ski School</p>
-        ";
+            } else {
+                // Fallback: DigitalOcean production domain
+                $frontendURL = 'https://unisport-frontend-rg53w.ondigitalocean.app';
+            }
 
-        $mail->send();
-        return true;
+            // Construct reset link
+            $resetLink = $frontendURL . '/#reset_password/token=' . $token;
 
-    } catch (Exception $e) {
-        error_log("RESET PASSWORD EMAIL FAILED: " . $e->getMessage());
-        return false;
+            $mail->isHTML(true);
+            $mail->Subject = 'Resetovanje lozinke - Unisport';
+
+            $mail->Body = "
+                <p>Poštovani/Poštovana <strong>{$name}</strong>,</p>
+                <p>Kliknite na link da resetujete lozinku:</p>
+                <p><a href='{$resetLink}'>{$resetLink}</a></p>
+                <p>Link ističe za 1 sat.</p>
+                <br>
+                <p>Unisport Ski School</p>
+            ";
+
+            $mail->send();
+            return true;
+
+        } catch (Exception $e) {
+            error_log('RESET PASSWORD EMAIL FAILED: ' . $e->getMessage());
+            return false;
+        }
     }
-}
+
 
 
 }
