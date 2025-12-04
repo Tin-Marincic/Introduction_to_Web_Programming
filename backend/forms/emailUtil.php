@@ -202,6 +202,40 @@ class EmailUtil {
         }
     }
 
+    public static function sendEmailVerification($email, $name, $token) {
+        try {
+            $mail = self::setupMailer();
+            $mail->addAddress($email, $name);
+
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+
+            if (strpos($host, 'localhost') !== false) {
+                $frontendURL = "http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend";
+            } elseif (strpos($host, 'skiunisport.com') !== false) {
+                $frontendURL = "https://skiunisport.com";
+            } else {
+                $frontendURL = "https://unisport-frontend-rg53w.ondigitalocean.app";
+            }
+
+            $verifyLink = $frontendURL . "/#verify_email/token=" . $token;
+
+            $mail->isHTML(true);
+            $mail->Subject = "Potvrdite vasu email adresu";
+
+            $mail->Body = "
+                <p>Poštovani/Poštovana <strong>{$name}</strong>,</p>
+                <p>Molimo vas da kliknete na link kako biste verifikovali svoju email adresu:</p>
+                <p><a href='{$verifyLink}'>{$verifyLink}</a></p>
+                <p>Hvala što koristite Unisport.</p>
+            ";
+
+            return $mail->send();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+
 
 
 }

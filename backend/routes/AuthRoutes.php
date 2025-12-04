@@ -141,5 +141,19 @@ Flight::route("POST /reset-password", function() {
     }
 });
 
+Flight::route("POST /verify-email", function() {
+    $data = Flight::request()->data->getData();
+    $token = $data['token'] ?? '';
+
+    $response = Flight::auth_service()->verifyEmail($token);
+
+    if ($response['success']) {
+        Flight::json(['message' => 'Email uspješno verifikovan.']);
+    } else {
+        Flight::json(['error' => $response['error']], 400);
+    }
+});
+
+
 });
 ?>
