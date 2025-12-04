@@ -69,6 +69,7 @@ Flight::route('/*', function () {
         $url === '/auth/register' ||
         $url === '/auth/forgot-password' ||
         $url === '/auth/reset-password' ||
+        $url === '/auth/verify-email' ||       
         $url === '/test-connection' ||
         $url === '/check-env' ||
         ($url === '/reviews' && $method === 'GET') ||

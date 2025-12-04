@@ -5,6 +5,29 @@ let UserService = {
 
     this.updateAuthButton();
 
+        // HANDLE EMAIL VERIFICATION LINK
+    const hash = window.location.hash;
+
+    if (hash.startsWith("#verify_email")) {
+      const token = hash.split("token=")[1];
+
+      if (token) {
+        RestClient.post(
+          "auth/verify-email",
+          { token },
+          function () {
+            toastr.success("Email uspješno verifikovan! Sada se možete prijaviti.");
+            window.location.hash = "#sign_in";
+          },
+          function () {
+            toastr.error("Verifikacijski link nije važeći ili je istekao.");
+            window.location.hash = "#home";
+          }
+        );
+      }
+    }
+
+
     /* --------------------------------------------
        LOGIN FORM SUBMIT (SPA SAFE, DELEGATED)
     ---------------------------------------------*/
@@ -106,8 +129,15 @@ let UserService = {
 
       function (err) {
         console.error("[UserService] Login error:", err);
-        toastr.error("Email ili Lozinka nisu tačne");
+
+        const msg = err.responseJSON?.error || "Greška prilikom prijave.";
+        toastr.error(msg);
+
+        if (msg.includes("verifikujte email")) {
+          toastr.info("Provjerite inbox i kliknite na verifikacijski link.");
+        }
       }
+
     );
   },
 
@@ -123,13 +153,12 @@ let UserService = {
       entity,
       function () {
         console.log("[UserService] Registration successful!");
-        toastr.success("Registracija uspješna, sada se možete prijaviti!");
+        toastr.success("Registracija uspješna! Provjerite email i potvrdite registraciju.");
 
-        // RESET REGISTER FORM AFTER SUCCESS
         const form = document.getElementById("register-form");
         if (form) form.reset();
 
-        window.location.hash = "#sign_in";
+        window.location.hash = "#home";
       },
       function (err) {
         console.error("[UserService] Registration error:", err);
@@ -137,6 +166,7 @@ let UserService = {
       }
     );
   },
+
 
 
   /* --------------------------------------------

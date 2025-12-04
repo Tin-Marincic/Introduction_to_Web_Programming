@@ -57,6 +57,35 @@ public function updatePassword($userId, $hashedPassword) {
     ]);
 }
 
+public function setVerificationToken($email, $token) {
+    $stmt = $this->connection->prepare("
+        UPDATE users 
+        SET verification_token = :token 
+        WHERE username = :email
+    ");
+    $stmt->execute([
+        ':token' => $token,
+        ':email' => $email
+    ]);
+}
+
+public function verifyUserByToken($token) {
+    $stmt = $this->connection->prepare("
+        UPDATE users 
+        SET email_verified = 1, verification_token = NULL
+        WHERE verification_token = :token
+    ");
+    $stmt->execute([':token' => $token]);
+    return $stmt->rowCount() > 0;
+}
+
+public function getUserByVerificationToken($token) {
+    $stmt = $this->connection->prepare("
+        SELECT * FROM users WHERE verification_token = :token
+    ");
+    $stmt->execute([':token' => $token]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
 
 }
