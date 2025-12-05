@@ -7,7 +7,6 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 // === CORS SETUP ===
-// === CORS SETUP (simple & global) ===
 $allowedOrigins = [
     "https://unisport-frontend-rg53w.ondigitalocean.app",
     "https://skiunisport.com",
@@ -16,22 +15,20 @@ $allowedOrigins = [
     "http://localhost"
 ];
 
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if ($origin && in_array($origin, $allowedOrigins)) {
-    header("Access-Control-Allow-Origin: $origin");
-    header("Vary: Origin");
-}
+Flight::before('start', function () use ($allowedOrigins) {
+    if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
+        header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization"); // ✅ removed Authentication
+        header("Access-Control-Allow-Credentials: true");
+    }
 
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-
-// Handle preflight OPTIONS globally and exit early
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(204);
+        exit();
+    }
+});
 
 // === ERROR REPORTING ===
 ini_set('display_errors', 1);
