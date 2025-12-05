@@ -155,7 +155,6 @@ class EmailUtil {
         }
     }
 
-
     public static function sendPasswordResetEmail($email, $name, $token) {
         try {
             // USE SAME MAILER CONFIG AS OTHER EMAILS
@@ -168,14 +167,9 @@ class EmailUtil {
             if (strpos($host, 'localhost') !== false) {
                 // Local development environment
                 $frontendURL = 'http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend';
-
-            } elseif (strpos($host, 'skiunisport.com') !== false) {
-                // Your main live domain
-                $frontendURL = 'https://skiunisport.com';
-
             } else {
-                // Fallback: DigitalOcean production domain
-                $frontendURL = 'https://unisport-frontend-rg53w.ondigitalocean.app';
+                // Any non-local environment → use main live domain
+                $frontendURL = 'https://skiunisport.com';
             }
 
             // Construct reset link
@@ -201,6 +195,7 @@ class EmailUtil {
             return false;
         }
     }
+
 
     public static function sendEmailVerification($email, $name, $token) {
         try {
