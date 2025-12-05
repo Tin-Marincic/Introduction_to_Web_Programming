@@ -7,15 +7,23 @@ class UserDao extends BaseDao {
     }
 
     // Add instructor (custom logic: includes `licence` and fixed role)
-    public function addInstructor($name, $surname, $licence, $username, $password, $role = 'instructor') {
+    public function addInstructor(
+        $name,
+        $surname,
+        $licence,
+        $username,
+        $password,
+        $role = 'instructor'
+    ) {
         return $this->insert([
-            'name' => $name,
-            'surname' => $surname,
-            'licence' => $licence,
-            'username' => $username,
-            'password' => $password,
-            'role' => $role,
-            'created_at' => date('Y-m-d H:i:s')
+            'name'           => $name,
+            'surname'        => $surname,
+            'licence'        => $licence,
+            'username'       => $username,
+            'password'       => $password,
+            'role'           => $role,
+            'email_verified' => 1,                      // 👈 admin-added instructors are verified
+            'created_at'     => date('Y-m-d H:i:s')
         ]);
     }
 
@@ -60,5 +68,16 @@ class UserDao extends BaseDao {
         $query = "SELECT * FROM users WHERE username = :username";
         return $this->query_unique($query, ['username' => $email]);
     }
+
+    public function updateInstructorImage($id, $filename) {
+        $stmt = $this->connection->prepare("
+            UPDATE users SET image_url = :img WHERE id = :id
+        ");
+        $stmt->execute([
+            ':img' => $filename,
+            ':id' => $id
+        ]);
+}
+
 
 }

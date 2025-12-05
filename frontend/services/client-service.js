@@ -83,34 +83,18 @@ const ClientLoader = {
   loadInstructors: function () {
     RestClient.get("users/instructor", function (instructors) {
       let html = "";
-      const staticImages = {
-        "Vedad Šarić": "Vedad.jpg",
-        "Haris Šarić": "Haris.jpg",
-        "Ilma Ćatović": "Ilma.jpg",
-        "Iman Sijerčić": "Iman.jpg",
-        "Tin Marinčić": "Tin.jpg",
-        "Muhamed Šarić": "Saka.jpg",
-        "Amila Bilal": "Amila Bilal Asistent Trenera.jpg",
-        "Anes Mešetović": "Anes Mešetović U1.jpg",
-        "Armin Muharemović": "Armin Muharemović U1.jpg",
-        "Edin Mujan": "Edin Mujan U1.jpg",
-        "Goran Crnoja": "Goran Crnoja U1.jpg",
-        "Jasmin Selimović": "Jasmin Selimović U1.jpg",
-        "Amila Fejzić": "amila fejzic.jpg",
-        "Anes Škamo": "Anes Škamo.jpg",
-        "Armina Džigal": "Džigal Armina.jpg",
-        "Nermin Mehmedić": "Nermin Mehmedić.jpg",
-        "Sara Ibrica": "Sara Ibrica.jpg",
-        "Zerina Čajić": "zerina cajic.jpg"
-      };
       instructors.forEach((instructor, index) => {
         const fullName = `${instructor.name} ${instructor.surname}`;
-        const imgFile = staticImages[fullName] || "default.jpg";
         const delay = 100 * (index + 1);
+
+        const imgFile = instructor.image_url ? instructor.image_url : "default.jpg";
+
         html += `
           <div class="col-lg-6" data-aos="fade-up" data-aos-delay="${delay}">
             <div class="team-member d-flex align-items-start">
-              <div class="pic"><img src="assets/img/team/${imgFile}" class="img-fluid" alt=""></div>
+              <div class="pic">
+                <img src="assets/img/team/${imgFile}" class="img-fluid" alt="">
+              </div>
               <div class="member-info">
                 <h4>${fullName}</h4>
                 <span>${instructor.licence}</span>
@@ -121,11 +105,9 @@ const ClientLoader = {
           </div>`;
       });
       $("#team-list").html(html);
-    }, function (err) {
-      console.error("Failed to load instructors", err);
-      $("#team-list").html("<p class='text-center'>Nije moguće učitati instruktore.</p>");
     });
   },
+
 
   initReviewModal: function () {
     const userId = localStorage.getItem("user_id");

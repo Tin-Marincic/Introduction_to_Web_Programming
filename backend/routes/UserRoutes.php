@@ -53,18 +53,27 @@ Flight::route('GET /users/@role', function($role) {
  * @OA\Post(
  *     path="/instructors",
  *     tags={"Users"},
- *     summary="Add a new instructor (admin only)",
+ *     summary="Add a new instructor (admin only, with optional image upload)",
  *     security={{"ApiKey": {}}},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"name", "surname", "licence", "username", "password", "role"},
- *             @OA\Property(property="name", type="string", example="Malik"),
- *             @OA\Property(property="surname", type="string", example="Sabotic"),
- *             @OA\Property(property="licence", type="string", example="U1"),
- *             @OA\Property(property="username", type="string", example="malik"),
- *             @OA\Property(property="password", type="string", example="secure123"),
- *             @OA\Property(property="role", type="string", example="instructor")
+ *         description="Send as multipart/form-data",
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 required={"name", "surname", "licence", "username", "password"},
+ *                 @OA\Property(property="name", type="string", example="Malik"),
+ *                 @OA\Property(property="surname", type="string", example="Sabotić"),
+ *                 @OA\Property(property="licence", type="string", example="U1"),
+ *                 @OA\Property(property="username", type="string", example="malik@example.com"),
+ *                 @OA\Property(property="password", type="string", example="secure123"),
+ *                 @OA\Property(
+ *                     property="image",
+ *                     type="string",
+ *                     format="binary",
+ *                     description="Optional instructor profile image"
+ *                 )
+ *             )
  *         )
  *     ),
  *     @OA\Response(response=200, description="Instructor added")
@@ -72,11 +81,53 @@ Flight::route('GET /users/@role', function($role) {
  */
 Flight::route('POST /instructors', function () {
     Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
+
     try {
-        $data = Flight::request()->data->getData();
-        Flight::json(Flight::userService()->addInstructor($data));
+        // Collect standard form fields
+        $name = Flight::request()->data->name;
+        $surname = Flight::request()->data->surname;
+        $licence = Flight::request()->data->licence;
+        $username = Flight::request()->data->username;
+        $password = Flight::request()->data->password;
+
+        // STEP 1 → Create instructor in DB
+        $id = Flight::userService()->addInstructor([
+            "name" => $name,
+            "surname" => $surname,
+            "licence" => $licence,
+            "username" => $username,
+            "password" => $password,
+            "role" => "instructor"
+        ]);
+
+        // STEP 2 → Handle optional image upload
+        if (!empty($_FILES['image']['name'])) {
+
+            // Correct path to FRONTEND folder
+            $targetDir = __DIR__ . '/../../frontend/assets/img/team/';
+
+            // Ensure directory exists
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+
+            // Generate a unique file name
+            $filename = "instructor_" . $id . "_" . time() . ".jpg";
+            $targetPath = $targetDir . $filename;
+
+            // Save the uploaded file
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
+                throw new Exception("Failed to upload instructor image.");
+            }
+
+            // Save filename to DB
+            Flight::userService()->updateInstructorImage($id, $filename);
+        }
+
+        Flight::json(["success" => true, "id" => $id]);
+
     } catch (Exception $e) {
-        Flight::halt(400, $e->getMessage());
+        Flight::halt(500, $e->getMessage());
     }
 });
 

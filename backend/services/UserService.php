@@ -18,11 +18,11 @@ class UserService extends BaseService {
     }
 
     // Admin: Add new instructor
+// Admin: Add new instructor
     public function addInstructor($data) {
-        
+
         $this->validateRole($data['role']);
 
-        
         if (
             empty($data['name']) ||
             empty($data['surname']) ||
@@ -33,24 +33,32 @@ class UserService extends BaseService {
             throw new Exception("Missing required fields: name, surname, licence, email, or password.");
         }
 
-       
         if ($this->dao->get_user_by_email($data['username'])) {
             throw new Exception("Username/email is already in use.");
         }
 
-        
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        
-        return $this->dao->addInstructor(
+        // Insert instructor (email_verified MUST be 1)
+        $this->dao->addInstructor(
             $data['name'],
             $data['surname'],
             $data['licence'],
             $data['username'],
             $hashedPassword,
-            $data['role']
+            $data['role'],
+            true   // 👈 pass email_verified = 1
         );
+
+        // Fetch created user
+        $user = $this->dao->get_user_by_email($data['username']);
+        if (!$user || !isset($user['id'])) {
+            throw new Exception("Failed to fetch newly created instructor.");
+        }
+
+        return (int)$user['id'];
     }
+
 
 
     // Admin: Update instructor
@@ -74,4 +82,10 @@ class UserService extends BaseService {
         $this->validateRole($role);
         return $this->dao->getUsersByRole($role);
     }
+
+    public function updateInstructorImage($id, $filename) {
+        return $this->dao->updateInstructorImage($id, $filename);
+    }
+
+
 }
