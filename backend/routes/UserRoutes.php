@@ -54,7 +54,7 @@ Flight::route('GET /users/@role', function($role) {
  *     path="/instructors",
  *     tags={"Users"},
  *     summary="Add a new instructor (admin only, with optional image upload)",
- *     security={{"ApiKey": {}}},
+ *     security={{"ApiKey": {}}}, 
  *     @OA\RequestBody(
  *         required=true,
  *         description="Send as multipart/form-data",
@@ -83,45 +83,67 @@ Flight::route('POST /instructors', function () {
     Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
 
     try {
-        // Collect standard form fields
-        $name = Flight::request()->data->name;
-        $surname = Flight::request()->data->surname;
-        $licence = Flight::request()->data->licence;
+        // 1) Standard fields
+        $name     = Flight::request()->data->name;
+        $surname  = Flight::request()->data->surname;
+        $licence  = Flight::request()->data->licence;
         $username = Flight::request()->data->username;
         $password = Flight::request()->data->password;
 
-        // STEP 1 → Create instructor in DB
+        // 2) Create instructor in DB (returns ID)
         $id = Flight::userService()->addInstructor([
-            "name" => $name,
-            "surname" => $surname,
-            "licence" => $licence,
+            "name"     => $name,
+            "surname"  => $surname,
+            "licence"  => $licence,
             "username" => $username,
             "password" => $password,
-            "role" => "instructor"
+            "role"     => "instructor"
         ]);
 
-        // STEP 2 → Handle optional image upload
+        // 3) Optional image upload
         if (!empty($_FILES['image']['name'])) {
 
-            // Correct path to FRONTEND folder
-            $targetDir = __DIR__ . '/../../frontend/assets/img/team/';
+            $host   = $_SERVER['HTTP_HOST'] ?? 'unisport-9kjwi.ondigitalocean.app';
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $baseUrl = $scheme . '://' . $host;
 
-            // Ensure directory exists
-            if (!file_exists($targetDir)) {
-                mkdir($targetDir, 0777, true);
+            // LOCAL vs PRODUCTION behavior
+            if (strpos($host, 'localhost') !== false) {
+                // 🔹 Local dev → still write into frontend folder
+                $uploadDir     = __DIR__ . '/../../frontend/assets/img/team/';
+                $publicUrlBase = 'assets/img/team/';
+                $storeFullUrl  = false; // store relative path
+            } else {
+                // 🔹 Production → write into backend /uploads/team
+                // assuming backend document root is the "backend" folder
+                $uploadDir     = __DIR__ . '/../uploads/team/';
+                $publicUrlBase = $baseUrl . '/uploads/team/';
+                $storeFullUrl  = true; // store full URL
             }
 
-            // Generate a unique file name
-            $filename = "instructor_" . $id . "_" . time() . ".jpg";
-            $targetPath = $targetDir . $filename;
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
 
-            // Save the uploaded file
+            // Keep original extension if possible
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg';
+            $filename   = 'instructor_' . $id . '_' . time() . '.' . $ext;
+            $targetPath = $uploadDir . $filename;
+
             if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
                 throw new Exception("Failed to upload instructor image.");
             }
 
-            // Save filename to DB
-            Flight::userService()->updateInstructorImage($id, $filename);
+            // What we store in DB
+            if ($storeFullUrl) {
+                // e.g. https://unisport-9kjwi.ondigitalocean.app/uploads/team/instructor_201_xxx.jpg
+                $imageValue = $publicUrlBase . $filename;
+            } else {
+                // e.g. assets/img/team/instructor_201_xxx.jpg (relative path)
+                $imageValue = $publicUrlBase . $filename;
+            }
+
+            Flight::userService()->updateInstructorImage($id, $imageValue);
         }
 
         Flight::json(["success" => true, "id" => $id]);
