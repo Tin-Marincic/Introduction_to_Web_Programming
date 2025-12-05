@@ -55,4 +55,10 @@ class UserDao extends BaseDao {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function get_user_by_email($email) {
+        $query = "SELECT * FROM users WHERE username = :username";
+        return $this->query_unique($query, ['username' => $email]);
+    }
+
 }
