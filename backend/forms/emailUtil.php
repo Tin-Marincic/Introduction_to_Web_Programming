@@ -163,19 +163,23 @@ class EmailUtil {
             $mail->addAddress($email, $name);
 
             // AUTO-SELECT FRONTEND URL
-            $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+            $host = $_SERVER['HTTP_HOST'] ?? '';
 
             if (strpos($host, 'localhost') !== false) {
-                // Local development environment
+                // Local development backend → local frontend
                 $frontendURL = 'http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend';
 
-            } elseif (strpos($host, 'skiunisport.com') !== false) {
-                // Your main live domain
+            } elseif (
+                strpos($host, 'unisport-9kjwi.ondigitalocean.app') !== false ||  // backend on DO
+                strpos($host, 'skiunisport.com') !== false ||                    // in case backend ever runs here
+                strpos($host, 'www.skiunisport.com') !== false
+            ) {
+                // Production backend → main live frontend
                 $frontendURL = 'https://skiunisport.com';
 
             } else {
-                // Fallback: DigitalOcean production domain
-                $frontendURL = 'https://unisport-frontend-rg53w.ondigitalocean.app';
+                // Fallback (if you ever use some other host)
+                $frontendURL = 'https://skiunisport.com';
             }
 
             // Construct reset link
@@ -210,17 +214,23 @@ class EmailUtil {
             $host = $_SERVER['HTTP_HOST'] ?? '';
 
             if (strpos($host, 'localhost') !== false) {
-                $frontendURL = "http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend";
-            } elseif (strpos($host, 'skiunisport.com') !== false) {
-                $frontendURL = "https://skiunisport.com";
+                $frontendURL = 'http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend';
+
+            } elseif (
+                strpos($host, 'unisport-9kjwi.ondigitalocean.app') !== false ||
+                strpos($host, 'skiunisport.com') !== false ||
+                strpos($host, 'www.skiunisport.com') !== false
+            ) {
+                $frontendURL = 'https://skiunisport.com';
+
             } else {
-                $frontendURL = "https://unisport-frontend-rg53w.ondigitalocean.app";
+                $frontendURL = 'https://skiunisport.com';
             }
 
-            $verifyLink = $frontendURL . "/#verify_email/token=" . $token;
+            $verifyLink = $frontendURL . '/#verify_email/token=' . $token;
 
             $mail->isHTML(true);
-            $mail->Subject = "Potvrdite vasu email adresu";
+            $mail->Subject = 'Potvrdite vašu email adresu';
 
             $mail->Body = "
                 <p>Poštovani/Poštovana <strong>{$name}</strong>,</p>
@@ -231,6 +241,7 @@ class EmailUtil {
 
             return $mail->send();
         } catch (Exception $e) {
+            error_log('EMAIL VERIFICATION FAILED: ' . $e->getMessage());
             return false;
         }
     }
