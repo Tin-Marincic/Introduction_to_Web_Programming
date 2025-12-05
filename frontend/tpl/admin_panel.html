@@ -154,7 +154,7 @@
 <div class="modal fade" id="addInstructorModal" tabindex="-1" aria-labelledby="addInstructorModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
-        <form id="add-instructor-form" class="modal-content">
+        <form id="add-instructor-form" class="modal-content" enctype="multipart/form-data" onsubmit="return false;">
             <div class="modal-header">
                 <h5 class="modal-title" id="addInstructorModalLabel">Add Instructor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -174,7 +174,7 @@
                     <label class="form-label">Licenca</label>
                     <select class="form-select" id="add-instructor-licence" required>
                         <option value="" disabled selected>Odaberi Licencu</option>
-                        <option value="Asistent ućitelju">Asistent učitelju</option>
+                        <option value="Asistent učitelju">Asistent učitelju</option>
                         <option value="U1">U1</option>
                         <option value="U2">U2</option>
                         <option value="U3">U3</option>
@@ -191,6 +191,12 @@
                     <label class="form-label">Šifra</label>
                     <input type="password" class="form-control" id="add-instructor-password" required>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Slika Instruktora</label>
+                    <input type="file" class="form-control" id="add-instructor-image" accept="image/*">
+                </div>
+
             </div>
 
             <div class="modal-footer">

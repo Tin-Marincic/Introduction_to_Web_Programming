@@ -273,13 +273,74 @@ cancelRange: function () {
 },
 
 
-
-
 openAddInstructorModal: function () {
+  // Reset form (text + selects)
   $("#add-instructor-form")[0].reset();
+
+  // Clear file input properly
+  $("#add-instructor-image").val("");
+
+  // Open modal
   const modal = new bootstrap.Modal(document.getElementById("addInstructorModal"));
   modal.show();
+
+  // Remove ANY old submit handlers for this form
+  $(document).off("submit.addInstructor");
+  $(document).off("submit", "#add-instructor-form");
+
+  // Determine API base (local vs deployed)
+  const apiBase =
+    window.location.hostname === "localhost"
+      ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/backend"
+      : "https://unisport-9kjwi.ondigitalocean.app";
+
+  // Add submit handler for adding instructor (with image upload)
+  $(document).on("submit.addInstructor", "#add-instructor-form", function (e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const formData = new FormData();
+    formData.append("name", $("#add-instructor-name").val());
+    formData.append("surname", $("#add-instructor-surname").val());
+    formData.append("licence", $("#add-instructor-licence").val());
+    formData.append("username", $("#add-instructor-username").val());
+    formData.append("password", $("#add-instructor-password").val());
+
+    const imageFile = $("#add-instructor-image")[0].files[0];
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const token = localStorage.getItem("user_token");
+
+    $.ajax({
+      url: apiBase + "/instructors",
+      method: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: token
+        ? { Authorization: "Bearer " + token } // 🔑 send JWT
+        : {},
+      success: function (res) {
+        toastr.success("Instruktor uspješno dodan!");
+
+        AdminPanelService.loadInstructors();
+
+        bootstrap.Modal.getInstance(
+          document.getElementById("addInstructorModal")
+        ).hide();
+      },
+      error: function (err) {
+        console.error("Add instructor error:", err);
+        toastr.error(
+          err.responseText || "Greška pri dodavanju instruktora."
+        );
+      }
+    });
+  });
 },
+
 
 editInstructor: function (id, licence) {
   $("#edit-instructor-id").val(id);

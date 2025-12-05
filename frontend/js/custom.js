@@ -231,7 +231,7 @@ app.route({
   });
 });
 
-$("#add-instructor-form").on("submit", function (e) {
+/*$("#add-instructor-form").on("submit", function (e) {
   e.preventDefault();
 
   const data = {
@@ -255,7 +255,7 @@ $("#add-instructor-form").on("submit", function (e) {
   });
 });
 
-
+*/
 $("#edit-instructor-form").on("submit", function (e) {
   e.preventDefault();
   const id = $("#edit-instructor-id").val();
