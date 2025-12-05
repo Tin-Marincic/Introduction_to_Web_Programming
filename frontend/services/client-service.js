@@ -80,33 +80,52 @@ const ClientLoader = {
     });
   },
 
-  loadInstructors: function () {
-    RestClient.get("users/instructor", function (instructors) {
-      let html = "";
-      instructors.forEach((instructor, index) => {
-        const fullName = `${instructor.name} ${instructor.surname}`;
-        const delay = 100 * (index + 1);
+loadInstructors: function () {
+  RestClient.get("users/instructor", function (instructors) {
+    let html = "";
 
-        const imgFile = instructor.image_url ? instructor.image_url : "default.jpg";
+    instructors.forEach((instructor, index) => {
+      const fullName = `${instructor.name} ${instructor.surname}`;
+      const delay = 100 * (index + 1);
 
-        html += `
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="${delay}">
-            <div class="team-member d-flex align-items-start">
-              <div class="pic">
-                <img src="assets/img/team/${imgFile}" class="img-fluid" alt="">
-              </div>
-              <div class="member-info">
-                <h4>${fullName}</h4>
-                <span>${instructor.licence}</span>
-                <h6>instruktor</h6>
-                <a href="#booking" class="btn btn-primary">Rezerviši sada</a>
-              </div>
+      let imgSrc;
+
+      if (instructor.image_url) {
+        if (instructor.image_url.startsWith("http")) {
+          // NEW: full URL coming from backend (production)
+          imgSrc = instructor.image_url;
+        } else {
+          // OLD / local style: relative path like "assets/img/team/X.jpg"
+          imgSrc = instructor.image_url;
+        }
+      } else {
+        // No image in DB → default
+        imgSrc = "assets/img/team/default.jpg";
+      }
+
+      html += `
+        <div class="col-lg-6" data-aos="fade-up" data-aos-delay="${delay}">
+          <div class="team-member d-flex align-items-start">
+            <div class="pic">
+              <img src="${imgSrc}" class="img-fluid" alt="">
             </div>
-          </div>`;
-      });
-      $("#team-list").html(html);
+            <div class="member-info">
+              <h4>${fullName}</h4>
+              <span>${instructor.licence}</span>
+              <h6>instruktor</h6>
+              <a href="#booking" class="btn btn-primary">Rezerviši sada</a>
+            </div>
+          </div>
+        </div>`;
     });
-  },
+
+    $("#team-list").html(html);
+  }, function (err) {
+    console.error("Failed to load instructors", err);
+    $("#team-list").html("<p class='text-center'>Nije moguće učitati instruktore.</p>");
+  });
+},
+
 
 
   initReviewModal: function () {

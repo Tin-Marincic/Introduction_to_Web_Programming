@@ -83,9 +83,10 @@ class UserService extends BaseService {
         return $this->dao->getUsersByRole($role);
     }
 
-    public function updateInstructorImage($id, $filename) {
-        return $this->dao->updateInstructorImage($id, $filename);
+    public function updateInstructorImage($id, $filenameOrUrl) {
+        return $this->dao->updateInstructorImage($id, $filenameOrUrl);
     }
+
 
 
 }

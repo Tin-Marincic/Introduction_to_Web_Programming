@@ -69,15 +69,16 @@ class UserDao extends BaseDao {
         return $this->query_unique($query, ['username' => $email]);
     }
 
-    public function updateInstructorImage($id, $filename) {
+    public function updateInstructorImage($id, $filenameOrUrl) {
         $stmt = $this->connection->prepare("
             UPDATE users SET image_url = :img WHERE id = :id
         ");
         $stmt->execute([
-            ':img' => $filename,
-            ':id' => $id
+            ':img' => $filenameOrUrl,
+            ':id'  => $id
         ]);
-}
+    }
+
 
 
 }
