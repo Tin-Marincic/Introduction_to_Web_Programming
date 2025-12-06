@@ -74,7 +74,8 @@ Flight::route('/*', function () {
         $url === '/check-env' ||
         ($url === '/reviews' && $method === 'GET') ||
         ($url === '/api/services' && $method === 'GET') ||
-        (strpos($url, '/users/instructor') === 0)
+        (strpos($url, '/users/instructor') === 0) ||
+        (strpos($url, '/uploads/') === 0)          
     ) {
         return true;
     }
