@@ -22,6 +22,28 @@ $(document).ready(function() {
     ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/backend/"
     : "https://unisport-9kjwi.ondigitalocean.app/";
 
+      // === Helper: close mobile nav (for small screens) ===
+  function closeMobileNav() {
+    const $body = $("body");
+    if (!$body.hasClass("mobile-nav-active")) return;
+
+    $body.removeClass("mobile-nav-active");
+
+    const $toggle = $(".mobile-nav-toggle");
+    if ($toggle.length) {
+      $toggle.removeClass("bi-x").addClass("bi-list");
+    }
+  }
+
+  // Close mobile menu when going to admin or instructor panel
+  $(document).on(
+    "click",
+    'a[href="#admin_panel"], a[href="#instructor_panel"]',
+    function () {
+      closeMobileNav();
+    }
+  );
+
   
 function updateBookingView() {
   if (!localStorage.getItem("user_token")) {
