@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../data/roles.php';
-
+use Aws\S3\S3Client;
 /**
  * @OA\Get(
  *     path="/users",
@@ -83,14 +83,12 @@ Flight::route('POST /instructors', function () {
     Flight::auth_middleware()->authorizeRoles([Roles::ADMIN]);
 
     try {
-        // 1) Standard fields
         $name     = Flight::request()->data->name;
         $surname  = Flight::request()->data->surname;
         $licence  = Flight::request()->data->licence;
         $username = Flight::request()->data->username;
         $password = Flight::request()->data->password;
 
-        // 2) Create instructor in DB (returns ID)
         $id = Flight::userService()->addInstructor([
             "name"     => $name,
             "surname"  => $surname,
@@ -100,44 +98,32 @@ Flight::route('POST /instructors', function () {
             "role"     => "instructor"
         ]);
 
-        // 3) Optional image upload
         if (!empty($_FILES['image']['name'])) {
 
-            $host    = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
+            $s3 = new S3Client([
+                'version' => 'latest',
+                'region'  => getenv('SPACES_REGION'),
+                'endpoint' => getenv('SPACES_ENDPOINT'),
+                'credentials' => [
+                    'key' => getenv('SPACES_KEY'),
+                    'secret' => getenv('SPACES_SECRET'),
+                ],
+                'use_path_style_endpoint' => true
+            ]);
 
-            if ($isLocal) {
-                // 🔹 LOCAL DEV: images live in frontend repo
-                $uploadDir     = __DIR__ . '/../../frontend/assets/img/team/';
-                $publicUrlBase = 'assets/img/team/';
-            } else {
-                // 🔹 PRODUCTION: images live on backend app
-                // Always use HTTPS + backend DO domain here
-                $uploadDir     = __DIR__ . '/../uploads/team/';
-                $publicUrlBase = 'https://unisport-9kjwi.ondigitalocean.app/uploads/team/';
-            }
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg';
+            $filename = "instructors/instructor_{$id}_" . time() . "." . $ext;
 
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0775, true);
-            }
+            $s3->putObject([
+                'Bucket' => getenv('SPACES_BUCKET'),
+                'Key'    => $filename,
+                'Body'   => fopen($_FILES['image']['tmp_name'], 'rb'),
+                'ACL'    => 'public-read',
+                'ContentType' => $_FILES['image']['type']
+            ]);
 
-            // Keep original extension if possible
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            if (!$ext) {
-                $ext = 'jpg';
-            }
-
-            $filename   = 'instructor_' . $id . '_' . time() . '.' . $ext;
-            $targetPath = $uploadDir . $filename;
-
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-                throw new Exception("Failed to upload instructor image.");
-            }
-
-            // Store full URL in DB in production, relative in local
-            $imageValue = $publicUrlBase . $filename;
-
-            Flight::userService()->updateInstructorImage($id, $imageValue);
+            $publicUrl = getenv('SPACES_BASE_URL') . "/" . $filename;
+            Flight::userService()->updateInstructorImage($id, $publicUrl);
         }
 
         Flight::json(["success" => true, "id" => $id]);
@@ -146,6 +132,7 @@ Flight::route('POST /instructors', function () {
         Flight::halt(500, $e->getMessage());
     }
 });
+
 
 
 /**

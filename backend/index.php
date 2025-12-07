@@ -5,6 +5,12 @@ require_once __DIR__ . '/middleware/AuthMiddleware.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+// add this:
+use Dotenv\Dotenv;
+
+// === LOAD ENV (.env) ===
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad(); // won't crash if .env is missing (e.g. on DO where you use env vars)
 
 // === CORS SETUP ===
 $allowedOrigins = [
