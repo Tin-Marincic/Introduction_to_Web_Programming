@@ -103,18 +103,18 @@ Flight::route('POST /instructors', function () {
         // 3) Optional image upload
         if (!empty($_FILES['image']['name'])) {
 
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $host    = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $isLocal = (strpos($host, 'localhost') !== false || $host === '127.0.0.1');
 
-            // LOCAL vs PRODUCTION behavior
-            if (strpos($host, 'localhost') !== false || $host === '127.0.0.1') {
-                // 🔹 Local dev → write into frontend folder, store relative asset path
+            if ($isLocal) {
+                // 🔹 LOCAL DEV: images live in frontend repo
                 $uploadDir     = __DIR__ . '/../../frontend/assets/img/team/';
                 $publicUrlBase = 'assets/img/team/';
             } else {
-                // 🔹 Production → write into backend /uploads/team
-                // and store a path relative to the domain (no http/https, no host)
+                // 🔹 PRODUCTION: images live on backend app
+                // Always use HTTPS + backend DO domain here
                 $uploadDir     = __DIR__ . '/../uploads/team/';
-                $publicUrlBase = '/uploads/team/';
+                $publicUrlBase = 'https://unisport-9kjwi.ondigitalocean.app/uploads/team/';
             }
 
             if (!is_dir($uploadDir)) {
@@ -134,7 +134,7 @@ Flight::route('POST /instructors', function () {
                 throw new Exception("Failed to upload instructor image.");
             }
 
-            // What we store in DB (same for local & prod, just different base path)
+            // Store full URL in DB in production, relative in local
             $imageValue = $publicUrlBase . $filename;
 
             Flight::userService()->updateInstructorImage($id, $imageValue);
