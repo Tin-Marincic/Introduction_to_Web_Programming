@@ -103,30 +103,30 @@ Flight::route('POST /instructors', function () {
         // 3) Optional image upload
         if (!empty($_FILES['image']['name'])) {
 
-            $host   = $_SERVER['HTTP_HOST'] ?? 'unisport-9kjwi.ondigitalocean.app';
-            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $baseUrl = $scheme . '://' . $host;
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
             // LOCAL vs PRODUCTION behavior
-            if (strpos($host, 'localhost') !== false) {
-                // 🔹 Local dev → still write into frontend folder
+            if (strpos($host, 'localhost') !== false || $host === '127.0.0.1') {
+                // 🔹 Local dev → write into frontend folder, store relative asset path
                 $uploadDir     = __DIR__ . '/../../frontend/assets/img/team/';
                 $publicUrlBase = 'assets/img/team/';
-                $storeFullUrl  = false; // store relative path
             } else {
                 // 🔹 Production → write into backend /uploads/team
-                // assuming backend document root is the "backend" folder
+                // and store a path relative to the domain (no http/https, no host)
                 $uploadDir     = __DIR__ . '/../uploads/team/';
-                $publicUrlBase = $baseUrl . '/uploads/team/';
-                $storeFullUrl  = true; // store full URL
+                $publicUrlBase = '/uploads/team/';
             }
 
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+                mkdir($uploadDir, 0775, true);
             }
 
             // Keep original extension if possible
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg';
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            if (!$ext) {
+                $ext = 'jpg';
+            }
+
             $filename   = 'instructor_' . $id . '_' . time() . '.' . $ext;
             $targetPath = $uploadDir . $filename;
 
@@ -134,14 +134,8 @@ Flight::route('POST /instructors', function () {
                 throw new Exception("Failed to upload instructor image.");
             }
 
-            // What we store in DB
-            if ($storeFullUrl) {
-                // e.g. https://unisport-9kjwi.ondigitalocean.app/uploads/team/instructor_201_xxx.jpg
-                $imageValue = $publicUrlBase . $filename;
-            } else {
-                // e.g. assets/img/team/instructor_201_xxx.jpg (relative path)
-                $imageValue = $publicUrlBase . $filename;
-            }
+            // What we store in DB (same for local & prod, just different base path)
+            $imageValue = $publicUrlBase . $filename;
 
             Flight::userService()->updateInstructorImage($id, $imageValue);
         }
@@ -152,6 +146,7 @@ Flight::route('POST /instructors', function () {
         Flight::halt(500, $e->getMessage());
     }
 });
+
 
 /**
  * @OA\Put(
