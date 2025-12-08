@@ -59,7 +59,7 @@ $sql = "
     JOIN users inst  ON b.instructor_id = inst.id
     JOIN services s  ON b.service_id = s.id
     WHERE 
-        b.session_type = 'Private Instruction'     -- adjust if your enum text is different
+        b.session_type = 'Private_instruction'     -- 
         AND b.date = :today
         AND cli.username <> :blockerEmail         -- exclude System Blocker
         AND b.status = 'confirmed'                -- adjust if you use another value
