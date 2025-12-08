@@ -70,6 +70,7 @@ Flight::route('/*', function () {
 
     // Public routes
     // Public routes (no token required)
+    //tryting to make it redeploy
     if (
         $url === '/auth/login' ||
         $url === '/auth/register' ||
