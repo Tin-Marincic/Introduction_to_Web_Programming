@@ -245,7 +245,7 @@ function updateAvailableTimes() {
       }
     });
 
-    const allSlots = [10, 11, 12, 13, 14, 15];
+    const allSlots = [9, 10, 11, 12, 13, 14, 15];
     let hasAvailableSlot = false;
 
     const selectedDateObj = new Date(date);
