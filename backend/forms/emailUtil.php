@@ -230,21 +230,32 @@ class EmailUtil {
             $verifyLink = $frontendURL . '/#verify_email/token=' . $token;
 
             $mail->isHTML(true);
-            $mail->Subject = 'Potvrdite vasu email adresu';
+            $mail->Subject = 'Potvrdite vašu email adresu / Verify your email address';
 
             $mail->Body = "
+                <!-- Bosnian / Serbian -->
                 <p>Poštovani/Poštovana <strong>{$name}</strong>,</p>
                 <p>Molimo vas da kliknete na link kako biste verifikovali svoju email adresu:</p>
                 <p><a href='{$verifyLink}'>{$verifyLink}</a></p>
                 <p>Hvala što koristite Unisport.</p>
+
+                <hr>
+
+                <!-- English -->
+                <p>Dear <strong>{$name}</strong>,</p>
+                <p>Please click the link below to verify your email address:</p>
+                <p><a href='{$verifyLink}'>{$verifyLink}</a></p>
+                <p>Thank you for using Unisport.</p>
             ";
 
             return $mail->send();
+
         } catch (Exception $e) {
             error_log('EMAIL VERIFICATION FAILED: ' . $e->getMessage());
             return false;
         }
     }
+
 
         // 5) Daily admin report for private instructions
     public static function sendDailyPrivateLessonsReport(string $htmlBody, string $dateLabel) {
