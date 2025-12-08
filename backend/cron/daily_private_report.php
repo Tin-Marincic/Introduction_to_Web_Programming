@@ -101,7 +101,7 @@ foreach ($rows as $r) {
 }
 
 // ---------- Build HTML body ----------
-$body  = "<p>Dnevni izvještaj privatnih časova za datum <strong>{$todayNice}</strong>.</p>";
+$body  = "<p>Dnevni izvjestaj privatnih casova za datum <strong>{$todayNice}</strong>.</p>";
 $body .= "<p>Molimo provjerite raspored instruktora.</p>";
 
 foreach ($byInstructor as $inst) {
