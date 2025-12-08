@@ -78,6 +78,7 @@ Flight::route('/*', function () {
         $url === '/auth/verify-email' ||       
         $url === '/test-connection' ||
         $url === '/check-env' ||
+        $url === '/cron/daily_private_report.php' ||  
         ($url === '/reviews' && $method === 'GET') ||
         ($url === '/api/services' && $method === 'GET') ||
         (strpos($url, '/users/instructor') === 0) ||

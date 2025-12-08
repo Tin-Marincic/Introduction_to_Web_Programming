@@ -246,6 +246,25 @@ class EmailUtil {
         }
     }
 
+        // 5) Daily admin report for private instructions
+    public static function sendDailyPrivateLessonsReport(string $htmlBody, string $dateLabel) {
+        try {
+            $mail = self::setupMailer();
+            $mail->addAddress('skolaskijanjaunisport@gmail.com', 'Unisport Admin');
+
+            $mail->isHTML(true);
+            $mail->Subject = "Dnevni izvještaj privatnih časova – {$dateLabel}";
+            $mail->Body    = $htmlBody;
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('DAILY REPORT EMAIL FAILED: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+
 
 
 
