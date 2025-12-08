@@ -159,55 +159,50 @@ class BookingService extends BaseService {
        → User cancels → email to instructor + admin
        → Admin cancels → email to user
     ============================================================ */
-    public function deleteBooking($id, $userId, $role) {
-        $isAdmin = ($role === Roles::ADMIN);
+   public function deleteBooking($id, $userId, $role) {
+    $isAdmin = ($role === Roles::ADMIN);
 
-        // Get booking details BEFORE delete
-        $booking = $this->dao->getBookingById($id);
-        if (!$booking) {
-            throw new Exception("Termin nije pronadjen.");
-        }
-
-        // Perform delete
-        $deleted = $this->dao->deleteBooking($id, $userId, $isAdmin);
-        if (!$deleted) {
-            throw new Exception("Rezervacija nije pronađena ili niste ovlašteni da je obrišete.");
-        }
-
-        /* ------------------------------------------------------------
-           CASE 1 → USER cancels booking
-           Notify instructor + admin
-        ------------------------------------------------------------ */
-        if (!$isAdmin) {
-            EmailUtil::sendInstructorCancellationEmail(
-                $booking['instructor_email'],
-                $booking['instructor_name'],
-                $booking['client_name'],
-                $booking['date']
-            );
-
-            EmailUtil::sendAdminCancellationAlert(
-                $id,
-                $booking['client_name'],
-                $booking['client_email'],
-                $booking['date']
-            );
-        }
-
-        /* ------------------------------------------------------------
-           CASE 2 → ADMIN cancels single booking
-           Send email to user
-        ------------------------------------------------------------ */
-        if ($isAdmin) {
-            EmailUtil::sendCancellationEmail(
-                $booking['client_email'],
-                $booking['client_name'],
-                $booking['date']
-            );
-        }
-
-        return true;
+    // Get booking details BEFORE delete
+    $booking = $this->dao->getBookingById($id);
+    if (!$booking) {
+        throw new Exception("Termin nije pronadjen.");
     }
+
+    // Perform delete
+    $deleted = $this->dao->deleteBooking($id, $userId, $isAdmin);
+    if (!$deleted) {
+        throw new Exception("Rezervacija nije pronađena ili niste ovlašteni da je obrišete.");
+    }
+
+    // CASE 1 → USER cancels booking
+    if (!$isAdmin) {
+        EmailUtil::sendInstructorCancellationEmail(
+            $booking['instructor_email'],
+            $booking['instructor_name'],
+            $booking['client_name'],
+            $booking['date'],
+            $booking['start_time']
+        );
+
+        EmailUtil::sendAdminCancellationAlert(
+            $booking['client_name'],
+            $booking['client_email'],
+            $booking['date'],
+            $booking['start_time']
+        );
+    }
+
+    // CASE 2 → ADMIN cancels single booking
+    if ($isAdmin) {
+        EmailUtil::sendCancellationEmail(
+            $booking['client_email'],
+            $booking['client_name'],
+            $booking['date']
+        );
+    }
+
+    return true;
+}
 
 
     /* ============================================================
