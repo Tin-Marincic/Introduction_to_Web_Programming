@@ -469,7 +469,7 @@ app.route({
   load: 'instructor_panel.html',
   onReady: function () {
     // 🔒 INSTRUCTOR GUARD
-    const token = localStorage.getItem('User_token');
+    const token = localStorage.getItem('user_token');
     const role  = localStorage.getItem('userRole');   // e.g. "instructor"
 
     if (!token || role !== 'instructor') {
