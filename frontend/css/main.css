@@ -2134,8 +2134,10 @@ section,
 }
 
 /* Standard input/select/textarea styling */
+/* Standard input/select/textarea styling (do NOT touch tel) */
 .booking-section select,
 .booking-section input[type="number"],
+.booking-section input[type="text"],
 .booking-section textarea {
   width: 100%;
   padding: 12px;
@@ -2145,6 +2147,7 @@ section,
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
   font-size: 16px;
 }
+
 
 /* Date input styling */
 .booking-section input[type="date"] {
@@ -2518,8 +2521,68 @@ section,
   color: #666;
 }
 
+/* ===============================
+   Admin participant fields box
+   =============================== */
+#adminParticipantFields {
+  border: 2px solid #da3722;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+  background: #fff7f6;
+}
 
+#adminParticipantFields h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #b31e00;
+}
 
+/* Make labels align nicely */
+#adminParticipantFields .form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Admin participant inputs styled same as main name fields */
+#participantFirstName,
+#participantLastName {
+  background: #fafafa;
+  border: 1px solid #d8d8d8;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+  transition: 0.2s ease-in-out;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+#participantFirstName:focus,
+#participantLastName:focus {
+  border-color: #da3722;
+  box-shadow: 0 0 0 3px rgba(218,55,34,0.15);
+  background: #fff;
+  outline: none;
+}
+
+#participantFirstName::placeholder,
+#participantLastName::placeholder {
+  color: #999;
+}
+
+/* Make intl-tel-input fill the form width */
+#adminParticipantFields .iti,
+.booking-section .iti {
+  width: 100%;
+}
+
+#adminParticipantFields .iti input,
+.booking-section .iti input {
+  width: 100%;
+}
 
 /*--------------------------------------------------------------
 # Admin panel
