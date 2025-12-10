@@ -230,7 +230,7 @@ class EmailUtil {
             $verifyLink = $frontendURL . '/#verify_email/token=' . $token;
 
             $mail->isHTML(true);
-            $mail->Subject = 'Potvrdite vašu email adresu / Verify your email address';
+            $mail->Subject = 'Potvrdite vasu email adresu / Verify your email address';
 
             $mail->Body = "
                 <!-- Bosnian / Serbian -->

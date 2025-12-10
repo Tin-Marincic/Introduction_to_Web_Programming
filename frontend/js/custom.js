@@ -204,6 +204,17 @@ app.route({
   view: 'admin_panel',
   load: 'admin_panel.html',
   onReady: function () {
+    // 🔒 ADMIN GUARD
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');   // e.g. "admin"
+
+    if (!token || role !== 'admin') {
+      // send to sign in route in your SPA
+      window.location.hash = '#sign_in';
+      return; // 🚫 STOP: don't run any admin logic
+    }
+
+    // ✅ ADMIN ONLY CODE
     AdminPanelService.loadServices();
     AdminPanelService.loadInstructors();
     AdminPanelService.loadInstructorBookings();
@@ -454,14 +465,25 @@ app.route({
 
 
   app.route({
-    view: 'instructor_panel',
-    load: 'instructor_panel.html',
-    onReady: function () {
-      InstructorPanelService.loadHeader();
-      InstructorPanelService.loadBookings();
-      InstructorPanelService.initAvailability();
+  view: 'instructor_panel',
+  load: 'instructor_panel.html',
+  onReady: function () {
+    // 🔒 INSTRUCTOR GUARD
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');   // e.g. "instructor"
+
+    if (!token || role !== 'instructor') {
+      window.location.hash = '#sign_in';
+      return; // 🚫 STOP: not an instructor
     }
-  });
+
+    // ✅ INSTRUCTOR ONLY CODE
+    InstructorPanelService.loadHeader();
+    InstructorPanelService.loadBookings();
+    InstructorPanelService.initAvailability();
+  }
+});
+
 app.route({
     view: "register",
     load: "register.html",

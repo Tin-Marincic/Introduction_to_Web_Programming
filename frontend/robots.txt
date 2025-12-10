@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin_panel.html
+Disallow: /instructor_panel.html
+
+Sitemap: https://skiunisport.com/sitemap.xml
