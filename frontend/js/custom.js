@@ -205,8 +205,8 @@ app.route({
   load: 'admin_panel.html',
   onReady: function () {
     // 🔒 ADMIN GUARD
-    const token = localStorage.getItem('token');
-    const role  = localStorage.getItem('role');   // e.g. "admin"
+    const token = localStorage.getItem('user_token');
+    const role  = localStorage.getItem('userRole');   // e.g. "admin"
 
     if (!token || role !== 'admin') {
       // send to sign in route in your SPA
@@ -469,8 +469,8 @@ app.route({
   load: 'instructor_panel.html',
   onReady: function () {
     // 🔒 INSTRUCTOR GUARD
-    const token = localStorage.getItem('token');
-    const role  = localStorage.getItem('role');   // e.g. "instructor"
+    const token = localStorage.getItem('User_token');
+    const role  = localStorage.getItem('userRole');   // e.g. "instructor"
 
     if (!token || role !== 'instructor') {
       window.location.hash = '#sign_in';
