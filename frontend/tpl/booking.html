@@ -91,8 +91,28 @@
 
                 <!-- Private Instruction Options -->
                 <div id="privateInstructionOptions" style="display: none;">
+                    <!-- Only visible for ADMIN -->
+                    <div id="adminParticipantFields" style="display: none; margin-bottom: 1.5rem;">
+                        <h4>Podaci o učesniku (telefon rezervacija)</h4>
+
+                        <div class="form-group">
+                            <label for="participantFirstName">Ime učesnika:</label>
+                            <input type="text" id="participantFirstName" name="participantFirstName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="participantLastName">Prezime učesnika:</label>
+                            <input type="text" id="participantLastName" name="participantLastName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="participantPhone">Broj telefona učesnika:</label>
+                            <input type="tel" id="participantPhone" name="participantPhone" class="phone-input">
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="groupSize">Vrsta sesije:</label>
+                        <label for="service">Vrsta sesije:</label>
                         <select id="service" name="service">
                             <option value="" disabled selected>Izaberite Vrstu Sesije</option>
                             <option value="82">1 na 1</option>

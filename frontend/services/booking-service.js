@@ -40,48 +40,57 @@ var BookingService = {
     if (!form) return;
 
     form.reset();
-    document.getElementById("startTime").innerHTML = '<option value="" disabled selected>Izaberite početno vrijeme</option>';
-    document.getElementById("hours").innerHTML = '<option value="" disabled selected>Izaberite broj sati</option>';
+    document.getElementById("startTime").innerHTML =
+      '<option value="" disabled selected>Izaberite početno vrijeme</option>';
+    document.getElementById("hours").innerHTML =
+      '<option value="" disabled selected>Izaberite broj sati</option>';
 
-        // ⭐ Initialize International Phone Input
-    const phoneInputField = document.getElementById("phoneNumber");
-    if (phoneInputField) {
-      const phoneInput = window.intlTelInput(phoneInputField, {
-        initialCountry: "ba", // Bosnia default
-        preferredCountries: ["ba", "hr", "rs", "me", "de", "at", "si", "ch"],
-        separateDialCode: true,
-        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.3.0/js/utils.js",
-      });
+    // ⭐ Initialize International Phone Input for ALL .phone-input fields
+    const phoneInputs = document.querySelectorAll(".phone-input");
+    phoneInputs.forEach((input) => {
+      // avoid double init if route is reloaded
+      if (!intlTelInputGlobals.getInstance(input)) {
+        const iti = window.intlTelInput(input, {
+          initialCountry: "ba", // Bosnia default
+          preferredCountries: ["ba", "hr", "rs", "me", "de", "at", "si", "ch"],
+          separateDialCode: true,
+          utilsScript:
+            "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.3.0/js/utils.js",
+        });
 
-      // Save full phone number (+38761234567)
-      phoneInputField.addEventListener("blur", function () {
-        phoneInputField.dataset.fullNumber = phoneInput.getNumber();
-      });
-    }
+        // Save full phone number (+38761234567) if you ever need it
+        input.addEventListener("blur", function () {
+          input.dataset.fullNumber = iti.getNumber();
+        });
+      }
+    });
 
     // Load instructors
-    document.getElementById("sessionDate").addEventListener("change", function () {
-    const selectedDate = this.value;
-    if (!selectedDate) return;
+    document
+      .getElementById("sessionDate")
+      .addEventListener("change", function () {
+        const selectedDate = this.value;
+        if (!selectedDate) return;
 
-    const instructorSelect = document.getElementById("instructor");
-    instructorSelect.innerHTML = '<option value="" disabled selected>Učitavanje Instruktora...</option>';
+        const instructorSelect = document.getElementById("instructor");
+        instructorSelect.innerHTML =
+          '<option value="" disabled selected>Učitavanje Instruktora...</option>';
 
-    RestClient.get(`availability/active?date=${selectedDate}`, function (ids) {
-        RestClient.get("users/instructor", function (allInstructors) {
-        instructorSelect.innerHTML = '<option value="" disabled selected>Izaberite Instruktora</option>';
-        allInstructors.forEach(instructor => {
-            if (ids.includes(instructor.id)) {
-            const opt = document.createElement("option");
-            opt.value = instructor.id;
-            opt.text = `${instructor.name} ${instructor.surname}`;
-            instructorSelect.appendChild(opt);
-            }
+        RestClient.get(`availability/active?date=${selectedDate}`, function (ids) {
+          RestClient.get("users/instructor", function (allInstructors) {
+            instructorSelect.innerHTML =
+              '<option value="" disabled selected>Izaberite Instruktora</option>';
+            allInstructors.forEach((instructor) => {
+              if (ids.includes(instructor.id)) {
+                const opt = document.createElement("option");
+                opt.value = instructor.id;
+                opt.text = `${instructor.name} ${instructor.surname}`;
+                instructorSelect.appendChild(opt);
+              }
+            });
+          });
         });
-        });
-    });
-    });
-
+      });
 
     // Load services
     RestClient.get("api/services", function (services) {
@@ -89,9 +98,10 @@ var BookingService = {
       if (!serviceSelect) return;
       if (!Array.isArray(services)) return;
 
-      serviceSelect.innerHTML = '<option value="" disabled selected>Odaberite tip sesije</option>';
+      serviceSelect.innerHTML =
+        '<option value="" disabled selected>Odaberite tip sesije</option>';
 
-      services.forEach(service => {
+      services.forEach((service) => {
         // ❌ Ignore services that start with "Ski Škola"
         // ✅ Include everything else
         if (!service.name.trim().toLowerCase().startsWith("ski škola")) {
@@ -103,7 +113,13 @@ var BookingService = {
       });
     });
 
-    $.validator.setDefaults({ ignore: [] }); //had to add this so the hidden fields dont get ignored by jquery
+    $.validator.setDefaults({ ignore: [] }); // so hidden fields are still validated
+
+    // 🔐 Helper: check if current user is admin
+    function isAdminUser() {
+      const role = localStorage.getItem("userRole"); // e.g. "admin", "user", "instructor"
+      return role === "admin"; // adjust if you use "ADMIN"
+    }
 
     form.onsubmit = function (e) {
       e.preventDefault();
@@ -121,20 +137,24 @@ var BookingService = {
       const sessionType = document.getElementById("sessionType").value;
 
       // 🏫 --- SKI SCHOOL BOOKING (single participant version) ---
-      // 🏫 --- SKI SCHOOL BOOKING (single participant version) ---
       if (sessionType === "skiSchool") {
-
-        const iti = intlTelInputGlobals.getInstance(document.getElementById("phoneNumber"));
+        const iti = intlTelInputGlobals.getInstance(
+          document.getElementById("phoneNumber")
+        );
         const phoneNumber = iti.getNumber(); // sends +387xxxxxxxx
 
-        const firstName    = document.getElementById("firstName").value.trim();
-        const lastName     = document.getElementById("lastName").value.trim();
-        const week         = document.getElementById("week").value;
-        const dateOfBirth  = document.getElementById("dateOfBirth").value;   // NEW
-        const skiLevel     = document.getElementById("skiLevel").value;
-        const address      = document.getElementById("address").value.trim() || ""; // NEW
-        const isVegetarian = document.querySelector("input[name='isVegetarian']:checked")?.value || 0;
-        const allergies    = document.getElementById("allergies").value.trim() || "";
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const week = document.getElementById("week").value;
+        const dateOfBirth = document.getElementById("dateOfBirth").value;
+        const skiLevel = document.getElementById("skiLevel").value;
+        const address =
+          document.getElementById("address").value.trim() || "";
+        const isVegetarian =
+          document.querySelector("input[name='isVegetarian']:checked")
+            ?.value || 0;
+        const allergies =
+          document.getElementById("allergies").value.trim() || "";
 
         if (!iti.isValidNumber()) {
           toastr.error("Unesite ispravan broj telefona");
@@ -142,29 +162,41 @@ var BookingService = {
         }
 
         // Basic validation (extra safety)
-        if (!firstName || !lastName || !phoneNumber || !week || !dateOfBirth || !skiLevel) {
+        if (
+          !firstName ||
+          !lastName ||
+          !phoneNumber ||
+          !week ||
+          !dateOfBirth ||
+          !skiLevel
+        ) {
           toastr.warning("Molim Vas popunite sva potrebna polja");
           return;
         }
 
         const data = {
-          user_id:      userId,
-          service_id:   4,
+          user_id: userId,
+          service_id: 4,
           session_type: "Ski_school",
-          first_name:   firstName,
-          last_name:    lastName,
+          first_name: firstName,
+          last_name: lastName,
           phone_number: phoneNumber,
-          week:         week,
-          date_of_birth: dateOfBirth,          // NEW – required, NOT NULL
-          ski_level:     skiLevel,
-          address:       address || null,      // NEW – optional
+          week: week,
+          date_of_birth: dateOfBirth,
+          ski_level: skiLevel,
+          address: address || null,
           is_vegetarian: parseInt(isVegetarian),
-          allergies:     allergies
+          allergies: allergies,
         };
 
-        RestClient.request("bookings/ski-school", "POST", data,
+        RestClient.request(
+          "bookings/ski-school",
+          "POST",
+          data,
           function () {
-            toastr.success(`Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`);
+            toastr.success(
+              `Rezervacija za Ski školu za ${firstName} ${lastName} uspješno dodana!`
+            );
 
             setTimeout(() => {
               window.location.hash = "#_refresh";
@@ -178,44 +210,94 @@ var BookingService = {
         );
       }
 
-
-      // 🧑‍🏫 --- PRIVATE INSTRUCTION BOOKING (unchanged) ---
+      // 🧑‍🏫 --- PRIVATE INSTRUCTION BOOKING (with admin participant data) ---
       if (sessionType === "privateInstruction") {
         const booking = {
           user_id: userId,
-          instructor_id: parseInt(document.getElementById("instructor").value),
+          instructor_id: parseInt(
+            document.getElementById("instructor").value
+          ),
           service_id: parseInt(document.getElementById("service").value),
           session_type: "Private_instruction",
           date: document.getElementById("sessionDate").value,
           start_time: document.getElementById("startTime").value,
-          num_of_hours: parseInt(document.getElementById("hours").value),
-          status: "confirmed"
+          num_of_hours: parseInt(
+            document.getElementById("hours").value
+          ),
+          status: "confirmed",
         };
 
-        RestClient.request("bookings", "POST", booking,
+        // ⭐ If ADMIN is creating this booking over the phone,
+        //    attach participant info from extra fields
+        if (isAdminUser()) {
+          const participantFirstName =
+            document.getElementById("participantFirstName")?.value.trim() ||
+            "";
+          const participantLastName =
+            document.getElementById("participantLastName")?.value.trim() ||
+            "";
+
+          const participantPhoneInput =
+            document.getElementById("participantPhone");
+          let participantPhone =
+            participantPhoneInput?.value.trim() || "";
+
+          const itiParticipant =
+            participantPhoneInput &&
+            intlTelInputGlobals.getInstance(participantPhoneInput);
+
+          if (itiParticipant) {
+            if (!itiParticipant.isValidNumber()) {
+              toastr.error("Unesite ispravan broj telefona učesnika");
+              return;
+            }
+            participantPhone = itiParticipant.getNumber(); // +3876xxxxxx
+          }
+
+          booking.participant_first_name =
+            participantFirstName || null;
+          booking.participant_last_name =
+            participantLastName || null;
+          booking.participant_phone = participantPhone || null;
+        }
+
+        RestClient.request(
+          "bookings",
+          "POST",
+          booking,
           function () {
-            toastr.success("Rezervacija za privatnu instrukciju uspješno izvršena!");
+            toastr.success(
+              "Rezervacija za privatnu instrukciju uspješno izvršena!"
+            );
 
             setTimeout(() => {
               window.location.hash = "#_refresh";
               window.location.hash = "#booking";
             }, 10);
-
           },
           function (error) {
-            console.error("Rezervacija za privatnu instrukciju neuspješna", error);
-            toastr.error("Rezervacija za privatnu instrukciju neuspješna");
+            console.error(
+              "Rezervacija za privatnu instrukciju neuspješna",
+              error
+            );
+            toastr.error(
+              "Rezervacija za privatnu instrukciju neuspješna"
+            );
           }
         );
       }
     };
 
     // Keep your event listeners for updating available times
-    document.getElementById("instructor").addEventListener("change", updateAvailableTimes);
-    document.getElementById("sessionDate").addEventListener("change", updateAvailableTimes);
-
-  }
+    document
+      .getElementById("instructor")
+      .addEventListener("change", updateAvailableTimes);
+    document
+      .getElementById("sessionDate")
+      .addEventListener("change", updateAvailableTimes);
+  },
 };
+
 
 
 function updateAvailableTimes() {
