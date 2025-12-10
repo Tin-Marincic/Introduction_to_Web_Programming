@@ -7,26 +7,34 @@ class BookingDao extends BaseDao {
     }
 
     public function getDetailedUpcomingInstructorBookings() {
-        $stmt = $this->connection->prepare(
-        "SELECT 
-            CONCAT(u.name, ' ', u.surname) AS instructor_full_name,
-            b.id AS booking_id,
-            c.name AS client_name,
-            c.phone AS client_phone,
-            b.date,
-            b.start_time,
-            b.session_type,
-            b.num_of_hours,
-            b.status
-        FROM bookings b
-        JOIN users u ON b.instructor_id = u.id
-        JOIN users c ON b.user_id = c.id
-        WHERE b.date >= CURDATE()
-        ORDER BY u.surname, u.name, b.date, b.start_time"
-        );
+        $stmt = $this->connection->prepare("
+            SELECT 
+                CONCAT(u.name, ' ', u.surname) AS instructor_full_name,
+                b.id AS booking_id,
+
+                -- Prefer participant_* when present, otherwise fall back to user (c)
+                COALESCE(
+                    CONCAT(b.participant_first_name, ' ', b.participant_last_name),
+                    c.name
+                ) AS client_name,
+                COALESCE(b.participant_phone, c.phone) AS client_phone,
+
+                b.date,
+                b.start_time,
+                b.session_type,
+                b.num_of_hours,
+                b.status
+            FROM bookings b
+            JOIN users u ON b.instructor_id = u.id   -- instructor
+            JOIN users c ON b.user_id = c.id         -- booking creator (user/admin)
+            WHERE b.date >= CURDATE()
+            ORDER BY u.surname, u.name, b.date, b.start_time
+        ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
     }
+
+
 
     // Get available spots for ski school bookings for each week in January FOR ADMIN
     public function getSkiSchoolAvailability() {
@@ -104,11 +112,19 @@ class BookingDao extends BaseDao {
 
     //get all upcoming bookings for instructor panel
     public function getDetailedUpcomingBookings($instructorId) {
-        $stmt = $this->connection->prepare(
-            "SELECT 
+        $stmt = $this->connection->prepare("
+            SELECT 
                 b.id AS booking_id,
-                c.name AS client_name, 
-                c.phone, 
+
+                -- Prefer participant_* if admin entered them, else user info
+                COALESCE(
+                    CONCAT(b.participant_first_name, ' ', b.participant_last_name),
+                    c.name
+                ) AS client_name,
+                
+            
+            COALESCE(b.participant_phone, c.phone) AS phone,
+
                 b.date, 
                 b.start_time, 
                 b.session_type, 
@@ -118,13 +134,14 @@ class BookingDao extends BaseDao {
             JOIN users c ON b.user_id = c.id
             WHERE b.instructor_id = :instructor_id
             AND b.date >= CURDATE()
-            ORDER BY b.date, b.start_time"
-        );
+            ORDER BY b.date, b.start_time
+        ");
 
         $stmt->bindParam(':instructor_id', $instructorId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
 
     //to check if there is already a booking for that date time and for that instructor
@@ -382,20 +399,22 @@ public function blockDateRange($startDate, $endDate) {
         }
     }
 }
-
-public function getBookingById($id) {
+public function getBookingById($id) { 
     $stmt = $this->connection->prepare("
         SELECT 
             b.*,
 
-            -- Client information
-            u1.name AS client_first_name,
-            u1.surname AS client_last_name,
-            CONCAT(u1.name, ' ', u1.surname) AS client_name,
+            -- Client information (prefer participant_* if present, otherwise user info)
+            COALESCE(b.participant_first_name, u1.name)   AS client_first_name,
+            COALESCE(b.participant_last_name,  u1.surname) AS client_last_name,
+            COALESCE(
+                CONCAT(b.participant_first_name, ' ', b.participant_last_name),
+                CONCAT(u1.name, ' ', u1.surname)
+            ) AS client_name,
             u1.username AS client_email,
 
             -- Instructor information
-            u2.name AS instructor_first_name,
+            u2.name    AS instructor_first_name,
             u2.surname AS instructor_last_name,
             CONCAT(u2.name, ' ', u2.surname) AS instructor_name,
             u2.username AS instructor_email
@@ -411,6 +430,7 @@ public function getBookingById($id) {
     $stmt->execute([':id' => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
 
 }
 ?>

@@ -8,6 +8,10 @@
     }
 })();
 
+function isAdminUser() {
+  const role = localStorage.getItem('userRole');
+  return role === 'admin';   // 🔁 if your backend sends "ADMIN" use role === 'ADMIN'
+}
 
 
 $(document).ready(function() {
@@ -322,6 +326,29 @@ app.route({
     disableHiddenFields();
     toggleBookingOptions();
 
+    // 🔹 ADMIN-ONLY PARTICIPANT FIELDS (inside privateInstructionOptions)
+    const adminParticipantFields = document.getElementById("adminParticipantFields");
+    const userIsAdmin = isAdminUser();
+
+    function refreshAdminFieldsVisibility() {
+      if (!adminParticipantFields) return;
+
+      const isPrivateInstruction = $("#sessionType").val() === "privateInstruction";
+
+      // show only if: user is admin AND private instruction is selected
+      adminParticipantFields.style.display =
+        (userIsAdmin && isPrivateInstruction) ? "block" : "none";
+    }
+
+    // initial visibility
+    refreshAdminFieldsVisibility();
+
+    // when session type changes, re-check
+    $("#sessionType").on("change", function () {
+      toggleBookingOptions();      // your existing function
+      refreshAdminFieldsVisibility();
+    });
+
     // ⭐ Limit dateOfBirth in the date picker (HTML min/max)
     const dobInput = document.getElementById("dateOfBirth");
     if (dobInput) {
@@ -344,7 +371,6 @@ app.route({
 
     // ⭐ Custom validator for date of birth
     $.validator.addMethod("validBirthDate", function (value, element) {
-      // If not ski school → ignore
       if ($("#sessionType").val() !== "skiSchool") return true;
       if (!value) return false;
 
@@ -355,19 +381,17 @@ app.route({
       const seventyYearsAgo = new Date();
       seventyYearsAgo.setFullYear(today.getFullYear() - 70);
 
-      // normalize to midnight to avoid timezone weirdness
       dob.setHours(0,0,0,0);
       today.setHours(0,0,0,0);
       seventyYearsAgo.setHours(0,0,0,0);
 
-      // cannot be in the future, cannot be older than 70
       if (dob > today) return false;
       if (dob < seventyYearsAgo) return false;
 
       return true;
     }, "Datum rođenja ne može biti u budućnosti niti stariji od 70 godina.");
 
-    // 🔥 Now the form exists, so validator attaches correctly
+    // 🔥 Validator
     $("#bookingForm").validate({
       ignore: ":hidden",
 
@@ -388,7 +412,7 @@ app.route({
         week: {
           required: function () { return $("#sessionType").val() === "skiSchool"; }
         },
-        dateOfBirth: {                        // NEW
+        dateOfBirth: {
           required: function () { return $("#sessionType").val() === "skiSchool"; },
           validBirthDate: true
         },
@@ -414,6 +438,24 @@ app.route({
         },
         hours: {
           required: function () { return $("#sessionType").val() === "privateInstruction"; }
+        },
+
+        // ⭐ NEW: admin-only participant fields
+        participantFirstName: {
+          required: function () {
+            return $("#sessionType").val() === "privateInstruction" && isAdminUser();
+          }
+        },
+        participantLastName: {
+          required: function () {
+            return $("#sessionType").val() === "privateInstruction" && isAdminUser();
+          }
+        },
+        participantPhone: {
+          required: function () {
+            return $("#sessionType").val() === "privateInstruction" && isAdminUser();
+          },
+          phoneValid: true
         }
       },
 
@@ -435,23 +477,22 @@ app.route({
         sessionDate: "Izaberite datum",
         instructor: "Izaberite instruktora",
         startTime: "Izaberite početno vrijeme",
-        hours: "Izaberite broj sati"
+        hours: "Izaberite broj sati",
+
+        participantFirstName: "Unesite ime učesnika",
+        participantLastName: "Unesite prezime učesnika",
+        participantPhone: "Unesite broj telefona učesnika"
       },
 
       errorPlacement: function (error, element) {
-        // radio button errors
         if (element.attr("name") === "isVegetarian") {
           error.insertAfter(element.closest(".form-group"));
           return;
         }
-
-        // sessionType special case
         if (element.attr("name") === "sessionType") {
           error.insertAfter(element.closest(".form-group"));
           return;
         }
-
-        // default
         error.insertAfter(element);
       }
     });
