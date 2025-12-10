@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://skiunisport.com/</loc>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <!-- Optional virtual routes (Google MAY ignore because of "#") -->
+  <url>
+    <loc>https://skiunisport.com/#home</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#about</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#services</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#team</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#reviews</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#booking</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#contact</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#sign_in</loc>
+  </url>
+
+  <url>
+    <loc>https://skiunisport.com/#register</loc>
+  </url>
+
+</urlset>
