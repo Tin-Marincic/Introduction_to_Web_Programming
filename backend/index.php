@@ -82,6 +82,7 @@ Flight::route('/*', function () {
         $url === '/cron/daily_private_report.php' ||  
         ($url === '/reviews' && $method === 'GET') ||
         ($url === '/api/services' && $method === 'GET') ||
+        ($url === '/gallery' && $method === 'GET') ||  
         (strpos($url, '/users/instructor') === 0) ||
         (strpos($url, '/uploads/') === 0)          
     ) {
@@ -116,7 +117,8 @@ require_once __DIR__ . '/routes/BookingRoutes.php';
 require_once __DIR__ . '/routes/ReviewsRoutes.php';
 require_once __DIR__ . '/routes/AvailabilityCalendarRoutes.php';
 require_once __DIR__ . '/routes/ServicesRoutes.php';
-
+require_once __DIR__ . '/routes/GalleryRoute.php';
+/*
 // === TEST CONNECTION ===
 Flight::route('GET /test-connection', function () {
     try {
@@ -136,5 +138,5 @@ Flight::route('GET /check-env', function () {
         "DB_PASSWORD" => Config::DB_PASSWORD()
     ]);
 });
-
+*/
 Flight::start();

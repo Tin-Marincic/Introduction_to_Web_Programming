@@ -26,6 +26,136 @@ $(document).ready(function() {
     ? "http://localhost/TinMarincic/Introduction_to_Web_Programming/backend/"
     : "https://unisport-9kjwi.ondigitalocean.app/";
 
+  
+  
+    const GalleryService = {
+    load: function () {
+      const userIsAdmin = isAdminUser();
+
+      // Show/hide upload controls based on admin
+      if (userIsAdmin) {
+        $("#gallery-admin-controls").show();
+      } else {
+        $("#gallery-admin-controls").hide();
+      }
+
+      $.ajax({
+        url: backendBaseURL + "gallery",
+        method: "GET",
+        success: function (items) {
+          const $grid = $("#galleryGrid");
+          if (!$grid.length) return; // home not loaded
+
+          $grid.html("");
+
+          items.forEach(function (item) {
+            let html = "";
+
+            if (item.type === "video") {
+              html = `
+                <div class="col-lg-4 col-md-6 position-relative">
+                  <video class="gallery-media" autoplay muted loop playsinline>
+                    <source src="${item.url}" type="video/mp4">
+                  </video>
+                  ${
+                    userIsAdmin
+                      ? `<button class="btn btn-danger btn-sm delete-media"
+                                data-key="${item.key}"
+                                style="position:absolute;top:10px;right:10px;">
+                            Delete
+                         </button>`
+                      : ""
+                  }
+                </div>
+              `;
+            } else {
+              html = `
+                <div class="col-lg-4 col-md-6 position-relative">
+                  <img src="${item.url}" class="gallery-media" alt="Gallery media">
+                  ${
+                    userIsAdmin
+                      ? `<button class="btn btn-danger btn-sm delete-media"
+                                data-key="${item.key}"
+                                style="position:absolute;top:10px;right:10px;">
+                            Delete
+                         </button>`
+                      : ""
+                  }
+                </div>
+              `;
+            }
+
+            $grid.append(html);
+          });
+        },
+        error: function (err) {
+          console.error("Error loading gallery:", err);
+        }
+      });
+    }
+  };
+
+    // 🗑 DELETE gallery item (delegated handler)
+  $(document)
+    .off("click.galleryDelete")
+    .on("click.galleryDelete", ".delete-media", function () {
+      const key = $(this).data("key");
+      if (!confirm("Delete this media?")) return;
+
+      const token = localStorage.getItem("user_token");
+
+      $.ajax({
+        url: backendBaseURL + "gallery",
+        method: "DELETE",
+        contentType: "application/json",
+        data: JSON.stringify({ key: key }),
+        headers: token ? { Authorization: "Bearer " + token } : {},
+        success: function () {
+          if (window.toastr) toastr.success("Media deleted.");
+          GalleryService.load();
+        },
+        error: function (err) {
+          console.error("Delete error:", err);
+          if (window.toastr) toastr.error("Failed to delete media.");
+        }
+      });
+    });
+
+  // ⬆ UPLOAD gallery media (delegated handler)
+  $(document)
+    .off("submit.galleryUpload")
+    .on("submit.galleryUpload", "#gallery-upload-form", function (e) {
+      e.preventDefault();
+
+      if (!isAdminUser()) {
+        if (window.toastr) toastr.error("Only admins can upload media.");
+        return;
+      }
+
+      const formData = new FormData(this);
+      const token = localStorage.getItem("user_token");
+
+      $.ajax({
+        url: backendBaseURL + "gallery",
+        method: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: token ? { Authorization: "Bearer " + token } : {},
+        success: function () {
+          if (window.toastr) toastr.success("Media uploaded!");
+          $("#gallery-media-input").val("");
+          GalleryService.load();
+        },
+        error: function (err) {
+          console.error("Upload error:", err);
+          if (window.toastr) toastr.error("Failed to upload media.");
+        }
+      });
+    });
+
+
+
       // === Helper: close mobile nav (for small screens) ===
   function closeMobileNav() {
     const $body = $("body");
@@ -70,7 +200,14 @@ function updateBookingView() {
 }
 
 
-  app.route({ view: 'home', load: 'home.html' });
+    app.route({
+    view: 'home',
+    load: 'home.html',
+    onReady: function () {
+      GalleryService.load();
+    }
+  });
+
   app.route({ view: 'about', load: 'about.html' });
   app.route({ view: 'team', load: 'team.html' });
   app.route({
