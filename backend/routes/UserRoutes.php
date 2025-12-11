@@ -98,27 +98,40 @@ Flight::route('POST /instructors', function () {
             "role"     => "instructor"
         ]);
 
+        // ⬇ IMAGE HANDLING (safe)
         if (!empty($_FILES['image']['name'])) {
 
+            // 1) Check PHP upload error
+            if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                Flight::halt(400, 'Image upload failed (PHP error code: ' . $_FILES['image']['error'] . ').');
+            }
+
+            $tmpPath = $_FILES['image']['tmp_name'];
+            if (!$tmpPath || !is_uploaded_file($tmpPath)) {
+                Flight::halt(400, 'No valid uploaded file received.');
+            }
+
+            // 2) Create S3 client (like before)
             $s3 = new S3Client([
                 'version' => 'latest',
                 'region'  => getenv('SPACES_REGION'),
                 'endpoint' => getenv('SPACES_ENDPOINT'),
                 'credentials' => [
-                    'key' => getenv('SPACES_KEY'),
+                    'key'    => getenv('SPACES_KEY'),
                     'secret' => getenv('SPACES_SECRET'),
                 ],
                 'use_path_style_endpoint' => true
             ]);
 
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg';
+            // 3) Generate filename and upload
+            $ext      = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg';
             $filename = "instructors/instructor_{$id}_" . time() . "." . $ext;
 
             $s3->putObject([
-                'Bucket' => getenv('SPACES_BUCKET'),
-                'Key'    => $filename,
-                'Body'   => fopen($_FILES['image']['tmp_name'], 'rb'),
-                'ACL'    => 'public-read',
+                'Bucket'      => getenv('SPACES_BUCKET'),
+                'Key'         => $filename,
+                'Body'        => fopen($tmpPath, 'rb'),
+                'ACL'         => 'public-read',
                 'ContentType' => $_FILES['image']['type']
             ]);
 
