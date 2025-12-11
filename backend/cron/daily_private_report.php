@@ -47,25 +47,29 @@ $sql = "
         b.date,
         b.start_time,
         b.num_of_hours,
-        s.name             AS service_name,
-        cli.name           AS client_name,
-        cli.surname        AS client_surname,
-        cli.phone          AS client_phone,
-        inst.id            AS instructor_id,
-        inst.name          AS instructor_name,
-        inst.surname       AS instructor_surname
+        s.name AS service_name,
+
+        -- Prefer participant_* if filled by admin, otherwise fall back to user info
+        COALESCE(b.participant_first_name, cli.name)    AS client_name,
+        COALESCE(b.participant_last_name,  cli.surname) AS client_surname,
+        COALESCE(b.participant_phone,      cli.phone)   AS client_phone,
+
+        inst.id      AS instructor_id,
+        inst.name    AS instructor_name,
+        inst.surname AS instructor_surname
     FROM bookings b
     JOIN users cli   ON b.user_id = cli.id
     JOIN users inst  ON b.instructor_id = inst.id
     JOIN services s  ON b.service_id = s.id
     WHERE 
-        b.session_type = 'Private_instruction'     -- 
+        b.session_type = 'Private_instruction'
         AND b.date = :today
-        AND cli.username <> :blockerEmail         -- exclude System Blocker
-        AND b.status = 'confirmed'                -- adjust if you use another value
+        AND cli.username <> :blockerEmail
+        AND b.status = 'confirmed'
     ORDER BY 
         inst.name, inst.surname, b.start_time
 ";
+
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
