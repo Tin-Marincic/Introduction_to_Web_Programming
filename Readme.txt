@@ -1,3 +1,3 @@
-# 🎿 UniSport - Ski School/Private instruction Booking Website 
+# 🎿 UniSport - Ski School/Private instruction Booking Website
 
-Live link: https://unisport-frontend-rg53w.ondigitalocean.app/
+Live link: https://skiunisport.com
