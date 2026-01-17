@@ -117,4 +117,26 @@
     });
 </script>
 
+<script>
+    function updateHeroVideo() {
+        const videoSlide = document.querySelector('.hero-video-slide');
+        const indicator = document.querySelector('.carousel-indicators li[data-bs-slide-to="0"]');
+
+        if (window.innerWidth > 768) {
+            if (videoSlide) videoSlide.style.display = 'none';
+            if (indicator) indicator.style.display = 'none';
+        } else {
+            if (videoSlide) videoSlide.style.display = 'block';
+            if (indicator) indicator.style.display = 'block';
+        }
+    }
+
+    // Run once on page load
+    updateHeroVideo();
+
+    // Update if the user resizes the window
+    window.addEventListener('resize', updateHeroVideo);
+</script>
+
+
 </section>
