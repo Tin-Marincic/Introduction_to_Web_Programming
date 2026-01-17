@@ -1137,7 +1137,48 @@ section,
     height: auto;
   }
 }
+/* --------------------------------------------
+   HIDE VIDEO INDICATOR ON DESKTOP
+--------------------------------------------- */
+@media (min-width: 769px) {
+  .carousel-indicators li[data-bs-slide-to="0"] {
+    display: none;
+  }
+}
 
+/* --------------------------------------------
+   HIDE VIDEO SLIDE COMPLETELY ON DESKTOP
+--------------------------------------------- */
+@media (min-width: 769px) {
+  .hero-video-slide {
+    display: none !important;
+  }
+}
+
+
+.hero video.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------------------------
+   HERO VIDEO — MOBILE ONLY (FINAL FIX)
+--------------------------------------------- */
+
+/* Hide video SLIDE by default (desktop & laptops) */
+.hero .hero-video-slide {
+  display: none;
+}
+
+/* Show video slide ONLY on screens <= 768px */
+@media (max-width: 768px) {
+  .hero .hero-video-slide {
+    display: block;
+  }
+}
 
 
 /*--------------------------------------------------------------
