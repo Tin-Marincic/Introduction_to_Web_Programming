@@ -1,49 +1,88 @@
 <section id="hero" class="hero section dark-background">
     <div id="hero-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="assets/img/hero-carousel/pozadina1.jpg" alt="Welcome to Unisport">
+
+            <!-- VIDEO SLIDE (MOBILE ONLY – NOT ACTIVE) -->
+            <div class="carousel-item hero-video-slide">
+                <video class="hero-video" autoplay muted loop playsinline>
+                    <source src="assets/video/homepage.mp4" type="video/mp4" />
+                </video>
+
                 <div class="carousel-container">
                     <h2>Dobrodošli u Unisport</h2>
-                    <p>20 godina skijanja na Bjelašnici! Vaša destinacija za učenje i uživanje na najljepšim stazama u
-                        Bosni i Hercegovini. Doživite Bjelašnicu s strašću i stručnošću!
+                    <p>
+                        20 godina skijanja na Bjelašnici!
+                        Vaša destinacija za učenje i uživanje na
+                        najljepšim stazama u Bosni i Hercegovini.
                     </p>
                     <a href="#booking" class="btn-get-started">Rezervišite termin</a>
                 </div>
             </div>
-            <div class="carousel-item">
-                <img src="assets/img/hero-carousel/pozadina2.jpg" alt="At vero eos et accusamus">
+
+            <!-- IMAGE SLIDE 1 (ACTIVE – DESKTOP DEFAULT) -->
+            <div class="carousel-item active">
+                <img src="assets/img/hero-carousel/pozadina1.jpg" alt="Welcome to Unisport" />
+
                 <div class="carousel-container">
                     <h2>Dobrodošli u Unisport</h2>
-                    <p>20 godina skijanja na Bjelašnici! Vaša destinacija za učenje i uživanje na najljepšim stazama u
-                        Bosni i Hercegovini. Doživite Bjelašnicu s strašću i stručnošću!</p>
+                    <p>
+                        20 godina skijanja na Bjelašnici!
+                        Doživite Bjelašnicu s strašću i stručnošću!
+                    </p>
                     <a href="#booking" class="btn-get-started">Rezervišite termin</a>
                 </div>
             </div>
+
+            <!-- IMAGE SLIDE 2 -->
             <div class="carousel-item">
-                <img src="assets/img/hero-carousel/pozadina3.jpg" alt="Temporibus autem quibusdam">
+                <img src="assets/img/hero-carousel/pozadina2.jpg" alt="Unisport Bjelašnica" />
+
                 <div class="carousel-container">
                     <h2>Dobrodošli u Unisport</h2>
-                    <p>20 godina skijanja na Bjelašnici! Vaša destinacija za učenje i uživanje na najljepšim stazama u
-                        Bosni i Hercegovini. Doživite Bjelašnicu s strašću i stručnošću!</p>
+                    <p>
+                        20 godina skijanja na Bjelašnici!
+                        Doživite Bjelašnicu s strašću i stručnošću!
+                    </p>
                     <a href="#booking" class="btn-get-started">Rezervišite termin</a>
                 </div>
             </div>
+
+            <!-- IMAGE SLIDE 3 -->
+            <div class="carousel-item">
+                <img src="assets/img/hero-carousel/pozadina3.jpg" alt="Ski Experience" />
+
+                <div class="carousel-container">
+                    <h2>Dobrodošli u Unisport</h2>
+                    <p>
+                        20 godina skijanja na Bjelašnici!
+                        Doživite Bjelašnicu s strašću i stručnošću!
+                    </p>
+                    <a href="#booking" class="btn-get-started">Rezervišite termin</a>
+                </div>
+            </div>
+
         </div>
+
+        <!-- CONTROLS -->
         <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+            <span class="carousel-control-prev-icon bi bi-chevron-left"></span>
         </a>
+
         <a class="carousel-control-next" href="#hero-carousel" role="button" data-bs-slide="next">
-            <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+            <span class="carousel-control-next-icon bi bi-chevron-right"></span>
         </a>
+
+        <!-- INDICATORS -->
         <ol class="carousel-indicators">
-            <li data-bs-target="#hero-carousel" data-bs-slide-to="0" class="active"></li>
-            <li data-bs-target="#hero-carousel" data-bs-slide-to="1"></li>
+            <li data-bs-target="#hero-carousel" data-bs-slide-to="0"></li>
+            <li data-bs-target="#hero-carousel" data-bs-slide-to="1" class="active"></li>
             <li data-bs-target="#hero-carousel" data-bs-slide-to="2"></li>
+            <li data-bs-target="#hero-carousel" data-bs-slide-to="3"></li>
         </ol>
+
     </div>
 </section>
-
 
 <!-- Gallery Section -->
 <section id="gallery" class="section bg-light">
