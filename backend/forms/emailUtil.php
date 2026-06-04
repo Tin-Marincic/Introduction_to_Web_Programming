@@ -1,54 +1,91 @@
 <?php
+use Dotenv\Dotenv;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 class EmailUtil {
+    private static bool $envLoaded = false;
 
-    /* ============================================================
-       Helper – configure PHPMailer
-    ============================================================ */
-    private static function setupMailer() {
+    private static function loadEnv(): void {
+        if (self::$envLoaded) {
+            return;
+        }
+
+        Dotenv::createImmutable(__DIR__ . '/..')->safeLoad();
+        self::$envLoaded = true;
+    }
+
+    private static function env(string $key, string $default = ''): string {
+        self::loadEnv();
+
+        $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+
+        if ($value === false || $value === null || trim((string)$value) === '') {
+            return $default;
+        }
+
+        return trim((string)$value);
+    }
+
+    private static function e($value): string {
+        return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private static function setupMailer(): PHPMailer {
         $mail = new PHPMailer(true);
 
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'unisportskolaskijanja@gmail.com';
-        $mail->Password = 'hvom wxfv braf ijzu';   // App Password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+        $username = self::env('MAIL_USERNAME', 'unisportskolaskijanja@gmail.com');
+        $password = self::env('MAIL_PASSWORD');
+        $fromAddress = self::env('MAIL_FROM_ADDRESS', $username);
+        $fromName = self::env('MAIL_FROM_NAME', 'Unisport Ski School');
 
-        $mail->setFrom('unisportskolaskijanja@gmail.com', 'Unisport Ski School');
+        if ($password === '') {
+            throw new RuntimeException('MAIL_PASSWORD is not configured.');
+        }
+
+        $mail->CharSet = 'UTF-8';
+        $mail->isSMTP();
+        $mail->Host = self::env('MAIL_HOST', 'smtp.gmail.com');
+        $mail->SMTPAuth = true;
+        $mail->Username = $username;
+        $mail->Password = $password;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = (int) self::env('MAIL_PORT', '587');
+        $mail->setFrom($fromAddress, $fromName);
 
         return $mail;
     }
 
+    private static function adminEmail(): string {
+        return self::env('MAIL_ADMIN_ADDRESS', self::env('MAIL_FROM_ADDRESS', self::env('MAIL_USERNAME', 'unisportskolaskijanja@gmail.com')));
+    }
 
-    /* ============================================================
-       1) USER receives cancellation email 
-          → (Admin cancelled SINGLE booking OR admin cancelled date range)
-    ============================================================ */
+    private static function frontendUrl(): string {
+        return rtrim(self::env('FRONTEND_URL', 'https://skiunisport.com'), '/');
+    }
+
     public static function sendCancellationEmail($userEmail, $userName, $date) {
         try {
             $mail = self::setupMailer();
             $mail->addAddress($userEmail, $userName);
 
-            $mail->isHTML(true);
-            $mail->Subject = "Vasa rezervacija je otkazana";
+            $safeUserName = self::e($userName);
+            $safeDate = self::e($date);
 
+            $mail->isHTML(true);
+            $mail->Subject = 'Vasa rezervacija je otkazana';
             $mail->Body = "
-                <p>Poštovani/Poštovana <strong>$userName</strong>,</p>
-                <p>Mi se izvinjavamo ali Vaša rezervacija za termin <strong>$date</strong> je otkazana.</p>
+                <p>Poštovani/Poštovana <strong>{$safeUserName}</strong>,</p>
+                <p>Mi se izvinjavamo ali Vaša rezervacija za termin <strong>{$safeDate}</strong> je otkazana.</p>
                 <p>Ukoliko želite, možete izvršiti novu rezervaciju putem našeg sistema.</p>
                 <br>
                 <p><strong>Unisport Škola Skijanja</strong></p>
 
                 <hr>
 
-                <p>Dear <strong>$userName</strong>,</p>
-                <p>We are sorry but your booking for <strong>$date</strong> has been cancelled.</p>
+                <p>Dear <strong>{$safeUserName}</strong>,</p>
+                <p>We are sorry but your booking for <strong>{$safeDate}</strong> has been cancelled.</p>
                 <p>You may book a new session at any time.</p>
                 <br>
                 <p><strong>Unisport Ski School</strong></p>
@@ -56,60 +93,60 @@ class EmailUtil {
 
             $mail->send();
             return true;
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            error_log('CANCELLATION EMAIL FAILED: ' . $e->getMessage());
             return false;
         }
     }
 
-
-    /* ============================================================
-       2) ADMIN receives alert when USER cancels a booking
-          → show date + time, no booking ID
-    ============================================================ */
     public static function sendAdminCancellationAlert($userName, $userEmail, $date, $time) {
         try {
             $mail = self::setupMailer();
-            $mail->addAddress('unisportskolaskijanja@gmail.com', 'Admin');
+            $mail->addAddress(self::adminEmail(), 'Admin');
+
+            $safeUserName = self::e($userName);
+            $safeUserEmail = self::e($userEmail);
+            $safeDate = self::e($date);
+            $safeTime = self::e($time);
 
             $mail->isHTML(true);
-            $mail->Subject = "Korisnik je otkazao rezervaciju";
-
+            $mail->Subject = 'Korisnik je otkazao rezervaciju';
             $mail->Body = "
                 <p><strong>Obavijest:</strong> Korisnik je otkazao rezervaciju.</p>
-                <p><strong>Korisnik:</strong> $userName ($userEmail)</p>
-                <p><strong>Datum:</strong> $date</p>
-                <p><strong>Vrijeme:</strong> $time</p>
+                <p><strong>Korisnik:</strong> {$safeUserName} ({$safeUserEmail})</p>
+                <p><strong>Datum:</strong> {$safeDate}</p>
+                <p><strong>Vrijeme:</strong> {$safeTime}</p>
             ";
 
             $mail->send();
             return true;
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            error_log('ADMIN CANCELLATION ALERT FAILED: ' . $e->getMessage());
             return false;
         }
     }
 
-
-    /* ============================================================
-       3) INSTRUCTOR receives email when USER creates a booking
-    ============================================================ */
     public static function sendInstructorBookingEmail($instructorEmail, $instructorName, $clientName, $date, $time, $hours) {
         try {
             $mail = self::setupMailer();
             $mail->addAddress($instructorEmail, $instructorName);
 
-            $mail->isHTML(true);
-            $mail->Subject = "Nova rezervacija – $clientName";
+            $safeInstructorName = self::e($instructorName);
+            $safeClientName = self::e($clientName);
+            $safeDate = self::e($date);
+            $safeTime = self::e($time);
+            $safeHours = self::e($hours);
 
+            $mail->isHTML(true);
+            $mail->Subject = "Nova rezervacija – {$clientName}";
             $mail->Body = "
-                <p>Poštovani <strong>$instructorName</strong>,</p>
+                <p>Poštovani <strong>{$safeInstructorName}</strong>,</p>
                 <p>Imate novu rezervaciju!</p>
 
-                <p><strong>Korisnik:</strong> $clientName</p>
-                <p><strong>Datum:</strong> $date</p>
-                <p><strong>Početak:</strong> $time</p>
-                <p><strong>Broj sati:</strong> $hours</p>
+                <p><strong>Korisnik:</strong> {$safeClientName}</p>
+                <p><strong>Datum:</strong> {$safeDate}</p>
+                <p><strong>Početak:</strong> {$safeTime}</p>
+                <p><strong>Broj sati:</strong> {$safeHours}</p>
 
                 <br>
                 <p><strong>Unisport Škola Skijanja</strong></p>
@@ -117,31 +154,30 @@ class EmailUtil {
 
             $mail->send();
             return true;
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            error_log('INSTRUCTOR BOOKING EMAIL FAILED: ' . $e->getMessage());
             return false;
         }
     }
 
-
-    /* ============================================================
-       4) INSTRUCTOR receives email when USER cancels a booking
-          → include date + time
-    ============================================================ */
     public static function sendInstructorCancellationEmail($instructorEmail, $instructorName, $clientName, $date, $time) {
         try {
             $mail = self::setupMailer();
             $mail->addAddress($instructorEmail, $instructorName);
 
+            $safeInstructorName = self::e($instructorName);
+            $safeClientName = self::e($clientName);
+            $safeDate = self::e($date);
+            $safeTime = self::e($time);
+
             $mail->isHTML(true);
-            $mail->Subject = "Otkazana rezervacija – $clientName";
-
+            $mail->Subject = "Otkazana rezervacija – {$clientName}";
             $mail->Body = "
-                <p>Poštovani <strong>$instructorName</strong>,</p>
-                <p>Korisnik <strong>$clientName</strong> je otkazao rezervaciju.</p>
+                <p>Poštovani <strong>{$safeInstructorName}</strong>,</p>
+                <p>Korisnik <strong>{$safeClientName}</strong> je otkazao rezervaciju.</p>
 
-                <p><strong>Datum:</strong> $date</p>
-                <p><strong>Vrijeme:</strong> $time</p>
+                <p><strong>Datum:</strong> {$safeDate}</p>
+                <p><strong>Vrijeme:</strong> {$safeTime}</p>
 
                 <br>
                 <p><strong>Unisport Škola Skijanja</strong></p>
@@ -149,49 +185,27 @@ class EmailUtil {
 
             $mail->send();
             return true;
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            error_log('INSTRUCTOR CANCELLATION EMAIL FAILED: ' . $e->getMessage());
             return false;
         }
     }
 
-
     public static function sendPasswordResetEmail($email, $name, $token) {
         try {
-            // USE SAME MAILER CONFIG AS OTHER EMAILS
             $mail = self::setupMailer();
             $mail->addAddress($email, $name);
 
-            // AUTO-SELECT FRONTEND URL
-            $host = $_SERVER['HTTP_HOST'] ?? '';
-
-            if (strpos($host, 'localhost') !== false) {
-                // Local development backend → local frontend
-                $frontendURL = 'http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend';
-
-            } elseif (
-                strpos($host, 'unisport-9kjwi.ondigitalocean.app') !== false ||  // backend on DO
-                strpos($host, 'skiunisport.com') !== false ||                    // in case backend ever runs here
-                strpos($host, 'www.skiunisport.com') !== false
-            ) {
-                // Production backend → main live frontend
-                $frontendURL = 'https://skiunisport.com';
-
-            } else {
-                // Fallback (if you ever use some other host)
-                $frontendURL = 'https://skiunisport.com';
-            }
-
-            // Construct reset link
-            $resetLink = $frontendURL . '/#reset_password/token=' . $token;
+            $resetLink = self::frontendUrl() . '/#reset_password/token=' . $token;
+            $safeName = self::e($name);
+            $safeResetLink = self::e($resetLink);
 
             $mail->isHTML(true);
             $mail->Subject = 'Resetovanje lozinke - Unisport';
-
             $mail->Body = "
-                <p>Poštovani/Poštovana <strong>{$name}</strong>,</p>
+                <p>Poštovani/Poštovana <strong>{$safeName}</strong>,</p>
                 <p>Kliknite na link da resetujete lozinku:</p>
-                <p><a href='{$resetLink}'>{$resetLink}</a></p>
+                <p><a href='{$safeResetLink}'>{$safeResetLink}</a></p>
                 <p>Link ističe za 1 sat.</p>
                 <br>
                 <p>Unisport Ski School</p>
@@ -199,8 +213,7 @@ class EmailUtil {
 
             $mail->send();
             return true;
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             error_log('RESET PASSWORD EMAIL FAILED: ' . $e->getMessage());
             return false;
         }
@@ -211,72 +224,49 @@ class EmailUtil {
             $mail = self::setupMailer();
             $mail->addAddress($email, $name);
 
-            $host = $_SERVER['HTTP_HOST'] ?? '';
-
-            if (strpos($host, 'localhost') !== false) {
-                $frontendURL = 'http://localhost/TinMarincic/Introduction_to_Web_Programming/frontend';
-
-            } elseif (
-                strpos($host, 'unisport-9kjwi.ondigitalocean.app') !== false ||
-                strpos($host, 'skiunisport.com') !== false ||
-                strpos($host, 'www.skiunisport.com') !== false
-            ) {
-                $frontendURL = 'https://skiunisport.com';
-
-            } else {
-                $frontendURL = 'https://skiunisport.com';
-            }
-
-            $verifyLink = $frontendURL . '/#verify_email/token=' . $token;
+            $verifyLink = self::frontendUrl() . '/#verify_email/token=' . $token;
+            $safeName = self::e($name);
+            $safeVerifyLink = self::e($verifyLink);
 
             $mail->isHTML(true);
             $mail->Subject = 'Potvrdite vasu email adresu / Verify your email address';
-
             $mail->Body = "
-                <!-- Bosnian / Serbian -->
-                <p>Poštovani/Poštovana <strong>{$name}</strong>,</p>
+                <p>Poštovani/Poštovana <strong>{$safeName}</strong>,</p>
                 <p>Molimo vas da kliknete na link kako biste verifikovali svoju email adresu:</p>
-                <p><a href='{$verifyLink}'>{$verifyLink}</a></p>
+                <p><a href='{$safeVerifyLink}'>{$safeVerifyLink}</a></p>
                 <p>Hvala što koristite Unisport.</p>
 
                 <hr>
 
-                <!-- English -->
-                <p>Dear <strong>{$name}</strong>,</p>
+                <p>Dear <strong>{$safeName}</strong>,</p>
                 <p>Please click the link below to verify your email address:</p>
-                <p><a href='{$verifyLink}'>{$verifyLink}</a></p>
+                <p><a href='{$safeVerifyLink}'>{$safeVerifyLink}</a></p>
                 <p>Thank you for using Unisport.</p>
             ";
 
             return $mail->send();
-
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             error_log('EMAIL VERIFICATION FAILED: ' . $e->getMessage());
             return false;
         }
     }
 
-
-        // 5) Daily admin report for private instructions
     public static function sendDailyPrivateLessonsReport(string $htmlBody, string $dateLabel) {
         try {
             $mail = self::setupMailer();
-            $mail->addAddress('unisportskolaskijanja@gmail.com', 'Unisport Admin');
+            $mail->addAddress(self::adminEmail(), 'Unisport Admin');
+
+            $safeDateLabel = self::e($dateLabel);
 
             $mail->isHTML(true);
-            $mail->Subject = "Dnevni izvještaj privatnih časova – {$dateLabel}";
-            $mail->Body    = $htmlBody;
+            $mail->Subject = "Dnevni izvještaj privatnih časova – {$safeDateLabel}";
+            $mail->Body = $htmlBody;
 
             $mail->send();
             return true;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             error_log('DAILY REPORT EMAIL FAILED: ' . $e->getMessage());
             return false;
         }
     }
-
-
-
-
-
 }
