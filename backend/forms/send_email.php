@@ -69,14 +69,14 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'skolaskijanjaunisport@gmail.com'; 
-    $mail->Password = 'nxeq xpsm qphx wavt';        
+    $mail->Username = 'unisportskolaskijanja@gmail.com'; 
+    $mail->Password = 'hvom wxfv braf ijzu';        
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
     // Email headers
-    $mail->setFrom('skolaskijanjaunisport@gmail.com', 'Unisport Contact Form');
-    $mail->addAddress('skolaskijanjaunisport@gmail.com'); 
+    $mail->setFrom('unisportskolaskijanja@gmail.com', 'Unisport Contact Form');
+    $mail->addAddress('unisportskolaskijanja@gmail.com'); 
     $mail->addReplyTo($email, $name); 
 
     // Email content
