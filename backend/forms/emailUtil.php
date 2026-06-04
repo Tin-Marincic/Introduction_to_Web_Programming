@@ -15,12 +15,12 @@ class EmailUtil {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'skolaskijanjaunisport@gmail.com';
-        $mail->Password = 'nxeq xpsm qphx wavt';   // App Password
+        $mail->Username = 'unisportskolaskijanja@gmail.com';
+        $mail->Password = 'hvom wxfv braf ijzu';   // App Password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
-        $mail->setFrom('skolaskijanjaunisport@gmail.com', 'Unisport Ski School');
+        $mail->setFrom('unisportskolaskijanja@gmail.com', 'Unisport Ski School');
 
         return $mail;
     }
@@ -70,7 +70,7 @@ class EmailUtil {
     public static function sendAdminCancellationAlert($userName, $userEmail, $date, $time) {
         try {
             $mail = self::setupMailer();
-            $mail->addAddress('skolaskijanjaunisport@gmail.com', 'Admin');
+            $mail->addAddress('unisportskolaskijanja@gmail.com', 'Admin');
 
             $mail->isHTML(true);
             $mail->Subject = "Korisnik je otkazao rezervaciju";
@@ -261,7 +261,7 @@ class EmailUtil {
     public static function sendDailyPrivateLessonsReport(string $htmlBody, string $dateLabel) {
         try {
             $mail = self::setupMailer();
-            $mail->addAddress('skolaskijanjaunisport@gmail.com', 'Unisport Admin');
+            $mail->addAddress('unisportskolaskijanja@gmail.com', 'Unisport Admin');
 
             $mail->isHTML(true);
             $mail->Subject = "Dnevni izvještaj privatnih časova – {$dateLabel}";
